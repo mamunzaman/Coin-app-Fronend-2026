@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Check, Upload } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
-import { COUNTRIES, allYears } from "@/data/coinData";
+import { COUNTRIES, allYears } from "@/services/coinArchiveService";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import SectionId from "./SectionId";

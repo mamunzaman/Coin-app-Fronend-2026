@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
-import { RECENT_COINS } from "@/data/coinData";
+import { RECENT_COINS } from "@/services/coinArchiveService";
 import SectionId from "./SectionId";
 
 const DESIGNERS = ["J. Yzerman", "B. Broschat", "M. Cassol", "L. Gárate", "T. Berger", "A. Janssens"];

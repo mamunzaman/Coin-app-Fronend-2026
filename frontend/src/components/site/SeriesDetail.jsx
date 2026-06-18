@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
-import { findSeries, coinsBySeries } from "@/data/coinData";
+import { findSeries, coinsBySeries } from "@/services/coinArchiveService";
 import { SERIES_DETAIL } from "@/constants/testIds/home";
 import Navbar from "./Navbar";
 import Footer from "./Footer";

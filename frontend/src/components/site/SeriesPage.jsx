@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
-import { SERIES_LIST, coinsBySeries } from "@/data/coinData";
+import { SERIES_LIST, coinsBySeries } from "@/services/coinArchiveService";
 import { SERIES_PAGE } from "@/constants/testIds/home";
 import Navbar from "./Navbar";
 import Footer from "./Footer";

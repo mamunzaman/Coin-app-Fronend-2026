@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
-import { findCountry } from "@/data/coinData";
+import { findCountry } from "@/services/coinArchiveService";
 import { COINS_PAGE } from "@/constants/testIds/home";
 
 /**

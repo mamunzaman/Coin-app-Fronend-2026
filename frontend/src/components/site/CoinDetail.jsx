@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowUpRight, Pencil } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
-import { findCoinBySlug, findCountry, findSeries, relatedCoins, COINS } from "@/data/coinData";
+import { findCoinBySlug, findCountry, findSeries, relatedCoins, COINS } from "@/services/coinArchiveService";
 import { COIN_DETAIL } from "@/constants/testIds/home";
 import Navbar from "./Navbar";
 import Footer from "./Footer";

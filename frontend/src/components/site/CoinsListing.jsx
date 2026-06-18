@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { Search, X } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
-import { COINS, COUNTRIES, MINTS, SERIES_LIST, allYears } from "@/data/coinData";
+import { COINS, COUNTRIES, MINTS, SERIES_LIST, allYears } from "@/services/coinArchiveService";
 import { COINS_PAGE } from "@/constants/testIds/home";
 import Navbar from "./Navbar";
 import Footer from "./Footer";

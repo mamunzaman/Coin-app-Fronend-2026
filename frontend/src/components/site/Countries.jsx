@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
-import { COUNTRIES } from "@/data/coinData";
+import { COUNTRIES } from "@/services/coinArchiveService";
 import SectionId from "./SectionId";
 
 const Card = ({ c, lang, t, feature, idx }) => (

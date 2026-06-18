@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
-import { COUNTRIES, MINTS, coinsByCountry, findCountry } from "@/data/coinData";
+import { COUNTRIES, MINTS, coinsByCountry, findCountry } from "@/services/coinArchiveService";
 import { COUNTRY_DETAIL } from "@/constants/testIds/home";
 import Navbar from "./Navbar";
 import Footer from "./Footer";

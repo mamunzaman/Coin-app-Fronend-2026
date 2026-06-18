@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
-import { TIMELINE } from "@/data/coinData";
+import { TIMELINE } from "@/services/coinArchiveService";
 import SectionId from "./SectionId";
 
 export const Timeline = () => {

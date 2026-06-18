@@ -1,7 +1,7 @@
 import React from "react";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
-import { MINTS } from "@/data/coinData";
+import { MINTS } from "@/services/coinArchiveService";
 import SectionId from "./SectionId";
 
 export const Mints = () => {

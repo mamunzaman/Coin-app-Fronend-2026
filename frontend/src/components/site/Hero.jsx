@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, MapPin } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
-import { HERO_COIN } from "@/data/coinData";
+import { HERO_COIN } from "@/services/coinArchiveService";
 
 export const Hero = () => {
   const { t } = useLang();

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Search as SearchIcon, X } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
-import { searchCoins } from "@/data/coinData";
+import { searchCoins } from "@/services/coinArchiveService";
 import { SEARCH } from "@/constants/testIds/home";
 
 export const SearchOverlay = ({ open, onClose }) => {

@@ -1,6 +1,6 @@
 import React from "react";
 import { useLang } from "@/i18n/LanguageContext";
-import { MINTS } from "@/data/coinData";
+import { MINTS } from "@/services/coinArchiveService";
 import { MINT_MARKS_PAGE } from "@/constants/testIds/home";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
