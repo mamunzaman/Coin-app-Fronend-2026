@@ -128,7 +128,7 @@ export const Navbar = () => {
           <button className="ca-btn ca-btn--ghost ca-btn--sm" onClick={toggle}>
             {lang === "en" ? "Deutsch" : "English"}
           </button>
-          <button className="ca-btn ca-btn--primary ca-btn--sm flex-1" onClick={() => { setMenuOpen(false); navigate("/submit"); }}>
+          <button data-testid="nav-mobile-cta-submit" className="ca-btn ca-btn--primary ca-btn--sm flex-1" onClick={() => { setMenuOpen(false); navigate("/submit"); }}>
             {t.nav.cta}
           </button>
         </div>
