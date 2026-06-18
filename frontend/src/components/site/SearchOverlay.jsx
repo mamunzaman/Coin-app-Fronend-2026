@@ -1,18 +1,26 @@
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Search as SearchIcon, X } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
-import { searchCoins } from "@/services/coinArchiveService";
+import { searchArchive } from "@/services/coinArchiveService";
 import { SEARCH } from "@/constants/testIds/home";
+
+const DEBOUNCE_MS = 300;
 
 export const SearchOverlay = ({ open, onClose }) => {
   const { t, lang } = useLang();
   const [q, setQ] = useState("");
+  const [debouncedQ, setDebouncedQ] = useState("");
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
   const inputRef = useRef(null);
 
   useEffect(() => {
     if (open) {
       setQ("");
+      setDebouncedQ("");
+      setResults([]);
+      setLoading(false);
       setTimeout(() => inputRef.current?.focus(), 60);
       document.body.style.overflow = "hidden";
     } else {
@@ -28,9 +36,36 @@ export const SearchOverlay = ({ open, onClose }) => {
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  const results = useMemo(() => searchCoins(q), [q]);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQ(q), DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [q]);
+
+  useEffect(() => {
+    const trimmed = debouncedQ.trim();
+    if (!trimmed) {
+      setResults([]);
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setLoading(true);
+
+    searchArchive(trimmed).then((data) => {
+      if (!cancelled) {
+        setResults(data);
+        setLoading(false);
+      }
+    });
+
+    return () => { cancelled = true; };
+  }, [debouncedQ]);
 
   if (!open) return null;
+
+  const trimmedQ = q.trim();
+  const loadingLabel = lang === "de" ? "Suche…" : "Searching…";
 
   return (
     <div data-testid={SEARCH.overlay} className="ca-search-overlay" role="dialog" aria-modal="true">
@@ -63,11 +98,15 @@ export const SearchOverlay = ({ open, onClose }) => {
         </div>
 
         <div className="ca-search-overlay__meta">
-          {q.trim() ? `${results.length} ${t.search.results}` : t.search.hintKey}
+          {trimmedQ
+            ? loading
+              ? loadingLabel
+              : `${results.length} ${t.search.results}`
+            : t.search.hintKey}
         </div>
 
-        <div className="ca-search-overlay__results">
-          {q.trim() && results.length === 0 && (
+        <div className="ca-search-overlay__results" aria-busy={loading}>
+          {trimmedQ && !loading && results.length === 0 && (
             <div data-testid={SEARCH.empty} className="ca-search-overlay__empty">
               {t.search.empty}
             </div>

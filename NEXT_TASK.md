@@ -4,6 +4,6 @@
 Connect coins listing to WordPress API via service layer — keep mock fallback, no UI changes.
 
 ## Verify Next
-- Homepage stats still load from API with fallback
-- Coins listing unchanged until wired
+- Search overlay loads from API with debounce + fallback
+- Homepage stats still work
 - `npm run build` passes

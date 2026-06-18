@@ -17,9 +17,12 @@ export {
   searchCoins,
 } from "@/data/coinData";
 
+import { searchCoins } from "@/data/coinData";
 import { wpFetch } from "./wpClient";
+import { normalizeSearchResult } from "./normalizers/normalizeCoin";
 
 const STATS_PATH = "/wp-json/coinarchive/v1/stats";
+const SEARCH_PATH = "/wp-json/coinarchive/v1/search";
 const FIRST_ISSUE_YEAR = 2004;
 
 export const MOCK_STATS = {
@@ -55,5 +58,26 @@ export async function getStats() {
     return normalizeStats(raw);
   } catch {
     return { ...MOCK_STATS };
+  }
+}
+
+export async function searchArchive(query, options = {}) {
+  const q = (query || "").trim();
+  if (!q) return [];
+
+  try {
+    const params = new URLSearchParams();
+    params.set("q", q);
+    params.set("per_page", String(options.per_page ?? 12));
+    if (options.country) params.set("country", options.country);
+    if (options.year) params.set("year", String(options.year));
+    if (options.series) params.set("series", options.series);
+    if (options.page) params.set("page", String(options.page));
+
+    const raw = await wpFetch(`${SEARCH_PATH}?${params}`);
+    const items = Array.isArray(raw?.results) ? raw.results : [];
+    return items.map(normalizeSearchResult);
+  } catch {
+    return searchCoins(q);
   }
 }
