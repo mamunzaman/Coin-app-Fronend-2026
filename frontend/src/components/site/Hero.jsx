@@ -8,21 +8,39 @@ export const Hero = () => {
   const { t } = useLang();
   return (
     <section id="top" data-testid={HOME.heroSection} className="ca-hero">
-      <div className="ca-container w-full">
+      {/* Archive spine (rotated) */}
+      <div className="ca-hero__spine">
+        <span>001 / Archive</span>
+        <span className="rule" />
+        <span>Est. 2024</span>
+        <span className="rule" />
+        <span className="inline-flex items-center gap-2"><span className="dot" /> 651 Live</span>
+      </div>
+
+      <div className="ca-container w-full" style={{ position: "relative", zIndex: 2 }}>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Coin — mobile first (above text) */}
+          {/* Coin */}
           <div className="order-1 lg:order-2 lg:col-span-6 ca-hero__coin-wrap relative">
             <div className="ca-hero__halo" aria-hidden="true" />
             <div className="ca-hero__coin" data-testid={HOME.heroCoin}>
               <img src={HERO_COIN} alt="2 Euro commemorative coin — Germany 2019, 30 Years Fall of the Berlin Wall" />
             </div>
+            <div className="ca-hero__caption">
+              <span>Plate I.</span>
+              <span className="sep" />
+              <span><strong>DE · 2019</strong></span>
+              <span className="sep" />
+              <span>Mint A · Berlin</span>
+            </div>
           </div>
 
           {/* Text */}
           <div className="order-2 lg:order-1 lg:col-span-6">
-            <div className="ca-reveal flex items-center gap-3 mb-7">
-              <span style={{ display: "inline-block", width: 28, height: 1, background: "var(--ca-gold)" }} />
-              <span className="ca-eyebrow">{t.hero.eyebrow}</span>
+            <div className="ca-reveal mb-7">
+              <span className="ca-hero__ticker">
+                <span className="dot" />
+                {t.hero.eyebrow}
+              </span>
             </div>
 
             <h1 data-testid={HOME.heroTitle} className="ca-hero-title ca-reveal ca-reveal--delay-1">
@@ -40,20 +58,19 @@ export const Hero = () => {
             <div className="ca-reveal ca-reveal--delay-3 mt-10 flex flex-wrap gap-4">
               <button data-testid={HOME.heroExplore} className="ca-btn ca-btn--primary">
                 {t.hero.ctaPrimary}
-                <ArrowRight size={16} />
+                <ArrowRight size={14} />
               </button>
               <button data-testid={HOME.heroBrowse} className="ca-btn ca-btn--secondary">
-                <MapPin size={15} />
+                <MapPin size={14} />
                 {t.hero.ctaSecondary}
               </button>
             </div>
 
-            {/* fine archive line */}
-            <div className="ca-reveal ca-reveal--delay-4 mt-14 flex items-center gap-6 ca-muted" style={{ fontSize: 12, letterSpacing: "0.2em", textTransform: "uppercase" }}>
+            <div className="ca-reveal ca-reveal--delay-4 mt-14 flex items-center gap-6 ca-mono" style={{ fontSize: 10.5 }}>
               <span>2004 — {new Date().getFullYear()}</span>
-              <span style={{ width: 30, height: 1, background: "var(--ca-border)" }} />
+              <span style={{ width: 22, height: 1, background: "var(--ca-border)" }} />
               <span>650+ Coins</span>
-              <span style={{ width: 30, height: 1, background: "var(--ca-border)" }} />
+              <span style={{ width: 22, height: 1, background: "var(--ca-border)" }} />
               <span>20+ States</span>
             </div>
           </div>

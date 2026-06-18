@@ -1,0 +1,30 @@
+{
+  "summary": "Comprehensive frontend testing of CoinArchive premium UX-redesigned homepage (iteration 2). All 10 sections render in correct order, all 9 nav testids present and clickable, hero coin image loads (naturalWidth=900, wrapped in div), language toggle EN→DE works ('Submit Coin' → 'Münze einreichen') and persists across reload via localStorage 'ca_lang'. New design elements verified: Manifesto present; FeaturedStory ca-data-list contains Designer/Mintage/Diameter/Weight/Composition rows; all 6 country cards (DE/FR/IT/ES/AT/BE) render monogram letters (no photos) with Germany as feature card (806x649 vs 389x386 for others); 5 mint marks A/D/F/G/J in coin-style circles; stats counters 650+/20+/20+ with meta sublines (SINCE 2004, ACROSS THE EUROZONE, FIRST ISSUE MAR 2004); 6 recent rectangular cards with first two showing 'New' badge, designer attribution lines present; Contribute split layout shows 247 contributors / +12 this week / 651 coins catalogued with avatar stack and View contributors button; Footer has newsletter email input + submit, EN/DE language switcher inside Lang column, decorative mint strip (A D F G J), and 'Curated in Berlin · Made in Europe' line. Mobile 390x844: nav-mobile-toggle present, opens overlay menu, no horizontal overflow (scrollWidth=innerWidth=390), hero coin stacks above title. All 9 images have alt text, no broken images, no 404 network requests, no console errors. Timeline year click sets active state (aria-current=true, ca-timeline__year--active class) and updates the featured panel (Plate number + title change).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Timeline section", "issues": ["Spec listed expected year testids timeline-year-2018 and timeline-year-2021, but the actual rendered years are timeline-year-2019 and timeline-year-2022. All 8 year buttons exist and function correctly (click → active marker + panel update), but year values diverge from the review_request spec. Verify with main agent whether the spec or implementation is correct."]},
+      {"screen": "Recent section (legacy from iteration 1)", "issues": ["Recent-card images still use generic stock photography (gold bars, piggy bank, hands stacking coins, trading-chart imagery) instead of authentic 2-Euro commemorative coin photography. Non-blocking but inconsistent with museum/luxury archive feel."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Confirm timeline year set: implementation renders 2004/2007/2009/2012/2015/2019/2022/2024 — the review_request expected 2018 and 2021 instead of 2019 and 2022. Decide which is canonical and reconcile.",
+    "OPTIONAL (carried from iteration 1): Replace generic stock images in recent-card-* with authentic 2-Euro commemorative coin photographs."
+  ],
+  "critical_code_review_comments": [
+    "data-testid='hero-coin' is applied to a wrapping <div>, not the <img>. Tests checking element.complete / naturalWidth on this testid will fail because it's not an image element. The child <img> loads correctly (naturalWidth=900). Consider either moving the testid to the <img> or documenting this pattern for testers.",
+    "Footer mobile menu overlay opens correctly but uses its own DOM elements (not the nav-coins/nav-countries testids). The nav-* testids in the navbar are hidden on mobile and only the overlay items render. If automated tests need to target mobile menu links, add separate testids (e.g., mobile-nav-coins) or render the same testid in both views.",
+    "All other components remain solid: env vars respected, data-testid coverage complete on all interactive/key informational elements, no hardcoded URLs, no console errors, no 404s, all images have alt text."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (frontend-only per request)", "frontend": "100% (all 15 review checkpoints passed; 1 spec deviation flagged on timeline years)"},
+  "test_credentials": "N/A — static frontend, no auth",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Iteration 2 UX redesign verified end-to-end. Public URL: https://40ee37a5-408e-4ddd-866c-d9faff7b2e98.preview.emergentagent.com. All testids at /app/frontend/src/constants/testIds/home.js are present. Note: hero-coin testid is on a div wrapper, not the img — query the img inside it for load checks. Timeline implementation uses years 2004/2007/2009/2012/2015/2019/2022/2024 (review_request had typo expecting 2018/2021).",
+  "rca of the issue": "N/A — no functional bugs found. Single spec-vs-impl discrepancy on timeline years (2018→2019, 2021→2022); both versions still produce 8 valid timeline-year-{y} testids that work as expected."
+}

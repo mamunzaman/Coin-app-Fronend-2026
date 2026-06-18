@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
+import SectionId from "./SectionId";
 
 const useCountUp = (end, suffix = "+", duration = 1800) => {
   const [val, setVal] = useState(0);
@@ -10,10 +11,7 @@ const useCountUp = (end, suffix = "+", duration = 1800) => {
   useEffect(() => {
     if (!ref.current || started.current) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) {
-      setVal(end);
-      return;
-    }
+    if (reduce) { setVal(end); return; }
     const obs = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !started.current) {
@@ -46,22 +44,23 @@ export const Stats = () => {
   return (
     <section data-testid={HOME.statsSection} className="ca-section">
       <div className="ca-container">
-        <div className="text-center ca-reveal mb-16">
-          <div className="ca-eyebrow">{t.stats.eyebrow}</div>
-        </div>
+        <SectionId num="VII" label={t.stats.eyebrow} meta="Updated weekly" />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-4 mt-8">
           <div data-testid={HOME.statCoins} className="text-center ca-reveal" ref={r1}>
             <div className="ca-stat__num">{v1}</div>
             <div className="ca-stat__label">{t.stats.coins}</div>
+            <div className="ca-stat__meta"><span className="pulse" />Since 2004</div>
           </div>
           <div data-testid={HOME.statCountries} className="text-center ca-reveal ca-reveal--delay-1" ref={r2}>
             <div className="ca-stat__num">{v2}</div>
             <div className="ca-stat__label">{t.stats.countries}</div>
+            <div className="ca-stat__meta">Across the Eurozone</div>
           </div>
           <div data-testid={HOME.statYears} className="text-center ca-reveal ca-reveal--delay-2" ref={r3}>
             <div className="ca-stat__num">{v3}</div>
             <div className="ca-stat__label">{t.stats.years}</div>
+            <div className="ca-stat__meta">First issue Mar 2004</div>
           </div>
         </div>
       </div>

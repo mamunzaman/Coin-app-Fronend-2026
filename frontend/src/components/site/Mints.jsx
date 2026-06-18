@@ -2,14 +2,16 @@ import React from "react";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
 import { MINTS } from "@/data/coinData";
+import SectionId from "./SectionId";
 
 export const Mints = () => {
   const { t, lang } = useLang();
   return (
     <section data-testid={HOME.mintsSection} className="ca-section">
       <div className="ca-container">
+        <SectionId num="VI" label={t.mints.eyebrow} meta="Federal Republic of Germany" />
+
         <div className="text-center ca-reveal" style={{ maxWidth: 760, margin: "0 auto" }}>
-          <div className="ca-eyebrow mb-5">{t.mints.eyebrow}</div>
           <h2 className="ca-section-title mb-6">{t.mints.title}</h2>
           <p className="ca-soft" style={{ fontSize: 16, lineHeight: 1.7 }}>{t.mints.sub}</p>
         </div>
@@ -20,7 +22,9 @@ export const Mints = () => {
         >
           {MINTS.map((m) => (
             <div key={m.letter} data-testid={HOME.mintMark(m.letter)} className="ca-mint">
-              <div className="ca-mint__letter">{m.letter}</div>
+              <div className="ca-mint__stamp">
+                <span className="ca-mint__letter">{m.letter}</span>
+              </div>
               <div className="ca-mint__city">{m.city}</div>
               <div className="ca-mint__note">{m.note[lang]}</div>
             </div>
