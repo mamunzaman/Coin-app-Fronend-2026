@@ -4,14 +4,15 @@
 - [x] WordPress-ready service layer (`coinArchiveService.js`) re-exporting static mock data
 - [x] All 16 site components import from service layer instead of `coinData.js`
 - [x] Future placeholder files: `wpClient.js`, normalizers (coin, media, country, series)
+- [x] `wpClient.js` — configurable base URL, timeout, JSON handling, `WpClientError`
+- [x] Homepage `Stats` connected via `getStats()` with mock fallback
 
 ## In Progress
-- [ ] Wire service layer to WordPress REST API
+- [ ] Connect remaining data (coins, countries, series, search) to WordPress API
 
 ## Pending Tasks
-- [ ] Implement `wpClient.js` fetch logic
 - [ ] Implement normalizers for WP payloads
-- [ ] Swap mock re-exports for live API calls in `coinArchiveService.js`
+- [ ] Wire coins/countries/series/search through service layer
 
 ## Last Update
-2026-06-19 — Service layer scaffold complete; build passes
+2026-06-19 — Homepage stats live from `/wp-json/coinarchive/v1/stats` with mock fallback

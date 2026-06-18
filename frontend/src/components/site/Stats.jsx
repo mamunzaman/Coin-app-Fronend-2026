@@ -1,12 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
+import { getStats, MOCK_STATS } from "@/services/coinArchiveService";
 import SectionId from "./SectionId";
 
 const useCountUp = (end, suffix = "+", duration = 1800) => {
   const [val, setVal] = useState(0);
   const ref = useRef(null);
   const started = useRef(false);
+
+  useEffect(() => {
+    started.current = false;
+    setVal(0);
+  }, [end]);
 
   useEffect(() => {
     if (!ref.current || started.current) return;
@@ -37,12 +43,30 @@ const useCountUp = (end, suffix = "+", duration = 1800) => {
 
 export const Stats = () => {
   const { t } = useLang();
-  const [r1, v1] = useCountUp(650);
-  const [r2, v2] = useCountUp(20);
-  const [r3, v3] = useCountUp(20);
+  const [stats, setStats] = useState(MOCK_STATS);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    getStats().then((data) => {
+      if (!cancelled) {
+        setStats(data);
+        setLoading(false);
+      }
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  const [r1, v1] = useCountUp(stats.coins);
+  const [r2, v2] = useCountUp(stats.countries);
+  const [r3, v3] = useCountUp(stats.years);
 
   return (
-    <section data-testid={HOME.statsSection} className="ca-section">
+    <section
+      data-testid={HOME.statsSection}
+      className="ca-section"
+      aria-busy={loading}
+    >
       <div className="ca-container">
         <SectionId num="VII" label={t.stats.eyebrow} meta="Updated weekly" />
 

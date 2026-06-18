@@ -1,9 +1,9 @@
 # Next Task
 
 ## Current Goal
-Implement `wpClient.js` with WordPress REST API base URL config (env-based), no component changes yet.
+Connect coins listing to WordPress API via service layer — keep mock fallback, no UI changes.
 
 ## Verify Next
-- Service layer still re-exports mock data
-- No fetch calls from components
+- Homepage stats still load from API with fallback
+- Coins listing unchanged until wired
 - `npm run build` passes
