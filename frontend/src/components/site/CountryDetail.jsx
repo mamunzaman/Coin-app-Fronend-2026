@@ -9,6 +9,7 @@ import Footer from "./Footer";
 import SectionId from "./SectionId";
 import CoinCard from "./CoinCard";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import useDocumentTitle from "@/hooks/useDocumentTitle";
 
 export const CountryDetail = () => {
   useScrollReveal();
@@ -17,6 +18,7 @@ export const CountryDetail = () => {
   const upperCode = (code || "").toUpperCase();
   const country = findCountry(upperCode);
   const coins = coinsByCountry(upperCode);
+  useDocumentTitle(country ? country.name[lang] : "Country");
 
   useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, [code]);
 

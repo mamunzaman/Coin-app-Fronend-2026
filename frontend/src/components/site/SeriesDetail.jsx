@@ -9,6 +9,7 @@ import Footer from "./Footer";
 import SectionId from "./SectionId";
 import CoinCard from "./CoinCard";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import useDocumentTitle from "@/hooks/useDocumentTitle";
 
 export const SeriesDetail = () => {
   useScrollReveal();
@@ -16,6 +17,7 @@ export const SeriesDetail = () => {
   const { t, lang } = useLang();
   const series = findSeries(slug);
   const coins = series ? coinsBySeries(series.slug) : [];
+  useDocumentTitle(series ? series.name[lang] : "Series");
 
   useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, [slug]);
 

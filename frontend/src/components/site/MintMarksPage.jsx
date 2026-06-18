@@ -6,10 +6,12 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import SectionId from "./SectionId";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import useDocumentTitle from "@/hooks/useDocumentTitle";
 
 export const MintMarksPage = () => {
   useScrollReveal();
   const { t, lang } = useLang();
+  useDocumentTitle(t.mintMarks.title);
 
   return (
     <div className="ca-page" data-testid={MINT_MARKS_PAGE.page}>

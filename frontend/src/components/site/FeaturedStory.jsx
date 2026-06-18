@@ -42,7 +42,7 @@ export const FeaturedStory = () => {
               <dt>Composition</dt><dd>Bi-metal · CuNi / Ni-brass</dd>
             </dl>
 
-            <Link to="/coins/de-2019-berlin-wall" data-testid={HOME.featureReadStory} className="ca-btn ca-btn--secondary mt-10">
+            <Link to="/coins/germany-2019-berlin-wall" data-testid={HOME.featureReadStory} className="ca-btn ca-btn--secondary mt-10">
               {t.feature.cta}
               <ArrowUpRight size={14} />
             </Link>

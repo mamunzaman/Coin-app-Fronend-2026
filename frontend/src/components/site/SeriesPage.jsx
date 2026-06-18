@@ -8,10 +8,12 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import SectionId from "./SectionId";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import useDocumentTitle from "@/hooks/useDocumentTitle";
 
 export const SeriesPage = () => {
   useScrollReveal();
   const { t, lang } = useLang();
+  useDocumentTitle(t.seriesPage.title);
 
   return (
     <div className="ca-page" data-testid={SERIES_PAGE.page}>

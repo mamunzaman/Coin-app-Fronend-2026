@@ -8,10 +8,12 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import SectionId from "./SectionId";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import useDocumentTitle from "@/hooks/useDocumentTitle";
 
 export const CountriesPage = () => {
   useScrollReveal();
   const { t, lang } = useLang();
+  useDocumentTitle(t.countriesPage.title);
 
   // Sorted by coins count desc — Germany leads but page isn't Germany-only
   const sorted = [...COUNTRIES].sort((a, b) => b.coins - a.coins);

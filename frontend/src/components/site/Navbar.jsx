@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Menu, Search, User, X } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
@@ -7,6 +7,7 @@ import SearchOverlay from "./SearchOverlay";
 
 export const Navbar = () => {
   const { t, lang, toggle } = useLang();
+  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -93,7 +94,7 @@ export const Navbar = () => {
             <button data-testid={HOME.navAccount} className="ca-btn ca-btn--ghost ca-btn--sm" aria-label={t.nav.account}>
               <User size={16} />
             </button>
-            <button data-testid={HOME.navCta} className="ca-btn ca-btn--primary ca-btn--sm">
+            <button data-testid={HOME.navCta} onClick={() => navigate("/submit")} className="ca-btn ca-btn--primary ca-btn--sm">
               {t.nav.cta}
             </button>
           </div>
@@ -127,7 +128,7 @@ export const Navbar = () => {
           <button className="ca-btn ca-btn--ghost ca-btn--sm" onClick={toggle}>
             {lang === "en" ? "Deutsch" : "English"}
           </button>
-          <button className="ca-btn ca-btn--primary ca-btn--sm flex-1" onClick={() => setMenuOpen(false)}>
+          <button className="ca-btn ca-btn--primary ca-btn--sm flex-1" onClick={() => { setMenuOpen(false); navigate("/submit"); }}>
             {t.nav.cta}
           </button>
         </div>

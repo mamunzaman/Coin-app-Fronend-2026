@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
@@ -16,13 +17,13 @@ export const Contribute = () => {
               {t.contribute.sub}
             </p>
             <div className="flex flex-wrap items-center gap-4">
-              <button data-testid={HOME.contributeCta} className="ca-btn ca-btn--primary">
+              <Link to="/submit" data-testid={HOME.contributeCta} className="ca-btn ca-btn--primary">
                 {t.contribute.cta}
                 <ArrowRight size={14} />
-              </button>
-              <button className="ca-btn ca-btn--ghost">
+              </Link>
+              <Link to="/about" className="ca-btn ca-btn--ghost">
                 View contributors
-              </button>
+              </Link>
             </div>
           </div>
 

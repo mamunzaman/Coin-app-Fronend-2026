@@ -8,6 +8,7 @@ import Footer from "./Footer";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import CoinCard from "./CoinCard";
 import { useSearchParams } from "react-router-dom";
+import useDocumentTitle from "@/hooks/useDocumentTitle";
 
 const SORTS = ["newest", "oldest", "country", "rarity"];
 const PAGE_SIZE = 12;
@@ -15,6 +16,7 @@ const PAGE_SIZE = 12;
 export const CoinsListing = () => {
   useScrollReveal();
   const { t, lang } = useLang();
+  useDocumentTitle(t.coins.title);
   const [params, setParams] = useSearchParams();
 
   const [search, setSearch] = useState(params.get("q") || "");

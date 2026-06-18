@@ -8,6 +8,7 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import CoinCard from "./CoinCard";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import useDocumentTitle from "@/hooks/useDocumentTitle";
 
 const MINT_CITIES = { A: "Berlin", D: "Munich", F: "Stuttgart", G: "Karlsruhe", J: "Hamburg" };
 
@@ -18,6 +19,7 @@ export const CoinDetail = () => {
   const navigate = useNavigate();
   const coin = findCoinBySlug(slug);
   const [side, setSide] = useState("obverse");
+  useDocumentTitle(coin ? coin.title[lang] : t.detail.notFound);
 
   useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); setSide("obverse"); }, [slug]);
 

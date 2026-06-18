@@ -6,10 +6,12 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import SectionId from "./SectionId";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import useDocumentTitle from "@/hooks/useDocumentTitle";
 
 export const LearnPage = () => {
   useScrollReveal();
   const { t } = useLang();
+  useDocumentTitle(t.learn.title);
   const articles = t.learn.articles;
   const [hero, ...rest] = articles;
 

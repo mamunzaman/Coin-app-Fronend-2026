@@ -7,9 +7,22 @@ import { HOME } from "@/constants/testIds/home";
 export const Footer = () => {
   const { t, lang, toggle } = useLang();
   const cols = [
-    { title: t.footer.explore, links: [t.footer.coins, t.footer.countries, t.footer.series, t.footer.learn] },
-    { title: t.footer.about, links: [t.footer.aboutLink, t.footer.contact, t.footer.contribute] },
-    { title: t.footer.legal, links: [t.footer.privacy, t.footer.imprint] },
+    { title: t.footer.explore, links: [
+      { label: t.footer.coins, to: "/coins" },
+      { label: t.footer.countries, to: "/countries" },
+      { label: t.footer.series, to: "/series" },
+      { label: t.footer.learn, to: "/learn" },
+      { label: t.mints?.title || "Mint Marks", to: "/mint-marks" },
+    ] },
+    { title: t.footer.about, links: [
+      { label: t.footer.aboutLink, to: "/about" },
+      { label: t.footer.contact, to: "/contact" },
+      { label: t.footer.contribute, to: "/submit" },
+    ] },
+    { title: t.footer.legal, links: [
+      { label: t.footer.privacy, to: "/privacy" },
+      { label: t.footer.imprint, to: "/imprint" },
+    ] },
   ];
   return (
     <footer data-testid={HOME.footer} className="ca-footer">
@@ -50,7 +63,11 @@ export const Footer = () => {
               <div className="ca-mono mb-5">{c.title}</div>
               <ul>
                 {c.links.map((l) => (
-                  <li key={l}><a href="#" className="ca-footer__link">{l}</a></li>
+                  <li key={l.to}>
+                    <Link to={l.to} className="ca-footer__link" data-testid={`footer-link-${l.to.slice(1) || "home"}`}>
+                      {l.label}
+                    </Link>
+                  </li>
                 ))}
               </ul>
             </div>

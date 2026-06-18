@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "@/App.css";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import useDocumentTitle from "@/hooks/useDocumentTitle";
 import Navbar from "@/components/site/Navbar";
 import Hero from "@/components/site/Hero";
 import Manifesto from "@/components/site/Manifesto";
@@ -21,14 +22,23 @@ import CountryDetail from "@/components/site/CountryDetail";
 import SeriesPage from "@/components/site/SeriesPage";
 import SeriesDetail from "@/components/site/SeriesDetail";
 import LearnPage from "@/components/site/LearnPage";
+import LearnArticle from "@/components/site/LearnArticle";
 import MintMarksPage from "@/components/site/MintMarksPage";
+import SubmitPage from "@/components/site/SubmitPage";
+import AboutPage from "@/components/site/AboutPage";
+import ContactPage from "@/components/site/ContactPage";
+import PrivacyPage from "@/components/site/PrivacyPage";
+import ImprintPage from "@/components/site/ImprintPage";
+import NotFoundPage from "@/components/site/NotFoundPage";
 
 const Home = () => {
   useScrollReveal();
+  useDocumentTitle("");
   return (
     <div className="ca-page">
+      <a href="#main" className="ca-skip-link">Skip to content</a>
       <Navbar />
-      <main>
+      <main id="main">
         <Hero />
         <Manifesto />
         <FeaturedStory />
@@ -57,7 +67,14 @@ function App() {
           <Route path="/series" element={<SeriesPage />} />
           <Route path="/series/:slug" element={<SeriesDetail />} />
           <Route path="/learn" element={<LearnPage />} />
+          <Route path="/learn/:slug" element={<LearnArticle />} />
           <Route path="/mint-marks" element={<MintMarksPage />} />
+          <Route path="/submit" element={<SubmitPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/imprint" element={<ImprintPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
     </LanguageProvider>

@@ -1309,3 +1309,71 @@ body {
   color: var(--ca-text);
   margin-top: 4px;
 }
+
+/* ============================================================
+   Submit form
+   ============================================================ */
+.ca-submit-form {
+  border: 1px solid var(--ca-border);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(23, 26, 32, 0.6), rgba(15, 17, 21, 0.6));
+  padding: 36px;
+}
+.ca-form-field { display: flex; flex-direction: column; gap: 8px; }
+.ca-form-field > span {
+  font-family: var(--ca-font-mono);
+  font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--ca-text-muted);
+}
+.ca-form-field input,
+.ca-form-field select,
+.ca-form-field textarea {
+  background: rgba(31, 35, 44, 0.7);
+  border: 1px solid var(--ca-border);
+  color: var(--ca-text);
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-family: var(--ca-font-body);
+  font-size: 14.5px;
+  outline: none;
+  width: 100%;
+  transition: border-color .25s ease, box-shadow .25s ease;
+}
+.ca-form-field input:focus,
+.ca-form-field select:focus,
+.ca-form-field textarea:focus {
+  border-color: var(--ca-gold);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+}
+.ca-form-field textarea { resize: vertical; min-height: 110px; line-height: 1.6; }
+.ca-form-field select { appearance: none; padding-right: 36px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'><path d='M1 1L6 6L11 1' stroke='%23A7AFBC' stroke-width='1.5' stroke-linecap='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+.ca-form-field select option { background: #171A20; color: var(--ca-text); }
+.ca-form-upload {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px;
+  border: 1px dashed var(--ca-border);
+  border-radius: 12px;
+  color: var(--ca-text-muted);
+  font-family: var(--ca-font-mono);
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  background: rgba(31, 35, 44, 0.4);
+}
+
+/* Skip-to-content link */
+.ca-skip-link {
+  position: absolute;
+  top: -100px; left: 0;
+  background: var(--ca-gold);
+  color: #0F1115;
+  padding: 12px 18px;
+  font-family: var(--ca-font-mono);
+  font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+  border-radius: 0 0 8px 0;
+  z-index: 100;
+  transition: top .25s ease;
+}
+.ca-skip-link:focus { top: 0; outline: none; }
