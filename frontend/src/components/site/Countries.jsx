@@ -8,7 +8,7 @@ import SectionId from "./SectionId";
 
 const Card = ({ c, lang, t, feature, idx }) => (
   <Link
-    to={`/coins?country=${c.code}`}
+    to={`/countries/${c.code.toLowerCase()}`}
     data-testid={HOME.countryCard(c.code)}
     className={`ca-country-card ca-reveal ca-reveal--delay-${Math.min(idx, 5)}`}
   >

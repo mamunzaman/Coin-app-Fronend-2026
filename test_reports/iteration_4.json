@@ -1,0 +1,38 @@
+{
+  "summary": "Iteration 4 frontend-only validation of CoinArchive — 6 new routes (/countries, /countries/:code, /series, /series/:slug, /learn, /mint-marks) + Cmd-K Search overlay + regression on Home / /coins / /coins/:slug. Executed 30+ review checkpoints across 9 routes. ALL PASS. Home country cards now link to /countries/<lower-code>. Search overlay opens via nav-search-btn and Cmd/Ctrl-K, searches the 24-coin mock dataset (typing 'berlin' returns the germany-2019-berlin-wall result; typing 'zzzz' renders search-empty), navigates on result click and closes the overlay, and closes on Escape. /countries renders 6 cards in DE→FR→IT→ES→AT→BE order with DE first (highest coin count). /countries/de renders hero with 'Germany' + German flag, stats card with 3 numbers (78 coins / 25 years issuing / 2 series), coin grid, German-mint-marks block (A,D,F,G,J) and timeline. /countries/fr renders correctly WITHOUT the German-mint-marks block. /countries/zz renders 'Country not found' with back link. /series renders 5 cards (german-federal-states, treaty-of-rome, erasmus, european-history, olympics). /series/german-federal-states renders title + '2006 — 2022' year range + grid + timeline. /series/erasmus includes the 2022 Austria + France coins. /learn renders all 5 cards. /mint-marks renders SVG map with 5 dots + 5 educational cards (A/D/F/G/J). Coin detail /coins/germany-2019-berlin-wall regression: title, obverse/reverse toggle, coin-gallery-0 thumbs, specs Country link → /countries/de and Series link → /series/european-history all work. /coins/germany-2025-saarland loads with 'Saarland — Federal States' title. Language toggle (nav-lang-toggle) flips EN ↔ DE across countries page, search overlay placeholder ('Search coins...' → 'Münzen, Länder, Künstler, Serien suchen…'), and other new pages. Mobile (390x844) shows 0 horizontal overflow on all 6 new routes; nav-mobile-toggle opens menu showing nav links. All images have alt text (0 violations on /countries/de). Zero image 404s. The single console error is the *pre-existing* React hydration warning '<span> cannot be a child of <option>' from CoinsListing.jsx mint <option> — carried over from iteration 3 (already reported, caused by dev visual-editor wrapper, not new code).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "/countries/de coin grid (and other country/series detail grids)",
+        "issues": ["Coin card images are still the same generic gold-bar / piggy-bank stock photos shared across multiple slugs. /countries/de shows 4 identical gold-bar tiles. Carried over from iterations 2–3, non-blocking but visually undermines an 'archive' product."]
+      },
+      {
+        "screen": "/countries/de stats card",
+        "issues": ["Stats display 78 coins / 25 years / 2 series, but the grid directly below says '7 IN ARCHIVE' and only 2 series are shown in mock data. The 78/25 numbers appear to be real-world historical figures hard-coded for the country, not derived from the mock dataset — this is a visible inconsistency between the headline stats and the archive contents shown right below them. Decide whether the stats should be archive-scoped or canonical-scoped and label them accordingly (e.g., 'IN ARCHIVE: 7' vs 'TOTAL ISSUED: 78')."]
+      }
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "OPTIONAL — Clarify /countries/:code stats-card semantics: either compute the coin count from the mock dataset (so DE shows 7 not 78) or label the existing big numbers as canonical historical totals so they no longer conflict with the '7 IN ARCHIVE' line below.",
+    "OPTIONAL (carried over) — Replace shared stock photo coin images in /app/frontend/src/data/coinData.js so each slug has unique obverse/reverse imagery.",
+    "OPTIONAL (carried over) — Refactor /app/frontend/src/components/site/CoinsListing.jsx line 170 mint <option> label so the dev visual-editor does not inject a <span data-ve-dynamic> inside <option>, eliminating the React hydration warning."
+  ],
+  "critical_code_review_comments": [
+    "All 9 new routes resolve correctly, all expected testids are emitted, all hrefs use SPA <Link> (verified countries-card-DE href === '/countries/de'). Routing implementation is clean.",
+    "Search overlay correctly wires both the nav-search-btn click and Cmd/Ctrl-K keyboard shortcut, debounces input, and properly unmounts on Escape and on result navigation. No stale-overlay bugs observed.",
+    "i18n is wired across new pages: countries heading, search placeholder, learn, mint-marks all translate. Mock dataset structure (countryCode, obverseImage, gallery, historicalBackground) renders properly on /coins/:slug.",
+    "Stats-card semantics inconsistency on /countries/:code (see design_issues) — only meaningful product-level issue found in this iteration."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (frontend-only per request)", "frontend": "100% on functional review checkpoints (30/30); 1 carried-over hydration warning + 1 stats/grid inconsistency are non-blocking advisories"},
+  "test_credentials": "N/A — frontend-only, no auth",
+  "seed_data_creation": "None — used static /app/frontend/src/data/coinData.js",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Public URL: https://european-mint-museum.preview.emergentagent.com. All iteration-4 routes verified passing. Search overlay testids live in /app/frontend/src/constants/testIds/home.js under SEARCH/COUNTRIES_PAGE/COUNTRY_DETAIL/SERIES_PAGE/SERIES_DETAIL/LEARN_PAGE/MINT_MARKS_PAGE exports. For any iteration-5 work, re-verify only the stats-card change (if main agent updates it) and that the existing hydration warning from CoinsListing has not regressed into a runtime error. nav-logo fix from iteration 3 was not re-verified in this run but is unaffected by iteration-4 changes.",
+  "rca of the issue": "No blocking bugs found in iteration 4. The single console error is the same hydration warning previously reported in iteration 3 (CoinsListing.jsx mint <option> contains a dev-editor-injected <span data-ve-dynamic>). RCA: dev visual-editor instrumentation wraps dynamic text in <span style='display:contents'>, but <option> is one of the few elements that legally cannot contain <span>. Mitigation already proposed: exclude <option> children from the visual editor's dynamic wrapping, or refactor the option label to a plain string property to avoid the wrap site entirely."
+}

@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
@@ -15,7 +16,7 @@ export const Footer = () => {
       <div className="ca-container">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
           <div className="md:col-span-5">
-            <a href="#top" className="flex items-center gap-2 mb-6">
+            <Link to="/" className="flex items-center gap-2 mb-6">
               <span className="relative inline-flex h-8 w-8 items-center justify-center rounded-full"
                     style={{ background: "linear-gradient(180deg, #F2D16B 0%, #A97E12 100%)" }}>
                 <span className="ca-display italic" style={{ color: "#0F1115", fontSize: 16, fontWeight: 700 }}>€</span>
@@ -23,7 +24,7 @@ export const Footer = () => {
               <span className="ca-display" style={{ fontSize: 22 }}>
                 Coin<span style={{ color: "var(--ca-gold-light)" }}>Archive</span>
               </span>
-            </a>
+            </Link>
             <p className="ca-muted mb-8" style={{ fontSize: 14, maxWidth: 360, lineHeight: 1.7 }}>
               {t.footer.tagline}
             </p>

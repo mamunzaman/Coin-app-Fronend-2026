@@ -16,6 +16,12 @@ import Contribute from "@/components/site/Contribute";
 import Footer from "@/components/site/Footer";
 import CoinsListing from "@/components/site/CoinsListing";
 import CoinDetail from "@/components/site/CoinDetail";
+import CountriesPage from "@/components/site/CountriesPage";
+import CountryDetail from "@/components/site/CountryDetail";
+import SeriesPage from "@/components/site/SeriesPage";
+import SeriesDetail from "@/components/site/SeriesDetail";
+import LearnPage from "@/components/site/LearnPage";
+import MintMarksPage from "@/components/site/MintMarksPage";
 
 const Home = () => {
   useScrollReveal();
@@ -46,6 +52,12 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/coins" element={<CoinsListing />} />
           <Route path="/coins/:slug" element={<CoinDetail />} />
+          <Route path="/countries" element={<CountriesPage />} />
+          <Route path="/countries/:code" element={<CountryDetail />} />
+          <Route path="/series" element={<SeriesPage />} />
+          <Route path="/series/:slug" element={<SeriesDetail />} />
+          <Route path="/learn" element={<LearnPage />} />
+          <Route path="/mint-marks" element={<MintMarksPage />} />
         </Routes>
       </BrowserRouter>
     </LanguageProvider>
