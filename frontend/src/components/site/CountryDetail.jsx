@@ -75,11 +75,11 @@ export const CountryDetail = () => {
             <div className="lg:col-span-5 ca-reveal ca-reveal--delay-1" data-testid={COUNTRY_DETAIL.stats}>
               <div className="grid grid-cols-3 gap-4" style={{ border: "1px solid var(--ca-border)", borderRadius: 18, padding: 28 }}>
                 <div>
-                  <div className="ca-display" style={{ fontSize: 38, color: "var(--ca-gold-light)" }}>{country.coins}</div>
+                  <div className="ca-display" style={{ fontSize: 38, color: "var(--ca-gold-light)" }}>{coins.length}</div>
                   <div className="ca-mono mt-1">{t.countryDetail.stats.coins}</div>
                 </div>
                 <div>
-                  <div className="ca-display" style={{ fontSize: 38, color: "var(--ca-gold-light)" }}>{new Date().getFullYear() - country.since + 1}</div>
+                  <div className="ca-display" style={{ fontSize: 38, color: "var(--ca-gold-light)" }}>{years.length || 0}</div>
                   <div className="ca-mono mt-1">{t.countryDetail.stats.years}</div>
                 </div>
                 <div>
@@ -87,7 +87,9 @@ export const CountryDetail = () => {
                   <div className="ca-mono mt-1">{t.countryDetail.stats.series}</div>
                 </div>
               </div>
-              <div className="ca-mono mt-4" style={{ textAlign: "right" }}>{yearRange}</div>
+              <div className="ca-mono mt-4" style={{ textAlign: "right" }}>
+                {yearRange} · {country.coins} total issued
+              </div>
             </div>
           </div>
         </div>
