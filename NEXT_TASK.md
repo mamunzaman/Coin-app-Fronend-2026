@@ -1,9 +1,9 @@
 # Next Task
 
 ## Current Goal
-Connect coins listing to WordPress API via service layer — keep mock fallback, no UI changes.
+Connect coin detail page to WordPress API via service layer — keep mock fallback, no UI changes.
 
 ## Verify Next
-- Search overlay loads from API with debounce + fallback
-- Homepage stats still work
+- `/coins` listing loads from API with filters + load more
+- Search overlay and homepage stats still work
 - `npm run build` passes

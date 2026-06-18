@@ -7,13 +7,14 @@
 - [x] `wpClient.js` — configurable base URL, timeout, JSON handling, `WpClientError`
 - [x] Homepage `Stats` connected via `getStats()` with mock fallback
 - [x] `SearchOverlay` connected via `searchArchive()` with mock fallback + debounce
+- [x] `/coins` listing connected via `getCoinsList()` with facets, pagination, mock fallback
 
 ## In Progress
-- [ ] Connect remaining data (coins, countries, series detail pages) to WordPress API
+- [ ] Connect coin detail, country, and series pages to WordPress API
 
 ## Pending Tasks
 - [ ] Implement normalizers for WP payloads
-- [ ] Wire coins listing/detail through service layer
+- [ ] Wire coin detail page through service layer
 
 ## Last Update
-2026-06-19 — Search overlay live from `/wp-json/coinarchive/v1/search` with mock fallback
+2026-06-19 — Coins listing live from `/wp-json/coinarchive/v1/coins` with facets + load more

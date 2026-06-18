@@ -1,7 +1,7 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Search, X } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
-import { COINS, COUNTRIES, MINTS, SERIES_LIST, allYears } from "@/services/coinArchiveService";
+import { COINS, COUNTRIES, MINTS, SERIES_LIST, allYears, getCoinsList } from "@/services/coinArchiveService";
 import { COINS_PAGE } from "@/constants/testIds/home";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
@@ -12,6 +12,7 @@ import useDocumentTitle from "@/hooks/useDocumentTitle";
 
 const SORTS = ["newest", "oldest", "country", "rarity"];
 const PAGE_SIZE = 12;
+const SEARCH_DEBOUNCE_MS = 300;
 
 export const CoinsListing = () => {
   useScrollReveal();
@@ -20,14 +21,25 @@ export const CoinsListing = () => {
   const [params, setParams] = useSearchParams();
 
   const [search, setSearch] = useState(params.get("q") || "");
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
   const [country, setCountry] = useState(params.get("country") || "all");
   const [year, setYear] = useState(params.get("year") || "all");
   const [mint, setMint] = useState(params.get("mint") || "all");
   const [seriesFilter, setSeriesFilter] = useState(params.get("series") || "all");
   const [sort, setSort] = useState(params.get("sort") || "newest");
-  const [visible, setVisible] = useState(PAGE_SIZE);
+  const [page, setPage] = useState(1);
+  const [items, setItems] = useState([]);
+  const [facets, setFacets] = useState(null);
+  const [pagination, setPagination] = useState(null);
+  const [source, setSource] = useState("mock");
+  const [loading, setLoading] = useState(true);
+  const filterVersion = useRef(0);
 
-  // sync URL
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [search]);
+
   useEffect(() => {
     const next = new URLSearchParams();
     if (search) next.set("q", search);
@@ -39,47 +51,72 @@ export const CoinsListing = () => {
     setParams(next, { replace: true });
   }, [search, country, year, mint, seriesFilter, sort, setParams]);
 
-  // Reset pagination when filters change
-  useEffect(() => { setVisible(PAGE_SIZE); }, [search, country, year, mint, seriesFilter, sort]);
+  useEffect(() => {
+    filterVersion.current += 1;
+    setPage(1);
+  }, [debouncedSearch, country, year, mint, seriesFilter, sort]);
 
   useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, []);
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    let list = COINS.filter((c) => {
-      if (country !== "all" && c.countryCode !== country) return false;
-      if (year !== "all" && String(c.year) !== String(year)) return false;
-      if (mint !== "all" && c.mint !== mint) return false;
-      if (seriesFilter !== "all" && c.seriesSlug !== seriesFilter) return false;
-      if (q) {
-        const hay = [
-          c.title.en, c.title.de, c.designer, c.countryCode, c.country,
-          c.series.en, c.series.de, String(c.year),
-        ].join(" ").toLowerCase();
-        if (!hay.includes(q)) return false;
-      }
-      return true;
+  useEffect(() => {
+    const version = filterVersion.current;
+    let cancelled = false;
+    setLoading(true);
+
+    getCoinsList({
+      q: debouncedSearch,
+      country,
+      year,
+      mint,
+      series: seriesFilter,
+      sort,
+      page,
+      per_page: PAGE_SIZE,
+    }).then((result) => {
+      if (cancelled || version !== filterVersion.current) return;
+      setItems((prev) => (page === 1 ? result.items : [...prev, ...result.items]));
+      setFacets(result.facets);
+      setPagination(result.pagination);
+      setSource(result.source);
+      setLoading(false);
     });
-    if (sort === "newest")  list.sort((a, b) => b.year - a.year);
-    if (sort === "oldest")  list.sort((a, b) => a.year - b.year);
-    if (sort === "country") list.sort((a, b) => a.countryCode.localeCompare(b.countryCode) || b.year - a.year);
-    if (sort === "rarity")  list.sort((a, b) => (b.isRare ? 1 : 0) - (a.isRare ? 1 : 0) || a.mintage - b.mintage);
-    return list;
-  }, [search, country, year, mint, seriesFilter, sort]);
+
+    return () => { cancelled = true; };
+  }, [debouncedSearch, country, year, mint, seriesFilter, sort, page]);
 
   const clearAll = () => {
-    setSearch(""); setCountry("all"); setYear("all"); setMint("all"); setSeriesFilter("all"); setSort("newest");
+    setSearch("");
+    setCountry("all");
+    setYear("all");
+    setMint("all");
+    setSeriesFilter("all");
+    setSort("newest");
   };
 
   const hasFilter = search || country !== "all" || year !== "all" || mint !== "all" || seriesFilter !== "all" || sort !== "newest";
-  const slice = filtered.slice(0, visible);
-  const hasMore = visible < filtered.length;
+  const totalCount = source === "wp" && pagination?.total != null
+    ? pagination.total
+    : pagination?.total ?? items.length;
+  const hasMore = pagination ? page < pagination.totalPages : false;
+  const remaining = Math.max(0, totalCount - items.length);
+  const loadingLabel = lang === "de" ? "Aktualisiere…" : "Updating…";
+
+  const countryOptions = facets?.countries?.length ? facets.countries : COUNTRIES;
+  const yearOptions = facets?.years?.length
+    ? [...facets.years].map((y) => y.year).sort((a, b) => b - a)
+    : allYears();
+  const mintOptions = facets?.mints?.length
+    ? facets.mints.map((m) => ({
+      letter: m.letter,
+      city: m.city || MINTS.find((x) => x.letter === m.letter)?.city || m.letter,
+    }))
+    : MINTS;
+  const seriesOptions = facets?.series?.length ? facets.series : SERIES_LIST;
 
   return (
     <div className="ca-page" data-testid={COINS_PAGE.page}>
       <Navbar />
 
-      {/* Header */}
       <header className="ca-coins-header">
         <div className="ca-container">
           <div className="ca-section-id">
@@ -102,11 +139,9 @@ export const CoinsListing = () => {
         </div>
       </header>
 
-      {/* Sticky filter bar */}
       <div className="ca-filter-bar">
         <div className="ca-container">
           <div className="ca-filter-bar__inner">
-            {/* Search */}
             <div className="ca-filter-search">
               <Search size={16} className="ca-filter-search__icon" />
               <input
@@ -124,7 +159,6 @@ export const CoinsListing = () => {
               )}
             </div>
 
-            {/* Country chips */}
             <div className="ca-filter-chips" aria-label="Country">
               <button
                 data-testid={COINS_PAGE.filterCountryAll}
@@ -133,7 +167,7 @@ export const CoinsListing = () => {
               >
                 {t.coins.allCountries}
               </button>
-              {COUNTRIES.map((c) => (
+              {countryOptions.map((c) => (
                 <button
                   key={c.code}
                   data-testid={COINS_PAGE.filterCountry(c.code)}
@@ -146,7 +180,6 @@ export const CoinsListing = () => {
               ))}
             </div>
 
-            {/* Selects */}
             <div className="ca-filter-selects">
               <label className="ca-select">
                 <span className="ca-select__label">{t.coins.filterByYear}</span>
@@ -156,7 +189,7 @@ export const CoinsListing = () => {
                   onChange={(e) => setYear(e.target.value)}
                 >
                   <option value="all">{t.coins.allYears}</option>
-                  {allYears().map((y) => (<option key={y} value={y}>{y}</option>))}
+                  {yearOptions.map((y) => (<option key={y} value={y}>{y}</option>))}
                 </select>
               </label>
 
@@ -168,7 +201,7 @@ export const CoinsListing = () => {
                   onChange={(e) => setMint(e.target.value)}
                 >
                   <option value="all">{t.coins.allMints}</option>
-                  {MINTS.map((m) => (
+                  {mintOptions.map((m) => (
                     <option key={m.letter} value={m.letter} data-testid={COINS_PAGE.filterMint(m.letter)}>
                       {m.letter} — {m.city}
                     </option>
@@ -184,7 +217,7 @@ export const CoinsListing = () => {
                   onChange={(e) => setSeriesFilter(e.target.value)}
                 >
                   <option value="all">All Series</option>
-                  {SERIES_LIST.map((s) => (
+                  {seriesOptions.map((s) => (
                     <option key={s.slug} value={s.slug}>{s.name[lang]}</option>
                   ))}
                 </select>
@@ -223,12 +256,13 @@ export const CoinsListing = () => {
         </div>
       </div>
 
-      {/* Results */}
       <main className="ca-section">
         <div className="ca-container">
           <div className="flex items-center justify-between mb-10">
-            <div data-testid={COINS_PAGE.resultsCount} className="ca-mono">
-              {filtered.length} {t.coins.resultsCount}
+            <div data-testid={COINS_PAGE.resultsCount} className="ca-mono" aria-busy={loading}>
+              {loading && items.length === 0
+                ? loadingLabel
+                : `${totalCount} ${t.coins.resultsCount}${loading && items.length > 0 ? ` · ${loadingLabel}` : ""}`}
             </div>
             {hasFilter && (
               <button onClick={clearAll} className="ca-mono" style={{ color: "var(--ca-gold-light)" }}>
@@ -237,7 +271,7 @@ export const CoinsListing = () => {
             )}
           </div>
 
-          {filtered.length === 0 ? (
+          {!loading && items.length === 0 ? (
             <div data-testid={COINS_PAGE.empty} className="ca-empty">
               <div className="ca-display" style={{ fontSize: 32, marginBottom: 16 }}>{t.coins.empty}</div>
               <button onClick={clearAll} className="ca-btn ca-btn--secondary">
@@ -247,7 +281,7 @@ export const CoinsListing = () => {
           ) : (
             <>
               <div data-testid={COINS_PAGE.grid} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
-                {slice.map((c) => (
+                {items.map((c) => (
                   <CoinCard key={c.slug} coin={c} />
                 ))}
               </div>
@@ -255,10 +289,11 @@ export const CoinsListing = () => {
                 <div className="text-center mt-14">
                   <button
                     data-testid={COINS_PAGE.loadMore}
-                    onClick={() => setVisible((v) => v + PAGE_SIZE)}
+                    onClick={() => setPage((p) => p + 1)}
+                    disabled={loading}
                     className="ca-btn ca-btn--secondary"
                   >
-                    Load more · {filtered.length - visible} remaining
+                    Load more · {remaining} remaining
                   </button>
                 </div>
               )}

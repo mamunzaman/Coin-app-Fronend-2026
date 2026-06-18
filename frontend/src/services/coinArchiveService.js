@@ -17,12 +17,13 @@ export {
   searchCoins,
 } from "@/data/coinData";
 
-import { searchCoins } from "@/data/coinData";
+import { searchCoins, COINS, COUNTRIES, MINTS, SERIES_LIST, allYears } from "@/data/coinData";
 import { wpFetch } from "./wpClient";
-import { normalizeSearchResult } from "./normalizers/normalizeCoin";
+import { normalizeSearchResult, normalizeCoinCard } from "./normalizers/normalizeCoin";
 
 const STATS_PATH = "/wp-json/coinarchive/v1/stats";
 const SEARCH_PATH = "/wp-json/coinarchive/v1/search";
+const COINS_PATH = "/wp-json/coinarchive/v1/coins";
 const FIRST_ISSUE_YEAR = 2004;
 
 export const MOCK_STATS = {
@@ -79,5 +80,145 @@ export async function searchArchive(query, options = {}) {
     return items.map(normalizeSearchResult);
   } catch {
     return searchCoins(q);
+  }
+}
+
+function asLocalizedFacetName(value) {
+  if (!value) return { en: "", de: "" };
+  if (typeof value === "string") return { en: value, de: value };
+  return { en: value.en || value.de || "", de: value.de || value.en || "" };
+}
+
+function normalizeFacets(raw) {
+  if (!raw) return getMockFacets();
+  return {
+    countries: (raw.countries || []).map((c) => ({
+      code: c.code,
+      name: asLocalizedFacetName(c.name),
+      count: Number(c.count) || 0,
+    })),
+    years: (raw.years || []).map((y) => ({
+      year: Number(y.year),
+      count: Number(y.count) || 0,
+    })),
+    series: (raw.series || []).map((s) => ({
+      slug: s.slug,
+      name: asLocalizedFacetName(s.name),
+      count: Number(s.count) || 0,
+    })),
+    mints: (raw.mints || []).map((m) => ({
+      letter: m.letter,
+      city: m.city || MINTS.find((x) => x.letter === m.letter)?.city || "",
+      count: Number(m.count) || 0,
+    })),
+  };
+}
+
+function normalizePagination(raw, fallback = {}) {
+  const page = Number(raw?.page) || fallback.page || 1;
+  const perPage = Number(raw?.perPage) || fallback.perPage || 12;
+  const total = Number(raw?.total) ?? fallback.total ?? 0;
+  const totalPages = Number(raw?.totalPages) || fallback.totalPages || Math.max(1, Math.ceil(total / perPage));
+  return { page, perPage, total, totalPages };
+}
+
+export function getMockFacets() {
+  return {
+    countries: COUNTRIES.map((c) => ({ code: c.code, name: c.name, count: c.coins })),
+    years: allYears().map((year) => ({ year, count: 0 })),
+    series: SERIES_LIST.map((s) => ({ slug: s.slug, name: s.name, count: s.count })),
+    mints: MINTS.map((m) => ({ letter: m.letter, city: m.city, count: 0 })),
+  };
+}
+
+function filterMockCoins({ q = "", country = "all", year = "all", mint = "all", series = "all", sort = "newest" }) {
+  const query = q.trim().toLowerCase();
+  let list = COINS.filter((c) => {
+    if (country !== "all" && c.countryCode !== country) return false;
+    if (year !== "all" && String(c.year) !== String(year)) return false;
+    if (mint !== "all" && c.mint !== mint) return false;
+    if (series !== "all" && c.seriesSlug !== series) return false;
+    if (query) {
+      const hay = [
+        c.title.en, c.title.de, c.designer, c.countryCode, c.country,
+        c.series.en, c.series.de, String(c.year),
+      ].join(" ").toLowerCase();
+      if (!hay.includes(query)) return false;
+    }
+    return true;
+  });
+
+  if (sort === "newest") list.sort((a, b) => b.year - a.year);
+  if (sort === "oldest") list.sort((a, b) => a.year - b.year);
+  if (sort === "country") list.sort((a, b) => a.countryCode.localeCompare(b.countryCode) || b.year - a.year);
+  if (sort === "rarity") list.sort((a, b) => (b.isRare ? 1 : 0) - (a.isRare ? 1 : 0) || a.mintage - b.mintage);
+
+  return list;
+}
+
+function getMockCoinsList(params = {}) {
+  const {
+    q = "",
+    country = "all",
+    year = "all",
+    mint = "all",
+    series = "all",
+    sort = "newest",
+    page = 1,
+    per_page = 12,
+  } = params;
+
+  const filtered = filterMockCoins({ q, country, year, mint, series, sort });
+  const start = (page - 1) * per_page;
+  const items = filtered.slice(start, start + per_page);
+
+  return {
+    items,
+    facets: getMockFacets(),
+    pagination: normalizePagination(null, {
+      page,
+      perPage: per_page,
+      total: filtered.length,
+      totalPages: Math.max(1, Math.ceil(filtered.length / per_page)),
+    }),
+    source: "mock",
+  };
+}
+
+export async function getCoinsList(params = {}) {
+  const {
+    q = "",
+    country = "all",
+    year = "all",
+    mint = "all",
+    series = "all",
+    sort = "newest",
+    page = 1,
+    per_page = 12,
+  } = params;
+
+  try {
+    const urlParams = new URLSearchParams();
+    const query = q.trim();
+    if (query) urlParams.set("q", query);
+    if (country !== "all") urlParams.set("country", country);
+    if (year !== "all") urlParams.set("year", String(year));
+    if (mint !== "all") urlParams.set("mint", mint);
+    if (series !== "all") urlParams.set("series", series);
+    if (sort) urlParams.set("sort", sort);
+    urlParams.set("page", String(page));
+    urlParams.set("per_page", String(per_page));
+
+    const raw = await wpFetch(`${COINS_PATH}?${urlParams}`);
+    const items = Array.isArray(raw?.items) ? raw.items.map(normalizeCoinCard) : [];
+
+    return {
+      items,
+      facets: normalizeFacets(raw?.facets),
+      pagination: normalizePagination(raw?.pagination, { page, perPage: per_page, total: items.length }),
+      source: "wp",
+    };
+  } catch {
+    return getMockCoinsList(params);
   }
 }
