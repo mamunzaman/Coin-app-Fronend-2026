@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
@@ -62,9 +63,9 @@ export const Timeline = () => {
               {active.label[lang]} — one of {Math.floor(8 + activeIdx * 4)} coins issued in {active.year},
               now catalogued in the CoinArchive.
             </p>
-            <a href="#coins" className="ca-btn ca-btn--ghost ca-btn--sm mt-8">
+            <Link to={`/coins?year=${active.year}`} data-testid={HOME.timelineBrowseYear} className="ca-btn ca-btn--ghost ca-btn--sm mt-8">
               Browse {active.year} <ArrowUpRight size={12} />
-            </a>
+            </Link>
           </div>
         </div>
       </div>

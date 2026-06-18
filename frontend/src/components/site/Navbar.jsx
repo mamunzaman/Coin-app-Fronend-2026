@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, Search, User, X } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
@@ -7,6 +8,8 @@ export const Navbar = () => {
   const { t, lang, toggle } = useLang();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -19,12 +22,23 @@ export const Navbar = () => {
     document.body.style.overflow = open ? "hidden" : "";
   }, [open]);
 
+  const onHome = location.pathname === "/";
+
   const links = [
-    { key: "coins", id: HOME.navCoins, label: t.nav.coins },
-    { key: "countries", id: HOME.navCountries, label: t.nav.countries },
-    { key: "series", id: HOME.navSeries, label: t.nav.series },
-    { key: "learn", id: HOME.navLearn, label: t.nav.learn },
+    { key: "coins",     id: HOME.navCoins,     label: t.nav.coins,     to: "/coins" },
+    { key: "countries", id: HOME.navCountries, label: t.nav.countries, to: onHome ? "#countries" : "/#countries" },
+    { key: "series",    id: HOME.navSeries,    label: t.nav.series,    to: "/coins?sort=country" },
+    { key: "learn",     id: HOME.navLearn,     label: t.nav.learn,     to: onHome ? "#learn" : "/#learn" },
   ];
+
+  const renderLink = (l, isMobile = false) => {
+    const cls = isMobile ? "ca-mobile-menu__link" : "ca-nav__link";
+    const testId = isMobile ? `${l.id}-mobile` : l.id;
+    if (l.to.startsWith("#")) {
+      return <a key={l.key} href={l.to} data-testid={testId} className={cls} onClick={() => isMobile && setOpen(false)}>{l.label}</a>;
+    }
+    return <Link key={l.key} to={l.to} data-testid={testId} className={cls} onClick={() => isMobile && setOpen(false)}>{l.label}</Link>;
+  };
 
   return (
     <>
@@ -43,11 +57,7 @@ export const Navbar = () => {
 
           {/* Center links */}
           <nav className="hidden md:flex items-center gap-10">
-            {links.map((l) => (
-              <a key={l.key} href={`#${l.key}`} data-testid={l.id} className="ca-nav__link">
-                {l.label}
-              </a>
-            ))}
+            {links.map((l) => renderLink(l))}
           </nav>
 
           {/* Right cluster */}
@@ -63,7 +73,7 @@ export const Navbar = () => {
               <span style={{ color: "var(--ca-border)" }}>/</span>
               <span style={{ color: lang === "de" ? "var(--ca-gold-light)" : "var(--ca-text-muted)" }}>DE</span>
             </button>
-            <button data-testid={HOME.navSearch} className="ca-btn ca-btn--ghost ca-btn--sm" aria-label={t.nav.search}>
+            <button data-testid={HOME.navSearch} onClick={() => navigate("/coins")} className="ca-btn ca-btn--ghost ca-btn--sm" aria-label={t.nav.search}>
               <Search size={16} />
             </button>
             <button data-testid={HOME.navAccount} className="ca-btn ca-btn--ghost ca-btn--sm" aria-label={t.nav.account}>
@@ -89,17 +99,7 @@ export const Navbar = () => {
 
       {/* Mobile menu */}
       <div className={`ca-mobile-menu ${open ? "is-open" : ""} md:hidden`}>
-        {links.map((l) => (
-          <a
-            key={l.key}
-            href={`#${l.key}`}
-            data-testid={`${l.id}-mobile`}
-            className="ca-mobile-menu__link"
-            onClick={() => setOpen(false)}
-          >
-            {l.label}
-          </a>
-        ))}
+        {links.map((l) => renderLink(l, true))}
         <div className="flex gap-3 mt-8">
           <button className="ca-btn ca-btn--ghost ca-btn--sm" onClick={toggle}>
             {lang === "en" ? "Deutsch" : "English"}

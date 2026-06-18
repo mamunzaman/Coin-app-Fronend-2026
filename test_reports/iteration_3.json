@@ -1,0 +1,40 @@
+{
+  "summary": "Iteration 3 frontend-only validation of CoinArchive routing (Home + /coins listing + /coins/:slug detail). Tested 33 review checkpoints across home regression, navigation, filters/search/sort, URL deep-linking, detail page interactions, language toggle, and mobile responsiveness. 32/33 PASSED. Single HIGH-priority bug: nav-logo uses <a href='#top'> instead of react-router <Link to='/'>, so it does NOT return to home from /coins or /coins/:slug — it just appends #top to the current URL. Everything else (hero-explore, hero-browse, feature-read-story, country-card-*, recent-card-*, timeline-browse-year, nav-coins, all 24-card grid + chip filtering + year/mint selects + sort + Berlin search + empty state for DE+2007+J + clear filters + ?country=FR deep-link, obverse/reverse toggle with aria-pressed, breadcrumb with Germany/2019, 9 specs rows, related coins navigation, back button, unknown-slug not-found, EN/DE toggle changing title to 'Mauerfall', mobile no horizontal overflow on both routes) works as specified.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Navbar (logo)",
+        "issue": "nav-logo is <a href=\"#top\"> instead of a react-router <Link to=\"/\">. From /coins or /coins/:slug clicking the logo does not return to home — it stays on the current path and only appends #top. Review checkpoint 'Clicking nav-logo navigates to / (home)' FAILS.",
+        "selector": "[data-testid=\"nav-logo\"]",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "/coins coin cards (and detail images)",
+        "issues": ["Coin images are still generic stock photos (gold bars, piggy bank, hands stacking coins) shared across many slugs — Paris 2024 card shows an airport/runway photo, Italo Calvino shows a piggy bank. Same obverse/reverse image is reused across countries. Non-blocking but inconsistent with a museum-grade numismatic archive. Carried over from previous iterations."]
+      }
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Fix nav-logo: change /app/frontend/src/components/site/Navbar.jsx line 48 from `<a href=\"#top\" data-testid={HOME.navLogo} ...>` to `<Link to=\"/\" data-testid={HOME.navLogo} ...>` so the logo navigates to home from any route. Add react-router Link import if not already present.",
+    "OPTIONAL: Replace shared stock-photo images in /app/frontend/src/data/coinData.js with authentic 2-Euro coin photography per slug — currently every Paris/Calvino/Cáceres card shows unrelated stock imagery, which undermines the archive's credibility."
+  ],
+  "critical_code_review_comments": [
+    "Navbar logo: hard-coded `<a href=\"#top\">` defeats SPA routing. Must be a react-router Link. This is the only blocker found.",
+    "CoinsListing.jsx line 160: <option> contains `{m.letter} — {m.city}` which the dev visual-editor wraps in a <span data-ve-dynamic>. Browsers throw a React hydration warning 'In HTML, <span> cannot be a child of <option>'. The select still functions but the warning is noisy. If it persists in prod build, refactor the option label to a single string literal (e.g., template literal already, but the editor wrapper is the culprit — flag for build-time exclusion).",
+    "Same hero-coin testid-on-div pattern from iteration 2 still present (testid on wrapper div, not img). Carried over.",
+    "Mobile menu does not render nav-coins/nav-countries testids — overlay uses separate DOM (carried over from iteration 2). Consider adding mobile-nav-coins testid for completeness, but not blocking the current task."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (frontend-only per request)", "frontend": "97% (32/33 review checkpoints passed; 1 HIGH bug on nav-logo)"},
+  "test_credentials": "N/A — frontend-only, no auth",
+  "seed_data_creation": "None — used static /app/frontend/src/data/coinData.js (24 coins)",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Public URL: https://european-mint-museum.preview.emergentagent.com. All testids live at /app/frontend/src/constants/testIds/home.js (HOME, COINS_PAGE, COIN_DETAIL). Listing route + detail route are fully wired with useSearchParams. Re-verify only the nav-logo fix on a follow-up: navigate to /coins, click [data-testid=nav-logo], expect URL == BASE/. Everything else verified passing in iteration_3.",
+  "rca of the issue": "nav-logo bug RCA: /app/frontend/src/components/site/Navbar.jsx line 48 renders the logo as `<a href=\"#top\" data-testid={HOME.navLogo}>`. The anchor '#top' is interpreted as an in-page fragment by the browser, so on /coins the URL becomes /coins#top (no route change). Repro: open /coins → click logo → URL becomes /coins#top, page stays on listing. Mitigation: replace the <a href=\"#top\"> with `<Link to=\"/\" data-testid={HOME.navLogo}>` (import Link from 'react-router-dom'). Same fix needed everywhere the logo is used inside the SPA."
+}

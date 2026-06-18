@@ -691,3 +691,260 @@ body {
 }
 
 :focus-visible { outline: 2px solid var(--ca-gold); outline-offset: 3px; border-radius: 6px; }
+
+/* ============================================================
+   Coins listing
+   ============================================================ */
+.ca-coins-header {
+  padding: 140px 0 40px;
+  position: relative;
+  z-index: 2;
+}
+
+.ca-filter-bar {
+  position: sticky;
+  top: 72px;
+  z-index: 40;
+  background: rgba(15, 17, 21, 0.78);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border-top: 1px solid var(--ca-border);
+  border-bottom: 1px solid var(--ca-border);
+}
+.ca-filter-bar__inner {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 14px;
+  padding: 18px 0;
+}
+
+.ca-filter-search {
+  position: relative;
+  display: flex; align-items: center;
+  min-width: 260px; flex: 1 1 260px;
+}
+.ca-filter-search__icon {
+  position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+  color: var(--ca-text-muted); pointer-events: none;
+}
+.ca-filter-search__input {
+  width: 100%;
+  background: rgba(31, 35, 44, 0.6);
+  border: 1px solid var(--ca-border);
+  border-radius: 999px;
+  padding: 12px 40px 12px 44px;
+  color: var(--ca-text);
+  font-family: var(--ca-font-body);
+  font-size: 14px;
+  outline: none;
+  transition: border-color .25s ease, box-shadow .25s ease;
+}
+.ca-filter-search__input:focus {
+  border-color: var(--ca-gold);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+}
+.ca-filter-search__input::placeholder { color: var(--ca-text-muted); }
+.ca-filter-search__clear {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: transparent; border: none; color: var(--ca-text-muted);
+  cursor: pointer; padding: 6px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.ca-filter-search__clear:hover { color: var(--ca-text); background: rgba(167, 175, 188, 0.1); }
+
+.ca-filter-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.ca-chip {
+  font-family: var(--ca-font-mono);
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--ca-border);
+  background: rgba(31, 35, 44, 0.5);
+  color: var(--ca-text-soft);
+  cursor: pointer;
+  transition: all .25s ease;
+}
+.ca-chip:hover { color: var(--ca-text); border-color: rgba(212, 175, 55, 0.4); }
+.ca-chip--active {
+  background: linear-gradient(180deg, #F2D16B 0%, #D4AF37 100%);
+  color: #0F1115;
+  border-color: #F2D16B;
+}
+
+.ca-filter-selects { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.ca-select {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(31, 35, 44, 0.6);
+  border: 1px solid var(--ca-border);
+  border-radius: 999px;
+  padding: 6px 14px 6px 14px;
+  transition: border-color .25s ease;
+}
+.ca-select:focus-within { border-color: var(--ca-gold); }
+.ca-select__label {
+  font-family: var(--ca-font-mono);
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--ca-text-muted);
+}
+.ca-select select {
+  background: transparent; border: none; color: var(--ca-text);
+  font-family: var(--ca-font-body);
+  font-size: 13px;
+  outline: none; cursor: pointer;
+  appearance: none;
+  padding: 6px 18px 6px 4px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'><path d='M1 1L6 6L11 1' stroke='%23A7AFBC' stroke-width='1.5' stroke-linecap='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right center;
+}
+.ca-select select option { background: #171A20; color: var(--ca-text); }
+
+.ca-empty {
+  text-align: center; padding: 80px 24px;
+  border: 1px dashed var(--ca-border);
+  border-radius: 24px;
+}
+
+/* Large coin card (listing + related) */
+.ca-coin-card-lg {
+  display: flex; flex-direction: column;
+  background: linear-gradient(180deg, #171A20 0%, #111318 100%);
+  border: 1px solid var(--ca-border);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: transform .5s cubic-bezier(.2,.7,.2,1), border-color .5s ease, box-shadow .5s ease;
+  text-decoration: none; color: inherit;
+}
+.ca-coin-card-lg:hover {
+  transform: translateY(-6px);
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+}
+.ca-coin-card-lg__img {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 40%, #1F232C, #0F1115 70%);
+}
+.ca-coin-card-lg__img img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform .8s cubic-bezier(.2,.7,.2,1);
+}
+.ca-coin-card-lg:hover .ca-coin-card-lg__img img { transform: scale(1.04); }
+
+.ca-coin-card-lg__body { padding: 22px 24px 26px; display: flex; flex-direction: column; gap: 6px; }
+.ca-coin-card-lg__title {
+  font-family: var(--ca-font-display);
+  font-size: 19px; line-height: 1.25; font-weight: 500;
+  color: var(--ca-text);
+  letter-spacing: -0.01em;
+  margin-top: 2px;
+}
+.ca-coin-card-lg__meta { font-family: var(--ca-font-mono); font-size: 11px; letter-spacing: 0.12em; color: var(--ca-text-muted); text-transform: uppercase; margin-top: 6px; }
+.ca-coin-card-lg__cta {
+  margin-top: 14px;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--ca-font-mono);
+  font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--ca-gold-light);
+}
+
+/* Badges */
+.ca-badge--new { background: var(--ca-blue); color: #fff; }
+.ca-badge--rare {
+  background: linear-gradient(180deg, #6D3FB3, #4B2480);
+  color: #fff;
+  left: auto; right: 10px;
+}
+
+/* ============================================================
+   Coin detail
+   ============================================================ */
+.ca-breadcrumb {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  font-family: var(--ca-font-mono);
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ca-text-muted);
+}
+.ca-breadcrumb__back {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: transparent; border: none; color: var(--ca-text-soft);
+  cursor: pointer;
+  font-family: var(--ca-font-mono);
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--ca-border);
+  transition: all .25s ease;
+}
+.ca-breadcrumb__back:hover { color: var(--ca-text); border-color: rgba(212, 175, 55, 0.4); }
+.ca-breadcrumb__link { color: var(--ca-text-muted); transition: color .25s ease; }
+.ca-breadcrumb__link:hover { color: var(--ca-gold-light); }
+.ca-breadcrumb__current { color: var(--ca-gold-light); }
+.ca-breadcrumb__sep { color: var(--ca-border); }
+
+.ca-detail-coin {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-width: 620px;
+  margin: 0 auto;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(circle at 30% 25%, rgba(255, 230, 170, 0.18), transparent 50%), #0F1115;
+  box-shadow:
+    0 60px 140px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(212, 175, 55, 0.3),
+    inset 0 0 80px rgba(0, 0, 0, 0.4);
+}
+.ca-detail-coin img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: opacity .4s ease;
+}
+.ca-detail-coin::after {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(circle at 22% 18%, rgba(255, 230, 170, 0.36), transparent 38%);
+  pointer-events: none;
+}
+
+.ca-detail-toggle {
+  margin: 32px auto 0;
+  display: flex; gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--ca-border);
+  border-radius: 999px;
+  background: rgba(31, 35, 44, 0.5);
+  width: fit-content;
+}
+.ca-detail-toggle__btn {
+  font-family: var(--ca-font-mono);
+  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: none; background: transparent;
+  color: var(--ca-text-muted);
+  cursor: pointer;
+  transition: all .3s ease;
+}
+.ca-detail-toggle__btn:hover { color: var(--ca-text); }
+.ca-detail-toggle__btn.is-active {
+  background: linear-gradient(180deg, #F2D16B 0%, #D4AF37 100%);
+  color: #0F1115;
+  font-weight: 600;
+}
+
+.ca-detail-plate {
+  margin: 28px auto 0;
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  font-size: 10.5px;
+  color: var(--ca-text-muted);
+}
+.ca-detail-plate strong { color: var(--ca-gold-light); font-weight: 500; }
+.ca-detail-plate .sep { width: 18px; height: 1px; background: var(--ca-border); }
+
+.ca-detail-title {
+  font-family: var(--ca-font-display);
+  font-weight: 500;
+  font-size: clamp(36px, 4.6vw, 60px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--ca-text);
+}

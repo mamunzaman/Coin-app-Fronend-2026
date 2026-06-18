@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { ArrowRight, MapPin } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
@@ -56,14 +57,14 @@ export const Hero = () => {
             </p>
 
             <div className="ca-reveal ca-reveal--delay-3 mt-10 flex flex-wrap gap-4">
-              <button data-testid={HOME.heroExplore} className="ca-btn ca-btn--primary">
+              <Link to="/coins" data-testid={HOME.heroExplore} className="ca-btn ca-btn--primary">
                 {t.hero.ctaPrimary}
                 <ArrowRight size={14} />
-              </button>
-              <button data-testid={HOME.heroBrowse} className="ca-btn ca-btn--secondary">
+              </Link>
+              <a href="#countries" data-testid={HOME.heroBrowse} className="ca-btn ca-btn--secondary">
                 <MapPin size={14} />
                 {t.hero.ctaSecondary}
-              </button>
+              </a>
             </div>
 
             <div className="ca-reveal ca-reveal--delay-4 mt-14 flex items-center gap-6 ca-mono" style={{ fontSize: 10.5 }}>

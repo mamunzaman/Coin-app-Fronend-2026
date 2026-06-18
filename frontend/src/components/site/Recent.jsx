@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
 import { RECENT_COINS } from "@/data/coinData";
@@ -20,8 +21,9 @@ export const Recent = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5">
           {RECENT_COINS.map((c, i) => (
-            <article
+            <Link
               key={c.id}
+              to={`/coins/${c.slug}`}
               data-testid={HOME.recentCard(c.id)}
               className={`ca-coin-card ca-reveal ca-reveal--delay-${Math.min(i, 5)}`}
             >
@@ -36,10 +38,16 @@ export const Recent = () => {
                 {c.title[lang]}
               </h4>
               <p className="ca-muted mt-1" style={{ fontSize: 11.5, fontStyle: "italic" }}>
-                {DESIGNERS[i % DESIGNERS.length]}
+                {c.designer || DESIGNERS[i % DESIGNERS.length]}
               </p>
-            </article>
+            </Link>
           ))}
+        </div>
+
+        <div className="mt-14 text-center ca-reveal">
+          <Link to="/coins" className="ca-btn ca-btn--secondary">
+            View entire archive
+          </Link>
         </div>
       </div>
     </section>

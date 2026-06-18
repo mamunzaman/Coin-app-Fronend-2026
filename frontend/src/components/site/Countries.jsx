@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
@@ -6,7 +7,8 @@ import { COUNTRIES } from "@/data/coinData";
 import SectionId from "./SectionId";
 
 const Card = ({ c, lang, t, feature, idx }) => (
-  <article
+  <Link
+    to={`/coins?country=${c.code}`}
     data-testid={HOME.countryCard(c.code)}
     className={`ca-country-card ca-reveal ca-reveal--delay-${Math.min(idx, 5)}`}
   >
@@ -25,7 +27,7 @@ const Card = ({ c, lang, t, feature, idx }) => (
         View <ArrowUpRight size={14} />
       </span>
     </div>
-  </article>
+  </Link>
 );
 
 export const Countries = () => {

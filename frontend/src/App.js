@@ -14,6 +14,8 @@ import Stats from "@/components/site/Stats";
 import Recent from "@/components/site/Recent";
 import Contribute from "@/components/site/Contribute";
 import Footer from "@/components/site/Footer";
+import CoinsListing from "@/components/site/CoinsListing";
+import CoinDetail from "@/components/site/CoinDetail";
 
 const Home = () => {
   useScrollReveal();
@@ -42,6 +44,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/coins" element={<CoinsListing />} />
+          <Route path="/coins/:slug" element={<CoinDetail />} />
         </Routes>
       </BrowserRouter>
     </LanguageProvider>
