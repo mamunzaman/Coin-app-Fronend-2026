@@ -17,13 +17,15 @@ export {
   searchCoins,
 } from "@/data/coinData";
 
-import { searchCoins, COINS, COUNTRIES, MINTS, SERIES_LIST, allYears, findCoinBySlug, relatedCoins as mockRelatedCoins } from "@/data/coinData";
+import { searchCoins, COINS, COUNTRIES, MINTS, SERIES_LIST, allYears, findCoinBySlug, findCountry, coinsByCountry, relatedCoins as mockRelatedCoins } from "@/data/coinData";
 import { wpFetch } from "./wpClient";
 import { normalizeSearchResult, normalizeCoinCard, normalizeCoinDetail } from "./normalizers/normalizeCoin";
+import { normalizeCountryListItem, normalizeCountryDetail } from "./normalizers/normalizeCountry";
 
 const STATS_PATH = "/wp-json/coinarchive/v1/stats";
 const SEARCH_PATH = "/wp-json/coinarchive/v1/search";
 const COINS_PATH = "/wp-json/coinarchive/v1/coins";
+const COUNTRIES_PATH = "/wp-json/coinarchive/v1/countries";
 const FIRST_ISSUE_YEAR = 2004;
 
 export const MOCK_STATS = {
@@ -247,5 +249,106 @@ export async function getCoinDetail(slug) {
     };
   } catch {
     return getMockCoinDetail(slug);
+  }
+}
+
+function getMockCountriesList() {
+  const items = COUNTRIES.map((c) => {
+    const archiveCount = COINS.filter((x) => x.countryCode === c.code).length;
+    return normalizeCountryListItem({
+      code: c.code,
+      slug: c.code.toLowerCase(),
+      name: c.name.en,
+      coinCount: archiveCount,
+      latestYear: archiveCount
+        ? Math.max(...COINS.filter((x) => x.countryCode === c.code).map((x) => x.year))
+        : null,
+    });
+  }).sort((a, b) => b.coins - a.coins);
+
+  return { items, source: "mock" };
+}
+
+export async function getCountriesList() {
+  try {
+    const raw = await wpFetch(COUNTRIES_PATH);
+    const items = Array.isArray(raw?.items)
+      ? raw.items.map(normalizeCountryListItem).sort((a, b) => b.coins - a.coins)
+      : [];
+
+    return { items, source: "wp" };
+  } catch {
+    return getMockCountriesList();
+  }
+}
+
+function buildMockCountryTimeline(coins) {
+  const years = Array.from(new Set(coins.map((c) => c.year))).sort((a, b) => a - b);
+  return years.map((year) => ({
+    year,
+    count: coins.filter((c) => c.year === year).length,
+  }));
+}
+
+function getMockCountryDetail(code) {
+  const upperCode = (code || "").toUpperCase();
+  const country = findCountry(upperCode);
+
+  if (!country) {
+    return { country: null, coins: [], stats: {}, timeline: [], source: "mock" };
+  }
+
+  const coins = coinsByCountry(upperCode);
+  const years = coins.map((c) => c.year).filter(Boolean);
+  const yearStart = years.length ? Math.min(...years) : null;
+  const yearEnd = years.length ? Math.max(...years) : null;
+  const seriesCount = new Set(coins.map((c) => c.seriesSlug).filter(Boolean)).size;
+
+  return {
+    country: normalizeCountryListItem({
+      code: country.code,
+      slug: country.code.toLowerCase(),
+      name: country.name.en,
+      coinCount: coins.length,
+      latestYear: yearEnd,
+    }),
+    coins,
+    stats: {
+      coins: coins.length,
+      series: seriesCount,
+      yearStart,
+      yearEnd,
+    },
+    timeline: buildMockCountryTimeline(coins),
+    source: "mock",
+  };
+}
+
+export async function getCountryDetail(code) {
+  const upperCode = (code || "").toUpperCase();
+
+  if (!upperCode) {
+    return getMockCountryDetail(code);
+  }
+
+  try {
+    const raw = await wpFetch(`${COUNTRIES_PATH}/${encodeURIComponent(upperCode)}?per_page=50`);
+    if (!raw?.country) throw new Error("Missing country");
+
+    const normalized = normalizeCountryDetail(raw);
+    const coins = Array.isArray(raw.coins) ? raw.coins.map(normalizeCoinCard) : [];
+
+    return {
+      ...normalized,
+      country: {
+        ...normalized.country,
+        yearStart: raw.country.yearStart ?? normalized.country.yearStart,
+        yearEnd: raw.country.yearEnd ?? normalized.country.yearEnd,
+      },
+      coins,
+      source: "wp",
+    };
+  } catch {
+    return getMockCountryDetail(upperCode);
   }
 }

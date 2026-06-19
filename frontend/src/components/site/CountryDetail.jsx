@@ -1,8 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
-import { COUNTRIES, MINTS, coinsByCountry, findCountry } from "@/services/coinArchiveService";
+import { MINTS, getCountryDetail } from "@/services/coinArchiveService";
 import { COUNTRY_DETAIL } from "@/constants/testIds/home";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
@@ -16,11 +16,39 @@ export const CountryDetail = () => {
   const { code } = useParams();
   const { t, lang } = useLang();
   const upperCode = (code || "").toUpperCase();
-  const country = findCountry(upperCode);
-  const coins = coinsByCountry(upperCode);
-  useDocumentTitle(country ? country.name[lang] : "Country");
+  const [detail, setDetail] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, [code]);
+  const country = detail?.country ?? null;
+  const coins = detail?.coins ?? [];
+  const stats = detail?.stats ?? {};
+
+  useDocumentTitle(country ? country.name[lang] : loading ? t.nav.countries : "Country");
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    window.scrollTo({ top: 0, behavior: "instant" });
+
+    getCountryDetail(upperCode).then((result) => {
+      if (!cancelled) {
+        setDetail(result);
+        setLoading(false);
+      }
+    });
+
+    return () => { cancelled = true; };
+  }, [upperCode]);
+
+  if (loading) {
+    return (
+      <div className="ca-page" data-testid={COUNTRY_DETAIL.page}>
+        <Navbar />
+        <div className="ca-container ca-section" style={{ minHeight: 400 }} aria-busy="true" />
+        <Footer />
+      </div>
+    );
+  }
 
   if (!country) {
     return (
@@ -38,7 +66,12 @@ export const CountryDetail = () => {
   }
 
   const years = Array.from(new Set(coins.map((c) => c.year))).sort((a, b) => a - b);
-  const yearRange = years.length ? `${years[0]} — ${years[years.length - 1]}` : "—";
+  const yearStart = country.yearStart ?? stats.yearStart ?? (years.length ? years[0] : null);
+  const yearEnd = country.yearEnd ?? stats.yearEnd ?? (years.length ? years[years.length - 1] : null);
+  const yearRange = yearStart && yearEnd ? `${yearStart} — ${yearEnd}` : "—";
+  const statCoins = stats.coins ?? coins.length;
+  const statYears = years.length || (detail?.timeline?.length ?? 0);
+  const statSeries = stats.series ?? new Set(coins.map((c) => c.seriesSlug).filter(Boolean)).size;
 
   return (
     <div className="ca-page" data-testid={COUNTRY_DETAIL.page}>
@@ -77,15 +110,15 @@ export const CountryDetail = () => {
             <div className="lg:col-span-5 ca-reveal ca-reveal--delay-1" data-testid={COUNTRY_DETAIL.stats}>
               <div className="grid grid-cols-3 gap-4" style={{ border: "1px solid var(--ca-border)", borderRadius: 18, padding: 28 }}>
                 <div>
-                  <div className="ca-display" style={{ fontSize: 38, color: "var(--ca-gold-light)" }}>{coins.length}</div>
+                  <div className="ca-display" style={{ fontSize: 38, color: "var(--ca-gold-light)" }}>{statCoins}</div>
                   <div className="ca-mono mt-1">{t.countryDetail.stats.coins}</div>
                 </div>
                 <div>
-                  <div className="ca-display" style={{ fontSize: 38, color: "var(--ca-gold-light)" }}>{years.length || 0}</div>
+                  <div className="ca-display" style={{ fontSize: 38, color: "var(--ca-gold-light)" }}>{statYears}</div>
                   <div className="ca-mono mt-1">{t.countryDetail.stats.years}</div>
                 </div>
                 <div>
-                  <div className="ca-display" style={{ fontSize: 38, color: "var(--ca-gold-light)" }}>{new Set(coins.map((c) => c.seriesSlug)).size}</div>
+                  <div className="ca-display" style={{ fontSize: 38, color: "var(--ca-gold-light)" }}>{statSeries}</div>
                   <div className="ca-mono mt-1">{t.countryDetail.stats.series}</div>
                 </div>
               </div>
@@ -97,7 +130,6 @@ export const CountryDetail = () => {
         </div>
       </header>
 
-      {/* Coin grid */}
       <main className="ca-section" data-testid={COUNTRY_DETAIL.grid}>
         <div className="ca-container">
           <SectionId num="II" label={`${t.countryDetail.coinsHere} ${country.name[lang]}`} meta={`${coins.length} in archive`} />
@@ -111,7 +143,6 @@ export const CountryDetail = () => {
         </div>
       </main>
 
-      {/* German mint marks if Germany */}
       {country.code === "DE" && (
         <section data-testid={COUNTRY_DETAIL.mintsSection} className="ca-section">
           <div className="ca-container">
@@ -134,7 +165,6 @@ export const CountryDetail = () => {
         </section>
       )}
 
-      {/* Timeline */}
       {years.length > 0 && (
         <section data-testid={COUNTRY_DETAIL.timeline} className="ca-section">
           <div className="ca-container">

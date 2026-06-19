@@ -1,9 +1,9 @@
 # Next Task
 
 ## Current Goal
-Connect country detail page to WordPress API via service layer — keep mock fallback, no UI changes.
+Connect series listing and detail to WordPress API — keep mock fallback, no UI changes.
 
 ## Verify Next
-- Coin detail loads from API with related coins + gallery
-- `/coins` listing and search still work
+- `/countries` and `/countries/DE` load from API
+- Coin detail and coins listing still work
 - `npm run build` passes

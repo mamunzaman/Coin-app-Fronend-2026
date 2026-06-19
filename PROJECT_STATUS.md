@@ -9,13 +9,14 @@
 - [x] `SearchOverlay` connected via `searchArchive()` with mock fallback + debounce
 - [x] `/coins` listing connected via `getCoinsList()` with facets, pagination, mock fallback
 - [x] Coin detail connected via `getCoinDetail()` with related coins + mock fallback
+- [x] Countries list + detail connected via `getCountriesList()` / `getCountryDetail()`
 
 ## In Progress
-- [ ] Connect country and series detail pages to WordPress API
+- [ ] Connect series pages to WordPress API
 
 ## Pending Tasks
 - [ ] Implement normalizers for WP payloads
-- [ ] Wire country detail page through service layer
+- [ ] Wire series listing/detail through service layer
 
 ## Last Update
-2026-06-19 — Coin detail live from `/wp-json/coinarchive/v1/coins/{slug}` with related coins
+2026-06-19 — Countries pages live from `/wp-json/coinarchive/v1/countries`

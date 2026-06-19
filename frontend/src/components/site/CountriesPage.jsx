@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
-import { COUNTRIES, COINS } from "@/services/coinArchiveService";
+import { getCountriesList } from "@/services/coinArchiveService";
 import { COUNTRIES_PAGE } from "@/constants/testIds/home";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
@@ -14,9 +14,24 @@ export const CountriesPage = () => {
   useScrollReveal();
   const { t, lang } = useLang();
   useDocumentTitle(t.countriesPage.title);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Sorted by coins count desc — Germany leads but page isn't Germany-only
-  const sorted = [...COUNTRIES].sort((a, b) => b.coins - a.coins);
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+
+    getCountriesList().then((result) => {
+      if (!cancelled) {
+        setItems(result.items);
+        setLoading(false);
+      }
+    });
+
+    return () => { cancelled = true; };
+  }, []);
+
+  const latestYearLabel = new Date().getFullYear();
 
   return (
     <div className="ca-page" data-testid={COUNTRIES_PAGE.page}>
@@ -24,7 +39,7 @@ export const CountriesPage = () => {
 
       <header className="ca-coins-header">
         <div className="ca-container">
-          <SectionId num="II" label={t.countriesPage.eyebrow} meta={`${COUNTRIES.length} states`} />
+          <SectionId num="II" label={t.countriesPage.eyebrow} meta={`${items.length} states`} />
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-end">
             <div className="md:col-span-7">
               <h1 className="ca-section-title" style={{ fontSize: "clamp(40px, 6vw, 80px)" }}>
@@ -38,12 +53,13 @@ export const CountriesPage = () => {
         </div>
       </header>
 
-      <main className="ca-section">
+      <main className="ca-section" aria-busy={loading}>
         <div className="ca-container">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
-            {sorted.map((c, i) => {
-              const actualCount = COINS.filter((x) => x.countryCode === c.code).length;
-              return (
+          {loading ? (
+            <div className="ca-mono">{lang === "de" ? "Lädt…" : "Loading…"}</div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
+              {items.map((c, i) => (
                 <Link
                   key={c.code}
                   to={`/countries/${c.code.toLowerCase()}`}
@@ -51,10 +67,14 @@ export const CountriesPage = () => {
                   className={`ca-country-card ca-reveal ca-reveal--delay-${Math.min(i, 5)}`}
                 >
                   <div className="ca-country-card__media">
-                    <div className="ca-monogram">
-                      <span className="ca-monogram__letters">{c.code}</span>
-                      <span className="ca-monogram__year">{c.since} — 2025</span>
-                    </div>
+                    {c.featuredCoin && c.featured ? (
+                      <img src={c.featured} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      <div className="ca-monogram">
+                        <span className="ca-monogram__letters">{c.code}</span>
+                        <span className="ca-monogram__year">{c.since} — {c.latestYear || latestYearLabel}</span>
+                      </div>
+                    )}
                   </div>
                   <div className="ca-country-card__body" style={{ flexDirection: "column", alignItems: "flex-start", gap: 12 }}>
                     <div className="flex items-center gap-3 w-full">
@@ -69,13 +89,13 @@ export const CountriesPage = () => {
                     </div>
                     <p className="ca-soft" style={{ fontSize: 13.5, lineHeight: 1.55 }}>{c.blurb[lang]}</p>
                     <div className="ca-mono" style={{ fontSize: 10.5, color: "var(--ca-gold-light)" }}>
-                      {c.coins} {t.countriesPage.coinsCount} · {actualCount} in archive
+                      {c.coins} {t.countriesPage.coinsCount} · {c.coinCount ?? c.coins} in archive
                     </div>
                   </div>
                 </Link>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </main>
 
