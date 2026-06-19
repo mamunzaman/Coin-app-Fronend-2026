@@ -9,6 +9,8 @@ import Footer from "./Footer";
 import SectionId from "./SectionId";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import useDocumentTitle from "@/hooks/useDocumentTitle";
+import useArtificialLoad from "@/hooks/useArtificialLoad";
+import { SkeletonSeriesCard } from "./Skeleton";
 
 export const SeriesPage = () => {
   const { t, lang } = useLang();
@@ -16,8 +18,10 @@ export const SeriesPage = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [source, setSource] = useState("mock");
+  const delayLoading = useArtificialLoad(420);
+  const showSkeleton = loading || delayLoading;
 
-  useScrollReveal([loading, items.length, source]);
+  useScrollReveal([showSkeleton, items.length, source]);
 
   useEffect(() => {
     let cancelled = false;
@@ -50,10 +54,14 @@ export const SeriesPage = () => {
         </div>
       </header>
 
-      <main className="ca-section" aria-busy={loading}>
+      <main className="ca-section" aria-busy={showSkeleton}>
         <div className="ca-container">
-          {loading ? (
-            <div className="ca-mono">{lang === "de" ? "Lädt…" : "Loading…"}</div>
+          {showSkeleton ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <SkeletonSeriesCard key={i} />
+              ))}
+            </div>
           ) : items.length === 0 ? (
             <div className="ca-empty ca-reveal is-visible" data-testid={SERIES_PAGE.empty}>
               <div className="ca-display" style={{ fontSize: 28, marginBottom: 12 }}>{t.seriesPage.empty}</div>

@@ -10,19 +10,23 @@ import SectionId from "./SectionId";
 import CoinCard from "./CoinCard";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import useDocumentTitle from "@/hooks/useDocumentTitle";
+import useArtificialLoad from "@/hooks/useArtificialLoad";
+import { Skeleton, SkeletonCoinCard } from "./Skeleton";
 
 export const SeriesDetail = () => {
   const { slug } = useParams();
   const { t, lang } = useLang();
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
+  const delayLoading = useArtificialLoad(420, slug);
+  const showSkeleton = loading || delayLoading;
 
   const series = detail?.series ?? null;
   const coins = detail?.coins ?? [];
 
-  useScrollReveal([loading, slug, coins.length, series?.slug]);
+  useScrollReveal([showSkeleton, slug, coins.length, series?.slug]);
 
-  useDocumentTitle(series ? series.name[lang] : loading ? t.nav.series : "Series");
+  useDocumentTitle(series ? series.name[lang] : showSkeleton ? t.nav.series : "Series");
 
   useEffect(() => {
     let cancelled = false;
@@ -39,11 +43,27 @@ export const SeriesDetail = () => {
     return () => { cancelled = true; };
   }, [slug]);
 
-  if (loading) {
+  if (showSkeleton) {
     return (
       <div className="ca-page" data-testid={SERIES_DETAIL.page}>
         <Navbar />
-        <div className="ca-container ca-section" style={{ minHeight: 400 }} aria-busy="true" />
+        <header className="ca-coins-header">
+          <div className="ca-container">
+            <Skeleton w={180} h={14} r={4} />
+            <Skeleton w="75%" h={64} r={10} style={{ marginTop: 32 }} />
+            <Skeleton w="55%" h={16} r={6} style={{ marginTop: 20 }} />
+            <Skeleton w={320} h={12} r={4} style={{ marginTop: 28 }} />
+          </div>
+        </header>
+        <main className="ca-section" aria-busy="true">
+          <div className="ca-container">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <SkeletonCoinCard key={i} />
+              ))}
+            </div>
+          </div>
+        </main>
         <Footer />
       </div>
     );

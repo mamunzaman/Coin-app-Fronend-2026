@@ -10,6 +10,8 @@ import SectionId from "./SectionId";
 import CoinCard from "./CoinCard";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import useDocumentTitle from "@/hooks/useDocumentTitle";
+import useArtificialLoad from "@/hooks/useArtificialLoad";
+import { Skeleton, SkeletonCoinCard, SkeletonStat } from "./Skeleton";
 
 export const CountryDetail = () => {
   const { code } = useParams();
@@ -17,14 +19,16 @@ export const CountryDetail = () => {
   const upperCode = (code || "").toUpperCase();
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
+  const delayLoading = useArtificialLoad(420, upperCode);
+  const showSkeleton = loading || delayLoading;
 
   const country = detail?.country ?? null;
   const coins = detail?.coins ?? [];
   const stats = detail?.stats ?? {};
 
-  useScrollReveal([loading, code, coins.length, country?.code]);
+  useScrollReveal([showSkeleton, code, coins.length, country?.code]);
 
-  useDocumentTitle(country ? country.name[lang] : loading ? t.nav.countries : "Country");
+  useDocumentTitle(country ? country.name[lang] : showSkeleton ? t.nav.countries : "Country");
 
   useEffect(() => {
     let cancelled = false;
@@ -41,11 +45,36 @@ export const CountryDetail = () => {
     return () => { cancelled = true; };
   }, [upperCode]);
 
-  if (loading) {
+  if (showSkeleton) {
     return (
       <div className="ca-page" data-testid={COUNTRY_DETAIL.page}>
         <Navbar />
-        <div className="ca-container ca-section" style={{ minHeight: 400 }} aria-busy="true" />
+        <header className="ca-coins-header">
+          <div className="ca-container">
+            <Skeleton w={180} h={14} r={4} />
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center mt-10">
+              <div className="lg:col-span-7">
+                <Skeleton w="70%" h={64} r={10} />
+                <Skeleton w="40%" h={14} r={4} style={{ marginTop: 16 }} />
+                <Skeleton w="90%" h={16} r={6} style={{ marginTop: 24 }} />
+              </div>
+              <div className="lg:col-span-5">
+                <div className="grid grid-cols-3 gap-4">
+                  {Array.from({ length: 3 }).map((_, i) => <SkeletonStat key={i} />)}
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+        <main className="ca-section" aria-busy="true">
+          <div className="ca-container">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <SkeletonCoinCard key={i} />
+              ))}
+            </div>
+          </div>
+        </main>
         <Footer />
       </div>
     );

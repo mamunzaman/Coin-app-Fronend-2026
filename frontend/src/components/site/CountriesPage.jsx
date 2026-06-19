@@ -9,6 +9,8 @@ import Footer from "./Footer";
 import SectionId from "./SectionId";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import useDocumentTitle from "@/hooks/useDocumentTitle";
+import useArtificialLoad from "@/hooks/useArtificialLoad";
+import { SkeletonCountryCard } from "./Skeleton";
 
 export const CountriesPage = () => {
   const { t, lang } = useLang();
@@ -16,8 +18,10 @@ export const CountriesPage = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [source, setSource] = useState("mock");
+  const delayLoading = useArtificialLoad(420);
+  const showSkeleton = loading || delayLoading;
 
-  useScrollReveal([loading, items.length, source]);
+  useScrollReveal([showSkeleton, items.length, source]);
 
   useEffect(() => {
     let cancelled = false;
@@ -56,10 +60,14 @@ export const CountriesPage = () => {
         </div>
       </header>
 
-      <main className="ca-section" aria-busy={loading}>
+      <main className="ca-section" aria-busy={showSkeleton}>
         <div className="ca-container">
-          {loading ? (
-            <div className="ca-mono">{lang === "de" ? "Lädt…" : "Loading…"}</div>
+          {showSkeleton ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <SkeletonCountryCard key={i} />
+              ))}
+            </div>
           ) : items.length === 0 ? (
             <div className="ca-empty ca-reveal is-visible" data-testid={COUNTRIES_PAGE.empty}>
               <div className="ca-display" style={{ fontSize: 28, marginBottom: 12 }}>{t.countriesPage.empty}</div>

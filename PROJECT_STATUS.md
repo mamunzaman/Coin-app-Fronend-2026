@@ -15,9 +15,14 @@
 - [x] Homepage premium polish — hero stats, archive overview, featured coins, learning, search CTA, trust section
 - [x] Coin detail visible content fix — scroll-reveal re-scan + defensive render helpers
 - [x] Public listing visibility fix — async pages re-scan scroll reveal + empty states
+- [x] Emergent coin detail editorial layout ported (hero, facts grid, prose, specs slab, gallery, related strip)
+- [x] Skeleton loading system (`Skeleton.jsx`, `useArtificialLoad.js`) on detail + listing pages
 
 ## In Progress
-- [ ] Manual verification of all public listing pages
+- [ ] Manual browser verification of redesigned coin detail + skeleton loaders
+
+## Pending Tasks
+- [ ] End-to-end WP API smoke test on coin detail slug with live backend
 
 ## Last Update
-2026-06-19 — Fixed blank /countries and async listing pages (ca-reveal timing)
+2026-06-19 — Ported Emergent detail design + skeleton loaders without breaking WP API layer

@@ -9,6 +9,8 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 import CoinCard from "./CoinCard";
 import { useSearchParams } from "react-router-dom";
 import useDocumentTitle from "@/hooks/useDocumentTitle";
+import useArtificialLoad from "@/hooks/useArtificialLoad";
+import { SkeletonCoinCard } from "./Skeleton";
 
 const SORTS = ["newest", "oldest", "country", "rarity"];
 const PER_PAGE = 12;
@@ -33,8 +35,10 @@ export const CoinsListing = () => {
   const [source, setSource] = useState("mock");
   const [loading, setLoading] = useState(true);
   const requestId = useRef(0);
+  const delayLoading = useArtificialLoad(420);
+  const showGridSkeleton = (loading || delayLoading) && items.length === 0;
 
-  useScrollReveal([loading, items.length, page, source]);
+  useScrollReveal([loading, delayLoading, items.length, page, source]);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), SEARCH_DEBOUNCE_MS);
@@ -285,6 +289,12 @@ export const CoinsListing = () => {
               <button onClick={clearAll} className="ca-btn ca-btn--secondary">
                 {t.coins.clear}
               </button>
+            </div>
+          ) : showGridSkeleton ? (
+            <div data-testid={COINS_PAGE.grid} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7" aria-busy="true">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <SkeletonCoinCard key={i} />
+              ))}
             </div>
           ) : (
             <>
