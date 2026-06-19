@@ -12,11 +12,12 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 import useDocumentTitle from "@/hooks/useDocumentTitle";
 
 export const SeriesDetail = () => {
-  useScrollReveal();
   const { slug } = useParams();
   const { t, lang } = useLang();
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  useScrollReveal([loading, slug]);
 
   const series = detail?.series ?? null;
   const coins = detail?.coins ?? [];

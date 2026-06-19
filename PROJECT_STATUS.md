@@ -13,13 +13,13 @@
 - [x] Series list + detail connected via `getSeriesList()` / `getSeriesDetail()`
 - [x] `/learn` and `/mint-marks` polished — educational hub, mint guide, editorial sections, CTAs
 - [x] Homepage premium polish — hero stats, archive overview, featured coins, learning, search CTA, trust section
-- [x] Coin detail WP content fix — field aliases, safe rendering, image placeholder, related coins
+- [x] Coin detail visible content fix — scroll-reveal re-scan + defensive render helpers
 
 ## In Progress
-- [ ] Manual verification of WP coin detail pages
+- [ ] Manual verification of coin detail visible content
 
 ## Pending Tasks
 - [ ] End-to-end verify all WP-connected pages
 
 ## Last Update
-2026-06-19 — Coin detail WP field mapping + content rendering fix
+2026-06-19 — Coin detail invisible content fixed (ca-reveal async timing)

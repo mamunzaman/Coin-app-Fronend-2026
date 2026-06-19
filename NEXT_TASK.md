@@ -1,10 +1,9 @@
 # Next Task
 
 ## Current Goal
-Verify WP coin detail pages render title, story, specs, images, and related coins.
+Confirm coin detail page shows visible title, text, images, specs, related coins.
 
 ## Verify Next
-- Open real WP slug (e.g. deutschland-2026-2-euro-coin-150th-birthday-of-konrad-adenauer)
-- Title, historical text, specs, obverse/reverse images display
-- Missing fields show “Not recorded yet”
-- Invalid slug → not found; API offline → mock fallback
+- `/coins/deutschland-2026-2-euro-coin-150th-birthday-of-konrad-adenauer` — all sections visible immediately after load
+- No opacity:0 stuck content
+- Mock slug still works offline

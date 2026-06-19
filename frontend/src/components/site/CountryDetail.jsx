@@ -12,12 +12,13 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 import useDocumentTitle from "@/hooks/useDocumentTitle";
 
 export const CountryDetail = () => {
-  useScrollReveal();
   const { code } = useParams();
   const { t, lang } = useLang();
   const upperCode = (code || "").toUpperCase();
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  useScrollReveal([loading, code]);
 
   const country = detail?.country ?? null;
   const coins = detail?.coins ?? [];
