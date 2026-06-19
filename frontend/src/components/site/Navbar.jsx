@@ -36,10 +36,10 @@ export const Navbar = () => {
   }, []);
 
   const links = [
-    { key: "coins",     id: HOME.navCoins,     label: t.nav.coins,     to: "/coins" },
-    { key: "countries", id: HOME.navCountries, label: t.nav.countries, to: "/countries" },
-    { key: "series",    id: HOME.navSeries,    label: t.nav.series,    to: "/series" },
-    { key: "learn",     id: HOME.navLearn,     label: t.nav.learn,     to: "/learn" },
+    { key: "coins",     id: HOME.navCoins,     label: t.nav.coins,     to: "/coins",     num: "i" },
+    { key: "countries", id: HOME.navCountries, label: t.nav.countries, to: "/countries", num: "ii" },
+    { key: "series",    id: HOME.navSeries,    label: t.nav.series,    to: "/series",    num: "iii" },
+    { key: "learn",     id: HOME.navLearn,     label: t.nav.learn,     to: "/learn",     num: "iv" },
   ];
 
   const renderLink = (l, isMobile = false) => {
@@ -53,7 +53,8 @@ export const Navbar = () => {
         className={cls}
         onClick={() => isMobile && setMenuOpen(false)}
       >
-        {l.label}
+        <span className="ca-nav__num" aria-hidden="true">{l.num}.</span>
+        <span className="ca-nav__label">{l.label}</span>
       </Link>
     );
   };
@@ -62,21 +63,20 @@ export const Navbar = () => {
     <>
       <header className={`ca-nav ${scrolled ? "ca-nav--scrolled" : ""}`}>
         <div className="ca-container flex items-center justify-between h-[72px]">
-          <Link to="/" data-testid={HOME.navLogo} className="flex items-center gap-2 group">
-            <span className="relative inline-flex h-7 w-7 items-center justify-center rounded-full"
-                  style={{ background: "linear-gradient(180deg, #F2D16B 0%, #A97E12 100%)" }}>
-              <span className="ca-display italic" style={{ color: "#0F1115", fontSize: 14, fontWeight: 700 }}>€</span>
+          <Link to="/" data-testid={HOME.navLogo} className="ca-nav__logo flex items-center gap-2.5 group">
+            <span className="ca-nav__logo-badge">
+              <span className="ca-display italic">€</span>
             </span>
-            <span className="ca-display" style={{ fontSize: 20, letterSpacing: "-0.01em" }}>
-              Coin<span style={{ color: "var(--ca-gold-light)" }}>Archive</span>
+            <span className="ca-nav__logo-text ca-display">
+              Coin<span className="ca-nav__logo-text--accent">Archive</span>
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-10">
+          <nav className="hidden lg:flex items-center gap-9">
             {links.map((l) => renderLink(l))}
           </nav>
 
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-3">
             <button
               data-testid={HOME.navLangToggle}
               onClick={toggle}
@@ -101,7 +101,7 @@ export const Navbar = () => {
 
           <button
             data-testid={HOME.navMobileToggle}
-            className="md:hidden ca-btn ca-btn--ghost ca-btn--sm"
+            className="lg:hidden ca-btn ca-btn--ghost ca-btn--sm"
             onClick={() => setMenuOpen((v) => !v)}
             aria-label="Menu"
             style={{ padding: 10 }}
@@ -112,7 +112,7 @@ export const Navbar = () => {
       </header>
 
       {/* Mobile menu */}
-      <div className={`ca-mobile-menu ${menuOpen ? "is-open" : ""} md:hidden`}>
+      <div className={`ca-mobile-menu ${menuOpen ? "is-open" : ""} lg:hidden`}>
         {links.map((l) => renderLink(l, true))}
         <button
           className="ca-mobile-menu__link text-left"
