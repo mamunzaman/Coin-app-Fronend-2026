@@ -122,8 +122,27 @@ function normalizePagination(raw, fallback = {}) {
   const page = Number(raw?.page) || fallback.page || 1;
   const perPage = Number(raw?.perPage) || fallback.perPage || 12;
   const total = Number(raw?.total) ?? fallback.total ?? 0;
-  const totalPages = Number(raw?.totalPages) || fallback.totalPages || Math.max(1, Math.ceil(total / perPage));
+  const totalPages = raw?.totalPages != null
+    ? Number(raw.totalPages)
+    : (fallback.totalPages ?? (total > 0 ? Math.ceil(total / perPage) : 0));
+
   return { page, perPage, total, totalPages };
+}
+
+function normalizeCoinsListParams(params = {}) {
+  const search = (params.search ?? params.q ?? "").trim();
+  const perPage = Math.max(1, Math.min(50, Number(params.perPage ?? params.per_page) || 12));
+
+  return {
+    q: search,
+    country: params.country ?? "all",
+    year: params.year ?? "all",
+    mint: params.mintMark ?? params.mint ?? "all",
+    series: params.series ?? "all",
+    sort: params.sort ?? "newest",
+    page: Math.max(1, Number(params.page) || 1),
+    per_page: perPage,
+  };
 }
 
 export function getMockFacets() {
@@ -162,49 +181,45 @@ function filterMockCoins({ q = "", country = "all", year = "all", mint = "all", 
 
 function getMockCoinsList(params = {}) {
   const {
-    q = "",
-    country = "all",
-    year = "all",
-    mint = "all",
-    series = "all",
-    sort = "newest",
-    page = 1,
-    per_page = 12,
-  } = params;
+    q,
+    country,
+    year,
+    mint,
+    series,
+    sort,
+    page,
+    per_page,
+  } = normalizeCoinsListParams(params);
 
   const filtered = filterMockCoins({ q, country, year, mint, series, sort });
   const start = (page - 1) * per_page;
   const items = filtered.slice(start, start + per_page);
+  const total = filtered.length;
+  const totalPages = total > 0 ? Math.ceil(total / per_page) : 0;
 
   return {
     items,
     facets: getMockFacets(),
-    pagination: normalizePagination(null, {
-      page,
-      perPage: per_page,
-      total: filtered.length,
-      totalPages: Math.max(1, Math.ceil(filtered.length / per_page)),
-    }),
+    pagination: { page, perPage: per_page, total, totalPages },
     source: "mock",
   };
 }
 
 export async function getCoinsList(params = {}) {
   const {
-    q = "",
-    country = "all",
-    year = "all",
-    mint = "all",
-    series = "all",
-    sort = "newest",
-    page = 1,
-    per_page = 12,
-  } = params;
+    q,
+    country,
+    year,
+    mint,
+    series,
+    sort,
+    page,
+    per_page,
+  } = normalizeCoinsListParams(params);
 
   try {
     const urlParams = new URLSearchParams();
-    const query = q.trim();
-    if (query) urlParams.set("q", query);
+    if (q) urlParams.set("q", q);
     if (country !== "all") urlParams.set("country", country);
     if (year !== "all") urlParams.set("year", String(year));
     if (mint !== "all") urlParams.set("mint", mint);
@@ -213,13 +228,23 @@ export async function getCoinsList(params = {}) {
     urlParams.set("page", String(page));
     urlParams.set("per_page", String(per_page));
 
-    const raw = await wpFetch(`${COINS_PATH}?${urlParams}`);
+    const result = await wpFetch(`${COINS_PATH}?${urlParams}`, { includeHeaders: true });
+    const raw = result?.data ?? result;
     const items = Array.isArray(raw?.items) ? raw.items.map(normalizeCoinCard) : [];
+    const headerTotal = Number(result?.headers?.total);
+    const headerTotalPages = Number(result?.headers?.totalPages);
+
+    const pagination = normalizePagination(raw?.pagination, {
+      page,
+      perPage: per_page,
+      total: Number.isFinite(headerTotal) ? headerTotal : items.length,
+      totalPages: Number.isFinite(headerTotalPages) ? headerTotalPages : undefined,
+    });
 
     return {
       items,
       facets: normalizeFacets(raw?.facets),
-      pagination: normalizePagination(raw?.pagination, { page, perPage: per_page, total: items.length }),
+      pagination,
       source: "wp",
     };
   } catch {

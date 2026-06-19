@@ -44,6 +44,9 @@ export const COINS_PAGE = {
   card: (slug) => `coin-card-${slug}`,
   empty: "coins-empty-state",
   loadMore: "coins-load-more",
+  paginationPrev: "coins-pagination-prev",
+  paginationNext: "coins-pagination-next",
+  paginationStatus: "coins-pagination-status",
 };
 
 export const COIN_DETAIL = {

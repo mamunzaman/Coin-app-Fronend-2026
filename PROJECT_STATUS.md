@@ -7,16 +7,17 @@
 - [x] `wpClient.js` — configurable base URL, timeout, JSON handling, `WpClientError`
 - [x] Homepage `Stats` connected via `getStats()` with mock fallback
 - [x] `SearchOverlay` connected via `searchArchive()` with mock fallback + debounce
-- [x] `/coins` listing connected via `getCoinsList()` with facets, pagination, mock fallback
+- [x] `/coins` listing with WP filters (search, country, year, series, mint), prev/next pagination, mock fallback
 - [x] Coin detail connected via `getCoinDetail()` with related coins + mock fallback
 - [x] Countries list + detail connected via `getCountriesList()` / `getCountryDetail()`
 - [x] Series list + detail connected via `getSeriesList()` / `getSeriesDetail()`
 
 ## In Progress
-- [ ] End-to-end verification of all WP-connected pages
+- [ ] Manual verification of coins filters + pagination on live WP
 
 ## Pending Tasks
+- [ ] End-to-end verify all WP-connected pages
 - [ ] Remaining static homepage sections (if any)
 
 ## Last Update
-2026-06-19 — Series pages live from `/wp-json/coinarchive/v1/series`
+2026-06-19 — Coins listing filters + prev/next pagination via `getCoinsList()`

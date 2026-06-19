@@ -11,7 +11,7 @@ import { useSearchParams } from "react-router-dom";
 import useDocumentTitle from "@/hooks/useDocumentTitle";
 
 const SORTS = ["newest", "oldest", "country", "rarity"];
-const PAGE_SIZE = 12;
+const PER_PAGE = 12;
 const SEARCH_DEBOUNCE_MS = 300;
 
 export const CoinsListing = () => {
@@ -27,13 +27,13 @@ export const CoinsListing = () => {
   const [mint, setMint] = useState(params.get("mint") || "all");
   const [seriesFilter, setSeriesFilter] = useState(params.get("series") || "all");
   const [sort, setSort] = useState(params.get("sort") || "newest");
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(Math.max(1, Number(params.get("page")) || 1));
   const [items, setItems] = useState([]);
   const [facets, setFacets] = useState(null);
   const [pagination, setPagination] = useState(null);
   const [source, setSource] = useState("mock");
   const [loading, setLoading] = useState(true);
-  const filterVersion = useRef(0);
+  const requestId = useRef(0);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), SEARCH_DEBOUNCE_MS);
@@ -48,40 +48,39 @@ export const CoinsListing = () => {
     if (mint !== "all") next.set("mint", mint);
     if (seriesFilter !== "all") next.set("series", seriesFilter);
     if (sort !== "newest") next.set("sort", sort);
+    if (page > 1) next.set("page", String(page));
     setParams(next, { replace: true });
-  }, [search, country, year, mint, seriesFilter, sort, setParams]);
+  }, [search, country, year, mint, seriesFilter, sort, page, setParams]);
 
   useEffect(() => {
-    filterVersion.current += 1;
     setPage(1);
   }, [debouncedSearch, country, year, mint, seriesFilter, sort]);
 
   useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, []);
 
   useEffect(() => {
-    const version = filterVersion.current;
-    let cancelled = false;
+    const id = ++requestId.current;
     setLoading(true);
 
     getCoinsList({
-      q: debouncedSearch,
+      search: debouncedSearch,
       country,
       year,
-      mint,
+      mintMark: mint,
       series: seriesFilter,
       sort,
       page,
-      per_page: PAGE_SIZE,
+      perPage: PER_PAGE,
     }).then((result) => {
-      if (cancelled || version !== filterVersion.current) return;
-      setItems((prev) => (page === 1 ? result.items : [...prev, ...result.items]));
+      if (id !== requestId.current) return;
+      setItems(result.items);
       setFacets(result.facets);
       setPagination(result.pagination);
       setSource(result.source);
       setLoading(false);
     });
 
-    return () => { cancelled = true; };
+    return () => { requestId.current += 1; };
   }, [debouncedSearch, country, year, mint, seriesFilter, sort, page]);
 
   const clearAll = () => {
@@ -91,15 +90,18 @@ export const CoinsListing = () => {
     setMint("all");
     setSeriesFilter("all");
     setSort("newest");
+    setPage(1);
   };
 
   const hasFilter = search || country !== "all" || year !== "all" || mint !== "all" || seriesFilter !== "all" || sort !== "newest";
-  const totalCount = source === "wp" && pagination?.total != null
-    ? pagination.total
-    : pagination?.total ?? items.length;
-  const hasMore = pagination ? page < pagination.totalPages : false;
-  const remaining = Math.max(0, totalCount - items.length);
+  const totalCount = pagination?.total ?? 0;
+  const currentPage = pagination?.page ?? page;
+  const totalPages = pagination?.totalPages ?? 0;
+  const canPrev = currentPage > 1;
+  const canNext = totalPages > 0 && currentPage < totalPages;
   const loadingLabel = lang === "de" ? "Aktualisiere…" : "Updating…";
+  const prevLabel = lang === "de" ? "Zurück" : "Previous";
+  const nextLabel = lang === "de" ? "Weiter" : "Next";
 
   const countryOptions = facets?.countries?.length ? facets.countries : COUNTRIES;
   const yearOptions = facets?.years?.length
@@ -112,6 +114,11 @@ export const CoinsListing = () => {
     }))
     : MINTS;
   const seriesOptions = facets?.series?.length ? facets.series : SERIES_LIST;
+
+  const goToPage = (nextPage) => {
+    setPage(Math.max(1, nextPage));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <div className="ca-page" data-testid={COINS_PAGE.page}>
@@ -262,7 +269,7 @@ export const CoinsListing = () => {
             <div data-testid={COINS_PAGE.resultsCount} className="ca-mono" aria-busy={loading}>
               {loading && items.length === 0
                 ? loadingLabel
-                : `${totalCount} ${t.coins.resultsCount}${loading && items.length > 0 ? ` · ${loadingLabel}` : ""}`}
+                : `${totalCount} ${t.coins.resultsCount}${loading ? ` · ${loadingLabel}` : ""}`}
             </div>
             {hasFilter && (
               <button onClick={clearAll} className="ca-mono" style={{ color: "var(--ca-gold-light)" }}>
@@ -285,15 +292,28 @@ export const CoinsListing = () => {
                   <CoinCard key={c.slug} coin={c} />
                 ))}
               </div>
-              {hasMore && (
-                <div className="text-center mt-14">
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-4 mt-14">
                   <button
-                    data-testid={COINS_PAGE.loadMore}
-                    onClick={() => setPage((p) => p + 1)}
-                    disabled={loading}
+                    type="button"
+                    data-testid={COINS_PAGE.paginationPrev}
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={!canPrev || loading}
                     className="ca-btn ca-btn--secondary"
                   >
-                    Load more · {remaining} remaining
+                    {prevLabel}
+                  </button>
+                  <span className="ca-mono" data-testid={COINS_PAGE.paginationStatus}>
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <button
+                    type="button"
+                    data-testid={COINS_PAGE.paginationNext}
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={!canNext || loading}
+                    className="ca-btn ca-btn--secondary"
+                  >
+                    {nextLabel}
                   </button>
                 </div>
               )}
