@@ -9,11 +9,14 @@ import Footer from "./Footer";
 import SectionId from "./SectionId";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import useDocumentTitle from "@/hooks/useDocumentTitle";
+import useArtificialLoad from "@/hooks/useArtificialLoad";
+import { SkeletonCountryCard } from "./Skeleton";
 
 export const CountriesPage = () => {
-  useScrollReveal();
   const { t, lang } = useLang();
   useDocumentTitle(t.countriesPage.title);
+  const loading = useArtificialLoad(420);
+  useScrollReveal(loading);
 
   // Sorted by coins count desc — Germany leads but page isn't Germany-only
   const sorted = [...COUNTRIES].sort((a, b) => b.coins - a.coins);
@@ -40,7 +43,14 @@ export const CountriesPage = () => {
 
       <main className="ca-section">
         <div className="ca-container">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7" aria-busy="true">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <SkeletonCountryCard key={i} />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
             {sorted.map((c, i) => {
               const actualCount = COINS.filter((x) => x.countryCode === c.code).length;
               return (
@@ -76,6 +86,7 @@ export const CountriesPage = () => {
               );
             })}
           </div>
+          )}
         </div>
       </main>
 

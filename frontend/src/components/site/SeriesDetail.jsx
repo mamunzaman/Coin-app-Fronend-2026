@@ -10,13 +10,16 @@ import SectionId from "./SectionId";
 import CoinCard from "./CoinCard";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import useDocumentTitle from "@/hooks/useDocumentTitle";
+import useArtificialLoad from "@/hooks/useArtificialLoad";
+import { SkeletonCoinCard } from "./Skeleton";
 
 export const SeriesDetail = () => {
-  useScrollReveal();
   const { slug } = useParams();
   const { t, lang } = useLang();
   const series = findSeries(slug);
   const coins = series ? coinsBySeries(series.slug) : [];
+  const loading = useArtificialLoad(420);
+  useScrollReveal(loading);
   useDocumentTitle(series ? series.name[lang] : "Series");
 
   useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, [slug]);
@@ -79,7 +82,13 @@ export const SeriesDetail = () => {
       <main className="ca-section" data-testid={SERIES_DETAIL.grid}>
         <div className="ca-container">
           <SectionId num="II" label={t.seriesDetail.coinsInSeries} meta={`${coins.length} entries`} />
-          {coins.length === 0 ? (
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7" aria-busy="true">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <SkeletonCoinCard key={i} />
+              ))}
+            </div>
+          ) : coins.length === 0 ? (
             <p className="ca-muted">No coins catalogued yet for this series.</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">

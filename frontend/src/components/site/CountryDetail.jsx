@@ -10,14 +10,17 @@ import SectionId from "./SectionId";
 import CoinCard from "./CoinCard";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import useDocumentTitle from "@/hooks/useDocumentTitle";
+import useArtificialLoad from "@/hooks/useArtificialLoad";
+import { SkeletonCoinCard } from "./Skeleton";
 
 export const CountryDetail = () => {
-  useScrollReveal();
   const { code } = useParams();
   const { t, lang } = useLang();
   const upperCode = (code || "").toUpperCase();
   const country = findCountry(upperCode);
   const coins = coinsByCountry(upperCode);
+  const loading = useArtificialLoad(420);
+  useScrollReveal(loading);
   useDocumentTitle(country ? country.name[lang] : "Country");
 
   useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, [code]);
@@ -101,7 +104,13 @@ export const CountryDetail = () => {
       <main className="ca-section" data-testid={COUNTRY_DETAIL.grid}>
         <div className="ca-container">
           <SectionId num="II" label={`${t.countryDetail.coinsHere} ${country.name[lang]}`} meta={`${coins.length} in archive`} />
-          {coins.length === 0 ? (
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7" aria-busy="true">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <SkeletonCoinCard key={i} />
+              ))}
+            </div>
+          ) : coins.length === 0 ? (
             <p className="ca-muted">No coins yet in this country&apos;s archive.</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">

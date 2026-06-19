@@ -9,11 +9,14 @@ import Footer from "./Footer";
 import SectionId from "./SectionId";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import useDocumentTitle from "@/hooks/useDocumentTitle";
+import useArtificialLoad from "@/hooks/useArtificialLoad";
+import { SkeletonSeriesCard } from "./Skeleton";
 
 export const SeriesPage = () => {
-  useScrollReveal();
   const { t, lang } = useLang();
   useDocumentTitle(t.seriesPage.title);
+  const loading = useArtificialLoad(420);
+  useScrollReveal(loading);
 
   return (
     <div className="ca-page" data-testid={SERIES_PAGE.page}>
@@ -33,7 +36,14 @@ export const SeriesPage = () => {
 
       <main className="ca-section">
         <div className="ca-container">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8" aria-busy="true">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <SkeletonSeriesCard key={i} />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {SERIES_LIST.map((s, i) => {
               const coins = coinsBySeries(s.slug);
               return (
@@ -60,6 +70,7 @@ export const SeriesPage = () => {
               );
             })}
           </div>
+          )}
         </div>
       </main>
 

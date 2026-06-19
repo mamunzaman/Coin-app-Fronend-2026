@@ -104,4 +104,54 @@ export const SkeletonStat = () => (
   </div>
 );
 
+/* Full hero+info skeleton for the Coin Detail page */
+export const SkeletonCoinDetail = () => (
+  <div aria-busy="true">
+    <div className="ca-detail-hero" style={{ marginTop: 40 }}>
+      <div className="ca-detail-hero__media">
+        <div className="ca-detail-coin" style={{ background: "rgba(255,255,255,0.02)" }}>
+          <SkeletonCircle size="100%" />
+        </div>
+        <div style={{ marginTop: 32 }}>
+          <Skeleton w={180} h={36} r={999} />
+        </div>
+        <div style={{ marginTop: 22 }}>
+          <Skeleton w={220} h={10} r={4} />
+        </div>
+      </div>
+
+      <div className="ca-detail-hero__info">
+        <Skeleton w={260} h={11} r={4} />
+        <div style={{ marginTop: 18 }}>
+          <Skeleton w="92%" h={52} r={10} />
+          <Skeleton w="70%" h={52} r={10} style={{ marginTop: 12 }} />
+        </div>
+        <div style={{ marginTop: 28 }}>
+          <SkeletonText lines={3} lastWidth="55%" />
+        </div>
+        <div style={{ marginTop: 36 }} className="ca-detail-facts">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="ca-detail-facts__cell">
+              <Skeleton w={80} h={9} r={4} />
+              <Skeleton w="65%" h={22} r={6} style={{ marginTop: 10 }} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <div style={{ paddingTop: 96 }}>
+      <div className="ca-detail-prose">
+        <Skeleton w={220} h={11} r={4} />
+        <div style={{ marginTop: 24 }}>
+          <SkeletonText lines={5} lastWidth="42%" />
+        </div>
+        <div style={{ marginTop: 18 }}>
+          <SkeletonText lines={4} lastWidth="68%" />
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 export default Skeleton;

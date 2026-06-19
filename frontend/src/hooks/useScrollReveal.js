@@ -2,15 +2,19 @@ import { useEffect, useRef } from "react";
 
 /**
  * Adds .is-visible to elements with .ca-reveal when they enter viewport.
+ * Pass any dependency that should trigger a re-scan (e.g. loading flag flip).
  */
-export const useScrollReveal = () => {
+export const useScrollReveal = (trigger) => {
   const ref = useRef(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.querySelectorAll(".ca-reveal").forEach((t) => t.classList.add("is-visible"));
+      return;
+    }
 
-    const targets = document.querySelectorAll(".ca-reveal");
+    const targets = document.querySelectorAll(".ca-reveal:not(.is-visible)");
     if (!targets.length) return;
 
     const obs = new IntersectionObserver(
@@ -26,7 +30,9 @@ export const useScrollReveal = () => {
     );
     targets.forEach((t) => obs.observe(t));
     return () => obs.disconnect();
-  }, []);
+  }, [trigger]);
 
   return ref;
 };
+
+export default useScrollReveal;

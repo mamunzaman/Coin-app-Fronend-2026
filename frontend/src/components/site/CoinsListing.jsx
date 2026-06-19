@@ -9,12 +9,13 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 import CoinCard from "./CoinCard";
 import { useSearchParams } from "react-router-dom";
 import useDocumentTitle from "@/hooks/useDocumentTitle";
+import useArtificialLoad from "@/hooks/useArtificialLoad";
+import { SkeletonCoinCard } from "./Skeleton";
 
 const SORTS = ["newest", "oldest", "country", "rarity"];
 const PAGE_SIZE = 12;
 
 export const CoinsListing = () => {
-  useScrollReveal();
   const { t, lang } = useLang();
   useDocumentTitle(t.coins.title);
   const [params, setParams] = useSearchParams();
@@ -26,6 +27,8 @@ export const CoinsListing = () => {
   const [seriesFilter, setSeriesFilter] = useState(params.get("series") || "all");
   const [sort, setSort] = useState(params.get("sort") || "newest");
   const [visible, setVisible] = useState(PAGE_SIZE);
+  const loading = useArtificialLoad(420);
+  useScrollReveal(loading);
 
   // sync URL
   useEffect(() => {
@@ -243,6 +246,12 @@ export const CoinsListing = () => {
               <button onClick={clearAll} className="ca-btn ca-btn--secondary">
                 {t.coins.clear}
               </button>
+            </div>
+          ) : loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7" aria-busy="true">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <SkeletonCoinCard key={i} />
+              ))}
             </div>
           ) : (
             <>
