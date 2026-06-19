@@ -12,13 +12,13 @@
 - [x] Countries list + detail connected via `getCountriesList()` / `getCountryDetail()`
 - [x] Series list + detail connected via `getSeriesList()` / `getSeriesDetail()`
 - [x] `/learn` and `/mint-marks` polished — educational hub, mint guide, editorial sections, CTAs
+- [x] Homepage premium polish — hero stats, archive overview, featured coins, learning, search CTA, trust section
 
 ## In Progress
-- [ ] Manual verification of Learn and Mint Marks pages
+- [ ] Manual verification of polished homepage
 
 ## Pending Tasks
 - [ ] End-to-end verify all WP-connected pages
-- [ ] Remaining static homepage sections (if any)
 
 ## Last Update
-2026-06-19 — Learn + Mint Marks pages polished for production-ready educational UX
+2026-06-19 — Homepage premium museum polish with API stats in hero

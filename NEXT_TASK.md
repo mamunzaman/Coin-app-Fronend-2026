@@ -1,10 +1,11 @@
 # Next Task
 
 ## Current Goal
-Manually verify polished `/learn` and `/mint-marks` pages.
+Manually verify polished homepage at `/`.
 
 ## Verify Next
-- Hero, featured cards, editorial sections, CTA links on `/learn`
-- German mint grid, explanation, workflow, future note on `/mint-marks`
-- Mobile stacking, no horizontal overflow, nav links intact
-- `/learn/:slug` article routes still load
+- Hero stats load from API (mock fallback offline)
+- Archive overview, featured coins, search CTA, trust section
+- CTA links: /coins, /learn, /countries, /series, /mint-marks
+- Search button opens overlay; Ctrl+K works
+- Mobile stacking, no overflow, no console errors
