@@ -267,11 +267,14 @@ export async function getCoinDetail(slug) {
 
   try {
     const raw = await wpFetch(`${COINS_PATH}/${encodeURIComponent(slug)}`);
-    if (!raw?.coin) throw new Error("Missing coin");
+    const coinRaw = raw?.coin ?? raw?.data?.coin ?? null;
+    if (!coinRaw) throw new Error("Missing coin");
+
+    const relatedRaw = raw?.relatedCoins ?? raw?.related_coins ?? [];
 
     return {
-      coin: normalizeCoinDetail(raw.coin),
-      relatedCoins: Array.isArray(raw.relatedCoins) ? raw.relatedCoins.map(normalizeCoinCard) : [],
+      coin: normalizeCoinDetail(coinRaw),
+      relatedCoins: Array.isArray(relatedRaw) ? relatedRaw.map(normalizeCoinCard) : [],
       source: "wp",
     };
   } catch {

@@ -12,6 +12,36 @@ import useDocumentTitle from "@/hooks/useDocumentTitle";
 
 const MINT_CITIES = { A: "Berlin", D: "Munich", F: "Stuttgart", G: "Karlsruhe", J: "Hamburg" };
 
+const loc = (field, lang) => {
+  if (!field) return "";
+  if (typeof field === "string") return field;
+  return field[lang] || field.en || field.de || "";
+};
+
+const fmt = (value, fallback) => (value != null && value !== "" ? value : fallback);
+
+const fmtMintage = (value, lang, fallback) => {
+  if (value == null || value <= 0) return fallback;
+  return value.toLocaleString(lang === "de" ? "de-DE" : "en-US");
+};
+
+const StoryBlock = ({ label, num, testId, paragraphs, emptyText }) => (
+  <div data-testid={testId} className="mt-10">
+    <div className="ca-section-id" style={{ marginBottom: 20 }}>
+      <span className="ca-section-id__num">{num}</span>
+      <span className="ca-section-id__label">{label}</span>
+      <span className="ca-section-id__rule" />
+    </div>
+    {paragraphs.length > 0 ? (
+      paragraphs.map((p, i) => (
+        <p key={i} className="ca-soft" style={{ fontSize: 16, lineHeight: 1.75, marginBottom: 18 }}>{p}</p>
+      ))
+    ) : (
+      <p className="ca-soft" style={{ fontSize: 15, lineHeight: 1.7 }}>{emptyText}</p>
+    )}
+  </div>
+);
+
 export const CoinDetail = () => {
   useScrollReveal();
   const { slug } = useParams();
@@ -24,7 +54,7 @@ export const CoinDetail = () => {
   const coin = detail?.coin ?? null;
   const related = detail?.relatedCoins ?? [];
 
-  useDocumentTitle(coin ? coin.title[lang] : loading ? t.detail.breadcrumb : t.detail.notFound);
+  useDocumentTitle(coin ? loc(coin.title, lang) : loading ? t.detail.breadcrumb : t.detail.notFound);
 
   useEffect(() => {
     let cancelled = false;
@@ -70,11 +100,32 @@ export const CoinDetail = () => {
   const country = findCountry(coin.countryCode);
   const series = findSeries(coin.seriesSlug);
   const plateIdx = (coin.plateIndex ?? (COINS.findIndex((c) => c.slug === coin.slug) + 1)) || 1;
-  const specs = coin.specifications;
+  const specs = coin.specifications || {};
+  const notRecorded = t.detail.notRecorded;
 
-  const releaseStr = coin.releaseDate
-    ? new Date(coin.releaseDate).toLocaleDateString(lang === "de" ? "de-DE" : "en-US", { year: "numeric", month: "long", day: "numeric" })
-    : "—";
+  const obverseSrc = coin.obverseImage || "";
+  const reverseSrc = coin.reverseImage || coin.obverseImage || "";
+  const activeSrc = side === "obverse" ? obverseSrc : reverseSrc;
+  const hasImage = Boolean(activeSrc);
+
+  const historicalParagraphs = coin.historicalBackground?.[lang]?.length
+    ? coin.historicalBackground[lang]
+    : coin.historicalBackground?.en || [];
+
+  const obverseParagraphs = splitParagraphs(loc(coin.obverseDescription, lang));
+  const reverseParagraphs = splitParagraphs(loc(coin.reverseDescription, lang));
+  const collectorParagraphs = splitParagraphs(loc(coin.collectorNotes, lang));
+  const shortDesc = loc(coin.shortDescription, lang);
+
+  const releaseRaw = coin.releaseDate;
+  const releaseStr = releaseRaw
+    ? new Date(releaseRaw).toLocaleDateString(lang === "de" ? "de-DE" : "en-US", { year: "numeric", month: "long", day: "numeric" })
+    : notRecorded;
+
+  const countryCode = (coin.countryCode || "").toLowerCase();
+  const seriesLabel = loc(coin.series, lang) || notRecorded;
+  const coinTypeLabel = loc(coin.coinType, lang) || notRecorded;
+  const edgeLabel = loc(specs.edge, lang) || notRecorded;
 
   return (
     <div className="ca-page" data-testid={COIN_DETAIL.page}>
@@ -88,49 +139,78 @@ export const CoinDetail = () => {
             </button>
             <span className="ca-breadcrumb__sep">/</span>
             <Link to="/coins" className="ca-breadcrumb__link">{t.detail.breadcrumb}</Link>
+            {countryCode && (
+              <>
+                <span className="ca-breadcrumb__sep">/</span>
+                <Link to={`/countries/${countryCode}`} className="ca-breadcrumb__link">
+                  {country?.name[lang] || coin.country}
+                </Link>
+              </>
+            )}
             <span className="ca-breadcrumb__sep">/</span>
-            <Link to={`/countries/${coin.countryCode.toLowerCase()}`} className="ca-breadcrumb__link">{country?.name[lang] || coin.country}</Link>
-            <span className="ca-breadcrumb__sep">/</span>
-            <span className="ca-breadcrumb__current">{coin.year}</span>
+            <span className="ca-breadcrumb__current">{coin.year || notRecorded}</span>
           </nav>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start mt-10">
             <div className="lg:col-span-7 ca-reveal" style={{ position: "sticky", top: 100 }}>
-              <div className="ca-detail-coin">
-                <img
-                  data-testid={side === "obverse" ? COIN_DETAIL.obverse : COIN_DETAIL.reverse}
-                  src={side === "obverse" ? coin.obverseImage : coin.reverseImage}
-                  alt={`${coin.title[lang]} — ${side === "obverse" ? t.detail.obverse : t.detail.reverse}`}
-                />
+              <div className={`ca-detail-coin ${hasImage ? "" : "ca-detail-coin--empty"}`}>
+                {hasImage ? (
+                  <img
+                    data-testid={side === "obverse" ? COIN_DETAIL.obverse : COIN_DETAIL.reverse}
+                    src={activeSrc}
+                    alt={`${loc(coin.title, lang)} — ${side === "obverse" ? t.detail.obverse : t.detail.reverse}`}
+                  />
+                ) : (
+                  <div className="ca-detail-coin__placeholder" aria-hidden="true">
+                    <span className="ca-detail-coin__placeholder-code">{coin.countryCode || "EU"}</span>
+                    <span className="ca-detail-coin__placeholder-year">{coin.year || "—"}</span>
+                  </div>
+                )}
               </div>
 
               <div className="ca-detail-toggle">
-                <button data-testid={COIN_DETAIL.toggleObverse} onClick={() => setSide("obverse")}
-                        className={`ca-detail-toggle__btn ${side === "obverse" ? "is-active" : ""}`}
-                        aria-pressed={side === "obverse"}>{t.detail.obverse}</button>
-                <button data-testid={COIN_DETAIL.toggleReverse} onClick={() => setSide("reverse")}
-                        className={`ca-detail-toggle__btn ${side === "reverse" ? "is-active" : ""}`}
-                        aria-pressed={side === "reverse"}>{t.detail.reverse}</button>
+                <button
+                  data-testid={COIN_DETAIL.toggleObverse}
+                  onClick={() => setSide("obverse")}
+                  className={`ca-detail-toggle__btn ${side === "obverse" ? "is-active" : ""}`}
+                  aria-pressed={side === "obverse"}
+                  disabled={!obverseSrc}
+                >
+                  {t.detail.obverse}
+                </button>
+                <button
+                  data-testid={COIN_DETAIL.toggleReverse}
+                  onClick={() => setSide("reverse")}
+                  className={`ca-detail-toggle__btn ${side === "reverse" ? "is-active" : ""}`}
+                  aria-pressed={side === "reverse"}
+                  disabled={!reverseSrc}
+                >
+                  {t.detail.reverse}
+                </button>
               </div>
 
               <div className="ca-detail-plate ca-mono">
                 <span>{t.detail.plate} {String(plateIdx).padStart(3, "0")}</span>
-                <span className="sep" />
-                <strong>{coin.countryCode} · {coin.year}</strong>
-                {coin.mint && (<><span className="sep" /><span>Mint {coin.mint}</span></>)}
+                <span className="sep" aria-hidden="true" />
+                <strong>{coin.countryCode || "—"} · {coin.year || "—"}</strong>
+                {coin.mint && (<><span className="sep" aria-hidden="true" /><span>Mint {coin.mint}</span></>)}
               </div>
 
-              {coin.gallery && coin.gallery.length > 0 && (
+              {coin.gallery?.length > 0 && (
                 <div className="ca-gallery mt-10">
                   <div className="ca-mono mb-3">{t.detail.gallery}</div>
                   <div className="ca-gallery__grid">
                     {coin.gallery.map((src, i) => (
                       <button
-                        key={i}
+                        key={`${src}-${i}`}
                         data-testid={COIN_DETAIL.galleryItem(i)}
                         className="ca-gallery__thumb"
-                        onClick={() => setSide(i === 0 ? "obverse" : i === 1 ? "reverse" : side)}
-                        aria-label={`Gallery image ${i + 1}`}
+                        onClick={() => {
+                          if (i === 0 && obverseSrc) setSide("obverse");
+                          else if (i === 1 && reverseSrc) setSide("reverse");
+                        }}
+                        aria-label={`${t.detail.gallery} ${i + 1}`}
+                        type="button"
                       >
                         <img src={src} alt="" loading="lazy" />
                       </button>
@@ -142,26 +222,54 @@ export const CoinDetail = () => {
 
             <div className="lg:col-span-5 ca-reveal ca-reveal--delay-1">
               <div className="ca-mono mb-5" style={{ color: "var(--ca-gold-light)" }}>
-                {country?.name[lang] || coin.country} · {coin.year} · {coin.series[lang]}
+                {country?.name[lang] || coin.country || notRecorded} · {coin.year || notRecorded} · {seriesLabel}
               </div>
-              <h1 data-testid={COIN_DETAIL.title} className="ca-detail-title">{coin.title[lang]}</h1>
+              <h1 data-testid={COIN_DETAIL.title} className="ca-detail-title">{loc(coin.title, lang) || notRecorded}</h1>
 
-              {coin.shortDescription && (
+              {shortDesc && (
                 <p className="ca-soft mt-6" style={{ fontSize: 17, lineHeight: 1.6, fontStyle: "italic" }}>
-                  {coin.shortDescription[lang]}
+                  {shortDesc}
                 </p>
               )}
 
-              <div data-testid={COIN_DETAIL.storyTab} className="mt-10">
-                <div className="ca-section-id" style={{ marginBottom: 20 }}>
-                  <span className="ca-section-id__num">i.</span>
-                  <span className="ca-section-id__label">{t.detail.historical}</span>
-                  <span className="ca-section-id__rule" />
+              <StoryBlock
+                label={t.detail.historical}
+                num="i."
+                testId={COIN_DETAIL.storyTab}
+                paragraphs={historicalParagraphs}
+                emptyText={t.detail.noHistorical}
+              />
+
+              {(obverseParagraphs.length > 0 || reverseParagraphs.length > 0) && (
+                <div className="mt-10">
+                  {obverseParagraphs.length > 0 && (
+                    <div className="mb-8">
+                      <div className="ca-mono mb-3" style={{ color: "var(--ca-gold-light)" }}>{t.detail.obverseDesc}</div>
+                      {obverseParagraphs.map((p, i) => (
+                        <p key={`ov-${i}`} className="ca-soft" style={{ fontSize: 15, lineHeight: 1.75, marginBottom: 14 }}>{p}</p>
+                      ))}
+                    </div>
+                  )}
+                  {reverseParagraphs.length > 0 && (
+                    <div>
+                      <div className="ca-mono mb-3" style={{ color: "var(--ca-gold-light)" }}>{t.detail.reverseDesc}</div>
+                      {reverseParagraphs.map((p, i) => (
+                        <p key={`rv-${i}`} className="ca-soft" style={{ fontSize: 15, lineHeight: 1.75, marginBottom: 14 }}>{p}</p>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                {coin.historicalBackground[lang].map((p, i) => (
-                  <p key={i} className="ca-soft" style={{ fontSize: 16, lineHeight: 1.75, marginBottom: 18 }}>{p}</p>
-                ))}
-              </div>
+              )}
+
+              {collectorParagraphs.length > 0 && (
+                <StoryBlock
+                  label={t.detail.collectorNotes}
+                  num="i.b."
+                  testId="coin-detail-collector-notes"
+                  paragraphs={collectorParagraphs}
+                  emptyText={notRecorded}
+                />
+              )}
 
               <div data-testid={COIN_DETAIL.specsTab} className="mt-12">
                 <div className="ca-section-id" style={{ marginBottom: 20 }}>
@@ -170,18 +278,20 @@ export const CoinDetail = () => {
                   <span className="ca-section-id__rule" />
                 </div>
                 <dl className="ca-data-list" style={{ marginTop: 0, paddingTop: 0, borderTop: "none" }}>
-                  <dt>{t.detail.value}</dt><dd>{coin.value}</dd>
-                  <dt>{t.detail.coinType}</dt><dd>{coin.coinType[lang]}</dd>
-                  <dt>{t.detail.designer}</dt><dd data-testid={COIN_DETAIL.designerTab}>{coin.designer}</dd>
+                  <dt>{t.detail.value}</dt><dd>{fmt(coin.value, notRecorded)}</dd>
+                  <dt>{t.detail.coinType}</dt><dd>{coinTypeLabel}</dd>
+                  {coin.coinCode && (<><dt>{t.detail.coinCode}</dt><dd>{coin.coinCode}</dd></>)}
+                  <dt>{t.detail.designer}</dt><dd data-testid={COIN_DETAIL.designerTab}>{fmt(coin.designer, notRecorded)}</dd>
                   <dt>{t.detail.releaseDate}</dt><dd>{releaseStr}</dd>
-                  <dt>{t.detail.mintage}</dt><dd>{coin.mintage.toLocaleString(lang === "de" ? "de-DE" : "en-US")}</dd>
-                  <dt>{t.detail.diameter}</dt><dd>{specs.diameter}</dd>
-                  <dt>{t.detail.weight}</dt><dd>{specs.weight}</dd>
-                  <dt>{t.detail.thickness}</dt><dd>{specs.thickness}</dd>
-                  <dt>{t.detail.composition}</dt><dd>{specs.composition}</dd>
-                  <dt>{t.detail.edge}</dt><dd>{specs.edge[lang]}</dd>
-                  {coin.mint && (<><dt>{t.detail.mint}</dt><dd>{coin.mint} — {MINT_CITIES[coin.mint] || ""}</dd></>)}
-                  {coin.mintMarks && coin.mintMarks.length > 1 && (
+                  <dt>{t.detail.mintage}</dt><dd>{fmtMintage(coin.mintage, lang, notRecorded)}</dd>
+                  <dt>{t.detail.diameter}</dt><dd>{fmt(specs.diameter, notRecorded)}</dd>
+                  <dt>{t.detail.weight}</dt><dd>{fmt(specs.weight, notRecorded)}</dd>
+                  <dt>{t.detail.thickness}</dt><dd>{fmt(specs.thickness, notRecorded)}</dd>
+                  <dt>{t.detail.composition}</dt><dd>{fmt(specs.composition, notRecorded)}</dd>
+                  {specs.quality && (<><dt>{lang === "de" ? "Qualität" : "Quality"}</dt><dd>{specs.quality}</dd></>)}
+                  <dt>{t.detail.edge}</dt><dd>{edgeLabel}</dd>
+                  {coin.mint && (<><dt>{t.detail.mint}</dt><dd>{coin.mint} — {MINT_CITIES[coin.mint] || notRecorded}</dd></>)}
+                  {coin.mintMarks?.length > 1 && (
                     <>
                       <dt>{t.detail.mint} marks</dt>
                       <dd>{coin.mintMarks.join(" · ")}</dd>
@@ -191,20 +301,22 @@ export const CoinDetail = () => {
                   <dd>
                     {series ? (
                       <Link to={`/series/${series.slug}`} className="ca-breadcrumb__link" style={{ color: "var(--ca-gold-light)" }}>
-                        {coin.series[lang]} <ArrowUpRight size={12} style={{ display: "inline", marginLeft: 2 }} />
+                        {seriesLabel} <ArrowUpRight size={12} style={{ display: "inline", marginLeft: 2 }} />
                       </Link>
-                    ) : coin.series[lang]}
+                    ) : seriesLabel}
                   </dd>
                   <dt>{t.detail.country}</dt>
                   <dd>
-                    <Link to={`/countries/${coin.countryCode.toLowerCase()}`} className="ca-breadcrumb__link" style={{ color: "var(--ca-gold-light)" }}>
-                      {country?.name[lang] || coin.country} <ArrowUpRight size={12} style={{ display: "inline", marginLeft: 2 }} />
-                    </Link>
+                    {countryCode ? (
+                      <Link to={`/countries/${countryCode}`} className="ca-breadcrumb__link" style={{ color: "var(--ca-gold-light)" }}>
+                        {country?.name[lang] || coin.country || notRecorded} <ArrowUpRight size={12} style={{ display: "inline", marginLeft: 2 }} />
+                      </Link>
+                    ) : (country?.name[lang] || coin.country || notRecorded)}
                   </dd>
                 </dl>
               </div>
 
-              <button data-testid={COIN_DETAIL.submitImprove} className="ca-btn ca-btn--ghost ca-btn--sm mt-10">
+              <button data-testid={COIN_DETAIL.submitImprove} className="ca-btn ca-btn--ghost ca-btn--sm mt-10" type="button">
                 <Pencil size={12} />
                 {t.detail.submitImprove}
               </button>
@@ -233,5 +345,13 @@ export const CoinDetail = () => {
     </div>
   );
 };
+
+function splitParagraphs(text) {
+  if (!text) return [];
+  return text
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+}
 
 export default CoinDetail;

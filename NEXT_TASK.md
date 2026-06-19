@@ -1,11 +1,10 @@
 # Next Task
 
 ## Current Goal
-Manually verify polished homepage at `/`.
+Verify WP coin detail pages render title, story, specs, images, and related coins.
 
 ## Verify Next
-- Hero stats load from API (mock fallback offline)
-- Archive overview, featured coins, search CTA, trust section
-- CTA links: /coins, /learn, /countries, /series, /mint-marks
-- Search button opens overlay; Ctrl+K works
-- Mobile stacking, no overflow, no console errors
+- Open real WP slug (e.g. deutschland-2026-2-euro-coin-150th-birthday-of-konrad-adenauer)
+- Title, historical text, specs, obverse/reverse images display
+- Missing fields show “Not recorded yet”
+- Invalid slug → not found; API offline → mock fallback

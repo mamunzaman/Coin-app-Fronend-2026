@@ -1074,6 +1074,27 @@ body {
   width: 100%; height: 100%; object-fit: cover;
   transition: opacity .4s ease;
 }
+.ca-detail-coin--empty {
+  display: flex; align-items: center; justify-content: center;
+}
+.ca-detail-coin__placeholder {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; text-align: center; padding: 24px;
+}
+.ca-detail-coin__placeholder-code {
+  font-family: var(--ca-font-display);
+  font-size: clamp(48px, 8vw, 72px);
+  line-height: 1;
+  color: var(--ca-gold-light);
+  font-style: italic;
+}
+.ca-detail-coin__placeholder-year {
+  font-family: var(--ca-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ca-text-muted);
+}
 .ca-detail-coin::after {
   content: ""; position: absolute; inset: 0;
   background: radial-gradient(circle at 22% 18%, rgba(255, 230, 170, 0.36), transparent 38%);
