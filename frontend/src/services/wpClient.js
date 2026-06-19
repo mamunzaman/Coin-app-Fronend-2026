@@ -48,7 +48,19 @@ export async function wpFetch(path, options = {}) {
       throw new WpClientError("Expected JSON response", { status: res.status, url });
     }
 
-    return await res.json();
+    const json = await res.json();
+
+    if (options.includeHeaders) {
+      return {
+        data: json,
+        headers: {
+          total: res.headers.get("X-WP-Total"),
+          totalPages: res.headers.get("X-WP-TotalPages"),
+        },
+      };
+    }
+
+    return json;
   } catch (err) {
     if (err instanceof WpClientError) throw err;
     if (err?.name === "AbortError") {

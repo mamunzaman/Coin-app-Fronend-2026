@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
-import { SERIES_LIST, coinsBySeries } from "@/services/coinArchiveService";
+import { getSeriesList } from "@/services/coinArchiveService";
 import { SERIES_PAGE } from "@/constants/testIds/home";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
@@ -14,6 +14,22 @@ export const SeriesPage = () => {
   useScrollReveal();
   const { t, lang } = useLang();
   useDocumentTitle(t.seriesPage.title);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+
+    getSeriesList().then((result) => {
+      if (!cancelled) {
+        setItems(result.items);
+        setLoading(false);
+      }
+    });
+
+    return () => { cancelled = true; };
+  }, []);
 
   return (
     <div className="ca-page" data-testid={SERIES_PAGE.page}>
@@ -21,7 +37,7 @@ export const SeriesPage = () => {
 
       <header className="ca-coins-header">
         <div className="ca-container">
-          <SectionId num="II" label={t.seriesPage.eyebrow} meta={`${SERIES_LIST.length} series`} />
+          <SectionId num="II" label={t.seriesPage.eyebrow} meta={`${items.length} series`} />
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-end">
             <div className="md:col-span-7">
               <h1 className="ca-section-title" style={{ fontSize: "clamp(40px, 6vw, 80px)" }}>{t.seriesPage.title}</h1>
@@ -31,12 +47,13 @@ export const SeriesPage = () => {
         </div>
       </header>
 
-      <main className="ca-section">
+      <main className="ca-section" aria-busy={loading}>
         <div className="ca-container">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {SERIES_LIST.map((s, i) => {
-              const coins = coinsBySeries(s.slug);
-              return (
+          {loading ? (
+            <div className="ca-mono">{lang === "de" ? "Lädt…" : "Loading…"}</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {items.map((s, i) => (
                 <Link
                   key={s.slug}
                   to={`/series/${s.slug}`}
@@ -51,15 +68,15 @@ export const SeriesPage = () => {
                   <h3 className="ca-series-card__title">{s.name[lang]}</h3>
                   <p className="ca-series-card__desc">{s.description[lang]}</p>
                   <div className="ca-series-card__foot">
-                    <span className="ca-mono">{coins.length} / {s.count} {t.seriesPage.coinsCount}</span>
+                    <span className="ca-mono">{s.coinCount ?? 0} / {s.count} {t.seriesPage.coinsCount}</span>
                     <span className="ca-series-card__cta">
                       View <ArrowUpRight size={14} />
                     </span>
                   </div>
                 </Link>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </main>
 

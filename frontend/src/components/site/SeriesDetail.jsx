@@ -1,8 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
-import { findSeries, coinsBySeries } from "@/services/coinArchiveService";
+import { getSeriesDetail } from "@/services/coinArchiveService";
 import { SERIES_DETAIL } from "@/constants/testIds/home";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
@@ -15,11 +15,38 @@ export const SeriesDetail = () => {
   useScrollReveal();
   const { slug } = useParams();
   const { t, lang } = useLang();
-  const series = findSeries(slug);
-  const coins = series ? coinsBySeries(series.slug) : [];
-  useDocumentTitle(series ? series.name[lang] : "Series");
+  const [detail, setDetail] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, [slug]);
+  const series = detail?.series ?? null;
+  const coins = detail?.coins ?? [];
+
+  useDocumentTitle(series ? series.name[lang] : loading ? t.nav.series : "Series");
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    window.scrollTo({ top: 0, behavior: "instant" });
+
+    getSeriesDetail(slug).then((result) => {
+      if (!cancelled) {
+        setDetail(result);
+        setLoading(false);
+      }
+    });
+
+    return () => { cancelled = true; };
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div className="ca-page" data-testid={SERIES_DETAIL.page}>
+        <Navbar />
+        <div className="ca-container ca-section" style={{ minHeight: 400 }} aria-busy="true" />
+        <Footer />
+      </div>
+    );
+  }
 
   if (!series) {
     return (

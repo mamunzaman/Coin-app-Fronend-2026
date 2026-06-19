@@ -10,13 +10,13 @@
 - [x] `/coins` listing connected via `getCoinsList()` with facets, pagination, mock fallback
 - [x] Coin detail connected via `getCoinDetail()` with related coins + mock fallback
 - [x] Countries list + detail connected via `getCountriesList()` / `getCountryDetail()`
+- [x] Series list + detail connected via `getSeriesList()` / `getSeriesDetail()`
 
 ## In Progress
-- [ ] Connect series pages to WordPress API
+- [ ] End-to-end verification of all WP-connected pages
 
 ## Pending Tasks
-- [ ] Implement normalizers for WP payloads
-- [ ] Wire series listing/detail through service layer
+- [ ] Remaining static homepage sections (if any)
 
 ## Last Update
-2026-06-19 — Countries pages live from `/wp-json/coinarchive/v1/countries`
+2026-06-19 — Series pages live from `/wp-json/coinarchive/v1/series`

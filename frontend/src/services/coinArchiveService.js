@@ -17,15 +17,17 @@ export {
   searchCoins,
 } from "@/data/coinData";
 
-import { searchCoins, COINS, COUNTRIES, MINTS, SERIES_LIST, allYears, findCoinBySlug, findCountry, coinsByCountry, relatedCoins as mockRelatedCoins } from "@/data/coinData";
+import { searchCoins, COINS, COUNTRIES, MINTS, SERIES_LIST, allYears, findCoinBySlug, findCountry, findSeries, coinsByCountry, coinsBySeries, relatedCoins as mockRelatedCoins } from "@/data/coinData";
 import { wpFetch } from "./wpClient";
 import { normalizeSearchResult, normalizeCoinCard, normalizeCoinDetail } from "./normalizers/normalizeCoin";
 import { normalizeCountryListItem, normalizeCountryDetail } from "./normalizers/normalizeCountry";
+import { normalizeSeriesListItem, normalizeSeriesDetail } from "./normalizers/normalizeSeries";
 
 const STATS_PATH = "/wp-json/coinarchive/v1/stats";
 const SEARCH_PATH = "/wp-json/coinarchive/v1/search";
 const COINS_PATH = "/wp-json/coinarchive/v1/coins";
 const COUNTRIES_PATH = "/wp-json/coinarchive/v1/countries";
+const SERIES_PATH = "/wp-json/coinarchive/v1/series";
 const FIRST_ISSUE_YEAR = 2004;
 
 export const MOCK_STATS = {
@@ -350,5 +352,98 @@ export async function getCountryDetail(code) {
     };
   } catch {
     return getMockCountryDetail(upperCode);
+  }
+}
+
+function getMockSeriesList() {
+  const items = SERIES_LIST.map((s) => ({
+    ...s,
+    coinCount: coinsBySeries(s.slug).length,
+  }));
+
+  return { items, source: "mock" };
+}
+
+function buildMockSeriesTimeline(coins) {
+  const years = Array.from(new Set(coins.map((c) => c.year))).sort((a, b) => a - b);
+  return years.map((year) => ({
+    year,
+    count: coins.filter((c) => c.year === year).length,
+  }));
+}
+
+function getMockSeriesDetail(slug) {
+  const series = findSeries(slug);
+
+  if (!series) {
+    return { series: null, coins: [], stats: {}, timeline: [], source: "mock" };
+  }
+
+  const coins = coinsBySeries(series.slug);
+  const years = coins.map((c) => c.year).filter(Boolean);
+  const yearStart = years.length ? Math.min(...years) : null;
+  const yearEnd = years.length ? Math.max(...years) : null;
+
+  return {
+    series: {
+      ...series,
+      coinCount: coins.length,
+    },
+    coins,
+    stats: {
+      coins: coins.length,
+      countries: new Set(coins.map((c) => c.countryCode).filter(Boolean)).size,
+      yearStart,
+      yearEnd,
+    },
+    timeline: buildMockSeriesTimeline(coins),
+    source: "mock",
+  };
+}
+
+export async function getSeriesList() {
+  try {
+    const raw = await wpFetch(SERIES_PATH);
+    const items = Array.isArray(raw?.items)
+      ? raw.items.map((item, index) => normalizeSeriesListItem(item, index))
+      : [];
+
+    return { items, source: "wp" };
+  } catch {
+    return getMockSeriesList();
+  }
+}
+
+export async function getSeriesDetail(slug) {
+  const cleanSlug = (slug || "").trim();
+
+  if (!cleanSlug) {
+    return getMockSeriesDetail(slug);
+  }
+
+  try {
+    const result = await wpFetch(
+      `${SERIES_PATH}/${encodeURIComponent(cleanSlug)}?per_page=50`,
+      { includeHeaders: true },
+    );
+    const raw = result?.data ?? result;
+
+    if (!raw?.series) throw new Error("Missing series");
+
+    const normalized = normalizeSeriesDetail(raw);
+    const coins = Array.isArray(raw.coins) ? raw.coins.map(normalizeCoinCard) : [];
+    const total = Number(result?.headers?.total);
+    const totalPages = Number(result?.headers?.totalPages);
+
+    return {
+      ...normalized,
+      coins,
+      pagination: Number.isFinite(total)
+        ? { total, totalPages: Number.isFinite(totalPages) ? totalPages : 0 }
+        : undefined,
+      source: "wp",
+    };
+  } catch {
+    return getMockSeriesDetail(cleanSlug);
   }
 }
