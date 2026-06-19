@@ -1,4 +1,5 @@
 import { COUNTRIES as MOCK_COUNTRIES } from "@/data/coinData";
+import { normalizeMedia } from "./normalizeMedia";
 
 function findMockCountry(code) {
   const upper = (code || "").toUpperCase();
@@ -25,6 +26,8 @@ export function normalizeCountryListItem(wpCountry) {
     slug: wpCountry?.slug || mock?.code?.toLowerCase() || "",
     name: asLocalizedName(wpCountry?.name, mock),
     flag: mock?.flag || "",
+    country_flag: wpCountry?.country_flag || wpCountry?.flag_image || null,
+    countryFlagUrl: normalizeMedia(wpCountry?.country_flag ?? wpCountry?.flag_image ?? wpCountry?.flag),
     coins: coinCount,
     coinCount,
     since: mock?.since ?? 2002,

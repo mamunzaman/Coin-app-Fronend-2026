@@ -1,10 +1,11 @@
 # Next Task
 
 ## Current Goal
-Manually verify redesigned coin detail and skeleton loaders on all public routes.
+Verify homepage + site-settings API consumption against live WordPress.
 
 ## Verify Next
-- `/coins/deutschland-2026-2-euro-coin-150th-birthday-of-konrad-adenauer` — editorial layout, WP content, related coins
-- `/`, `/coins`, `/countries`, `/series` — brief skeleton shimmer then content
-- `/countries/DE`, `/series/bundeslaender` — detail skeleton then cards
-- Mobile width — no horizontal overflow on detail hero
+- `/` — hero/quote/archive/timeline/contribute use API when available; static fallback when not
+- Navbar — API nav/logo/CTA or default roman-numeral nav
+- Footer — API columns/copy or default footer
+- `/countries` — local SVG flags on cards (DE, FR, IT, etc.)
+- Search (Cmd+K), mobile menu, no console errors

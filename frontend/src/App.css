@@ -2077,6 +2077,30 @@ body {
 }
 .ca-skip-link:focus { top: 0; outline: none; }
 
+.ca-footer__bg-text {
+  position: absolute;
+  inset: auto 0 0 0;
+  pointer-events: none;
+  font-family: var(--ca-font-display);
+  font-size: clamp(80px, 14vw, 180px);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: rgba(212, 175, 55, 0.04);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  user-select: none;
+}
+.ca-footer { position: relative; overflow: hidden; }
+.ca-country-card__flag-wrap {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  opacity: 0.92;
+}
+.ca-hero__coin--api img { object-fit: contain; padding: 8%; background: radial-gradient(circle at 50% 40%, #1F232C, #0F1115 70%); }
+
 /* ============================================================
    Responsive polish — filter bar, page fade, section titles
    ============================================================ */

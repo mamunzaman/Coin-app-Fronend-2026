@@ -1,28 +1,21 @@
 # Project Status
 
 ## Completed Features
-- [x] WordPress-ready service layer (`coinArchiveService.js`) re-exporting static mock data
-- [x] All 16 site components import from service layer instead of `coinData.js`
-- [x] Future placeholder files: `wpClient.js`, normalizers (coin, media, country, series)
-- [x] `wpClient.js` — configurable base URL, timeout, JSON handling, `WpClientError`
-- [x] Homepage `Stats` connected via `getStats()` with mock fallback
-- [x] `SearchOverlay` connected via `searchArchive()` with mock fallback + debounce
-- [x] `/coins` listing with WP filters (search, country, year, series, mint), prev/next pagination, mock fallback
-- [x] Coin detail connected via `getCoinDetail()` with related coins + mock fallback
-- [x] Countries list + detail connected via `getCountriesList()` / `getCountryDetail()`
-- [x] Series list + detail connected via `getSeriesList()` / `getSeriesDetail()`
-- [x] `/learn` and `/mint-marks` polished — educational hub, mint guide, editorial sections, CTAs
-- [x] Homepage premium polish — hero stats, archive overview, featured coins, learning, search CTA, trust section
-- [x] Coin detail visible content fix — scroll-reveal re-scan + defensive render helpers
-- [x] Public listing visibility fix — async pages re-scan scroll reveal + empty states
-- [x] Emergent coin detail editorial layout ported (hero, facts grid, prose, specs slab, gallery, related strip)
-- [x] Skeleton loading system (`Skeleton.jsx`, `useArtificialLoad.js`) on detail + listing pages
+- [x] WordPress-ready service layer with mock fallback
+- [x] All listing/detail pages connected to WP API
+- [x] Coin detail editorial layout + skeleton loaders
+- [x] V2 visual polish (hero orbits, nav typography, Countries section)
+- [x] Homepage + site settings API consumption (`/homepage`, `/site-settings`)
+- [x] SettingsProvider with safe fallback to static i18n/mock content
+- [x] Navbar/Footer wired to site-settings header/footer
+- [x] Homepage sections wired to homepage endpoint (hero, quote, archive, learning, search CTA, trust, timeline, contribute)
+- [x] Local SVG country flag fallback (`getCountryFlag`)
 
 ## In Progress
-- [ ] Manual browser verification of redesigned coin detail + skeleton loaders
+- [ ] Manual verification with live WP settings endpoints
 
 ## Pending Tasks
-- [ ] End-to-end WP API smoke test on coin detail slug with live backend
+- [ ] Confirm homepage/site-settings API response when WP 500 is resolved
 
 ## Last Update
-2026-06-19 — Ported Emergent detail design + skeleton loaders without breaking WP API layer
+2026-06-19 — Connected frontend to homepage + site-settings APIs with full fallback

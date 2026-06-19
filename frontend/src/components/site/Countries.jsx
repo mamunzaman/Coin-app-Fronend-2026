@@ -5,6 +5,7 @@ import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
 import { COUNTRIES } from "@/services/coinArchiveService";
 import SectionId from "./SectionId";
+import CountryFlag from "./CountryFlag";
 
 const Card = ({ c, lang, t, feature, idx }) => (
   <Link
@@ -13,6 +14,9 @@ const Card = ({ c, lang, t, feature, idx }) => (
     className={`ca-country-card ca-reveal ca-reveal--delay-${Math.min(idx, 5)}`}
   >
     <div className={`ca-country-card__media ${feature ? "ca-country-card__media--feature" : ""}`}>
+      <div className="ca-country-card__flag-wrap">
+        <CountryFlag country={c} size={feature ? 56 : 40} />
+      </div>
       <div className="ca-monogram">
         <span className="ca-monogram__letters">{c.code}</span>
         <span className="ca-monogram__year">2004 — 2025</span>
@@ -48,7 +52,6 @@ export const Countries = () => {
           </p>
         </div>
 
-        {/* Asymmetric grid: feature card spans 2 cols on md+ */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
           <div className="md:col-span-2 lg:col-span-2 md:row-span-2">
             <Card c={feature} lang={lang} t={t} feature idx={0} />

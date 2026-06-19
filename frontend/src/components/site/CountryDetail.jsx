@@ -8,6 +8,7 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import SectionId from "./SectionId";
 import CoinCard from "./CoinCard";
+import CountryFlag from "./CountryFlag";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import useDocumentTitle from "@/hooks/useDocumentTitle";
 import useArtificialLoad from "@/hooks/useArtificialLoad";
@@ -124,7 +125,7 @@ export const CountryDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-7 ca-reveal">
               <div className="flex items-center gap-5 mb-6">
-                <span style={{ fontSize: 56 }}>{country.flag}</span>
+                <CountryFlag country={country} size={56} />
                 <div>
                   <h1 className="ca-section-title" style={{ fontSize: "clamp(40px, 6vw, 80px)", lineHeight: 1 }}>
                     {country.name[lang]}

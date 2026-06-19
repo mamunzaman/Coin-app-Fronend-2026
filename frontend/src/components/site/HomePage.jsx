@@ -1,6 +1,7 @@
 import React from "react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import useDocumentTitle from "@/hooks/useDocumentTitle";
+import { useSettingsLoading } from "@/context/SettingsContext";
 import Navbar from "@/components/site/Navbar";
 import Hero from "@/components/site/Hero";
 import Manifesto from "@/components/site/Manifesto";
@@ -16,7 +17,8 @@ import Contribute from "@/components/site/Contribute";
 import Footer from "@/components/site/Footer";
 
 export const HomePage = () => {
-  useScrollReveal();
+  const settingsLoading = useSettingsLoading();
+  useScrollReveal([settingsLoading]);
   useDocumentTitle("");
 
   return (

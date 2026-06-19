@@ -1,0 +1,267 @@
+import { normalizeMedia } from "./normalizeMedia";
+import { TIMELINE } from "@/data/coinData";
+
+export function pickLocalized(value, lang = "en") {
+  if (value == null || value === "") return "";
+  if (typeof value === "string" || typeof value === "number") return String(value);
+  return value[lang] || value.en || value.de || "";
+}
+
+function pickText(...candidates) {
+  for (const c of candidates) {
+    if (c == null || c === "") continue;
+    if (typeof c === "string" && c.trim()) return c.trim();
+    if (typeof c === "number") return String(c);
+  }
+  return "";
+}
+
+function normalizeButton(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const text = pickText(raw.text, raw.label, raw.title);
+  const url = pickText(raw.url, raw.link, raw.href);
+  if (!text || !url) return null;
+  return { text, url };
+}
+
+function normalizeLink(raw) {
+  if (!raw) return null;
+  if (typeof raw === "string") {
+    const url = raw.trim();
+    return url ? { label: url, url } : null;
+  }
+  const label = pickText(raw.label, raw.text, raw.title, raw.name);
+  const url = pickText(raw.url, raw.link, raw.href);
+  if (!label || !url) return null;
+  return { label, url };
+}
+
+function normalizeCard(raw, index = 0) {
+  if (!raw || typeof raw !== "object") return null;
+  const title = pickText(raw.title, raw.name, raw.heading);
+  const desc = pickText(raw.description, raw.desc, raw.excerpt, raw.body);
+  const url = pickText(raw.url, raw.link, raw.href, raw.to);
+  const eyebrow = pickText(raw.eyebrow, raw.label, raw.subtitle);
+  const cta = pickText(raw.cta, raw.button_text, raw.buttonText, raw.link_text);
+  const key = pickText(raw.key, raw.slug, raw.id) || `card-${index}`;
+  if (!title && !desc) return null;
+  return {
+    key,
+    title: pickLocalized(raw.title, "en") || title,
+    titleLocalized: typeof raw.title === "object" ? raw.title : { en: title, de: title },
+    desc: pickLocalized(raw.description ?? raw.desc, "en") || desc,
+    descLocalized: typeof (raw.description ?? raw.desc) === "object"
+      ? (raw.description ?? raw.desc)
+      : { en: desc, de: desc },
+    eyebrow,
+    cta: cta || "View",
+    to: url || "/",
+    url: url || "/",
+  };
+}
+
+function normalizePillar(raw, index = 0) {
+  if (!raw || typeof raw !== "object") return null;
+  const title = pickText(raw.title, raw.name, raw.heading);
+  const body = pickText(raw.body, raw.description, raw.desc, raw.text);
+  if (!title && !body) return null;
+  return {
+    num: pickText(raw.num, raw.number, raw.section_number) || String(index + 1).padStart(2, "0"),
+    title,
+    body,
+    titleLocalized: typeof raw.title === "object" ? raw.title : { en: title, de: title },
+    bodyLocalized: typeof (raw.body ?? raw.description) === "object"
+      ? (raw.body ?? raw.description)
+      : { en: body, de: body },
+  };
+}
+
+function normalizeMilestone(raw, index = 0) {
+  if (!raw || typeof raw !== "object") return null;
+  const year = Number(raw.year);
+  if (!year) return null;
+
+  const title = pickText(raw.featured_coin_title, raw.title, raw.coin_title);
+  const label = pickText(raw.label, raw.subtitle, raw.eyebrow);
+  const country = pickText(raw.country, raw.country_name, raw.nation);
+  const img = normalizeMedia(raw.featured_coin_image ?? raw.image ?? raw.coin_image ?? raw.img);
+  const extraDescription = pickText(raw.extra_description, raw.description, raw.body);
+  const button = normalizeButton({
+    text: raw.button_text,
+    url: raw.button_url,
+  });
+
+  return {
+    year,
+    country: country || "Europe",
+    title: typeof raw.featured_coin_title === "object"
+      ? raw.featured_coin_title
+      : { en: title || `Milestone ${year}`, de: title || `Meilenstein ${year}` },
+    label: typeof raw.label === "object"
+      ? raw.label
+      : { en: label || String(year), de: label || String(year) },
+    img: img || TIMELINE[Math.min(index, TIMELINE.length - 1)]?.img || "",
+    extraDescription,
+    buttonText: button?.text || "",
+    buttonUrl: button?.url || `/coins?year=${year}`,
+  };
+}
+
+function normalizeSectionMeta(raw = {}) {
+  return {
+    sectionNumber: pickText(raw.section_number, raw.sectionNumber, raw.num),
+    sectionLabel: pickText(raw.section_label, raw.sectionLabel, raw.label, raw.eyebrow),
+    countLabel: pickText(raw.count_label, raw.countLabel, raw.meta, raw.count),
+    title: pickText(raw.title, raw.heading),
+    description: pickText(raw.description, raw.desc, raw.sub, raw.body),
+    rightLabel: pickText(raw.right_label, raw.rightLabel, raw.meta_right),
+    titleLocalized: typeof raw.title === "object" ? raw.title : null,
+    descriptionLocalized: typeof (raw.description ?? raw.desc) === "object"
+      ? (raw.description ?? raw.desc)
+      : null,
+  };
+}
+
+export function normalizeHomepageSettings(raw) {
+  if (!raw || typeof raw !== "object") {
+    return { source: "mock" };
+  }
+
+  const heroRaw = raw.hero || {};
+  const quoteRaw = raw.quote || raw.manifesto || {};
+  const archiveRaw = raw.archive_overview || raw.archiveOverview || {};
+  const learningRaw = raw.collector_education || raw.collectorEducation || raw.collector_education_section || {};
+  const searchRaw = raw.archive_search_cta || raw.archiveSearchCta || raw.search_cta || {};
+  const qualityRaw = raw.archive_quality || raw.archiveQuality || raw.trust || {};
+  const timelineRaw = raw.timeline || {};
+  const contributeRaw = raw.contribute || {};
+
+  const heroImage = normalizeMedia(heroRaw.image ?? heroRaw.hero_image ?? heroRaw.coin_image);
+  const heroPrimary = normalizeButton(heroRaw.primary_button ?? heroRaw.primaryButton ?? heroRaw.primary_cta);
+  const heroSecondary = normalizeButton(heroRaw.secondary_button ?? heroRaw.secondaryButton ?? heroRaw.secondary_cta);
+
+  const archiveCards = (archiveRaw.cards || archiveRaw.items || [])
+    .map((c, i) => normalizeCard(c, i))
+    .filter(Boolean);
+
+  const learningCards = (learningRaw.cards || learningRaw.links || learningRaw.items || [])
+    .map((c, i) => normalizeCard(c, i))
+    .filter(Boolean);
+
+  const qualityCards = (qualityRaw.cards || qualityRaw.pillars || qualityRaw.items || [])
+    .map((p, i) => normalizePillar(p, i))
+    .filter(Boolean);
+
+  const milestones = (timelineRaw.milestones || timelineRaw.items || [])
+    .map((m, i) => normalizeMilestone(m, i))
+    .filter(Boolean);
+
+  const contributePrimary = normalizeButton(contributeRaw.primary_button ?? contributeRaw.primaryButton ?? contributeRaw.primary_cta);
+  const contributeSecondary = normalizeButton(contributeRaw.secondary_button ?? contributeRaw.secondaryButton ?? contributeRaw.secondary_cta);
+
+  return {
+    source: "api",
+    hero: {
+      title: heroRaw.title ?? heroRaw.heading ?? "",
+      description: pickText(heroRaw.description, heroRaw.desc, heroRaw.subtitle),
+      descriptionLocalized: typeof heroRaw.description === "object" ? heroRaw.description : null,
+      image: heroImage,
+      primaryButton: heroPrimary,
+      secondaryButton: heroSecondary,
+      eyebrow: pickText(heroRaw.eyebrow, heroRaw.label),
+    },
+    quote: {
+      text: quoteRaw.text ?? quoteRaw.quote ?? quoteRaw.body ?? "",
+      attribution: pickText(quoteRaw.attribution, quoteRaw.author, quoteRaw.source),
+    },
+    archiveOverview: {
+      ...normalizeSectionMeta(archiveRaw),
+      cards: archiveCards,
+    },
+    collectorEducation: {
+      ...normalizeSectionMeta(learningRaw),
+      cards: learningCards,
+    },
+    searchCta: {
+      eyebrow: pickText(searchRaw.eyebrow, searchRaw.section_label, searchRaw.label),
+      title: pickText(searchRaw.title, searchRaw.heading),
+      description: pickText(searchRaw.description, searchRaw.desc, searchRaw.sub),
+      primaryButton: normalizeButton(searchRaw.primary_button ?? searchRaw.button ?? { text: searchRaw.button_text, url: searchRaw.button_url }),
+      secondaryButton: normalizeButton(searchRaw.secondary_button ?? searchRaw.fallback_button ?? { text: searchRaw.fallback_text, url: searchRaw.fallback_url }),
+      tip: pickText(searchRaw.tip, searchRaw.hint, searchRaw.note),
+    },
+    archiveQuality: {
+      ...normalizeSectionMeta(qualityRaw),
+      cards: qualityCards,
+    },
+    timeline: {
+      ...normalizeSectionMeta(timelineRaw),
+      milestones,
+    },
+    contribute: {
+      ...normalizeSectionMeta(contributeRaw),
+      primaryButton: contributePrimary,
+      secondaryButton: contributeSecondary,
+      stats: contributeRaw.stats || null,
+    },
+  };
+}
+
+export function normalizeSiteSettings(raw) {
+  if (!raw || typeof raw !== "object") {
+    return { source: "mock" };
+  }
+
+  const headerRaw = raw.header || {};
+  const footerRaw = raw.footer || {};
+
+  const logoUrl = normalizeMedia(headerRaw.logo ?? headerRaw.logo_image);
+  const logoText = pickText(headerRaw.logo_text, headerRaw.logoText, headerRaw.site_name);
+
+  const navigation = (headerRaw.navigation || headerRaw.nav || headerRaw.links || [])
+    .map(normalizeLink)
+    .filter(Boolean);
+
+  const primaryCta = normalizeButton(headerRaw.primary_cta ?? headerRaw.primaryCta ?? headerRaw.cta);
+
+  const languages = (headerRaw.languages || [])
+    .map((l) => {
+      if (typeof l === "string") return l.toLowerCase();
+      return pickText(l.code, l.lang, l.locale)?.toLowerCase();
+    })
+    .filter(Boolean);
+
+  const linkColumns = (footerRaw.link_columns || footerRaw.linkColumns || footerRaw.columns || [])
+    .map((col) => {
+      if (!col || typeof col !== "object") return null;
+      const title = pickText(col.title, col.label, col.heading);
+      const links = (col.links || col.items || []).map(normalizeLink).filter(Boolean);
+      if (!title && !links.length) return null;
+      return { title: title || "Links", links };
+    })
+    .filter(Boolean);
+
+  return {
+    source: "api",
+    header: {
+      logoUrl,
+      logoText,
+      navigation,
+      primaryCta,
+      searchEnabled: headerRaw.search_enabled !== false && headerRaw.searchEnabled !== false,
+      accountEnabled: headerRaw.account_enabled !== false && headerRaw.accountEnabled !== false,
+      languages: languages.length ? languages : ["en", "de"],
+    },
+    footer: {
+      logoText: pickText(footerRaw.footer_logo_text, footerRaw.logo_text, footerRaw.logoText),
+      description: pickText(footerRaw.footer_description, footerRaw.description, footerRaw.tagline),
+      newsletterLabel: pickText(footerRaw.newsletter_label, footerRaw.newsletterLabel, footerRaw.newsletter_title),
+      newsletterPlaceholder: pickText(footerRaw.newsletter_placeholder, footerRaw.newsletterPlaceholder),
+      newsletterBottomText: pickText(footerRaw.newsletter_bottom_text, footerRaw.newsletterBottomText, footerRaw.newsletter_note),
+      largeBackgroundText: pickText(footerRaw.footer_large_background_text, footerRaw.largeBackgroundText),
+      copyrightText: pickText(footerRaw.copyright_text, footerRaw.copyright, footerRaw.copyrightText),
+      bottomRightText: pickText(footerRaw.footer_bottom_right_text, footerRaw.bottomRightText),
+      linkColumns,
+    },
+  };
+}

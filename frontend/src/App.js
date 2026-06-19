@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "@/App.css";
 import { LanguageProvider } from "@/i18n/LanguageContext";
+import { SettingsProvider } from "@/context/SettingsContext";
 import HomePage from "@/components/site/HomePage";
 import CoinsListing from "@/components/site/CoinsListing";
 import CoinDetail from "@/components/site/CoinDetail";
@@ -24,7 +25,8 @@ const Home = () => <HomePage />;
 function App() {
   return (
     <LanguageProvider>
-      <BrowserRouter>
+      <SettingsProvider>
+        <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/coins" element={<CoinsListing />} />
@@ -43,7 +45,8 @@ function App() {
           <Route path="/imprint" element={<ImprintPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
-      </BrowserRouter>
+        </BrowserRouter>
+      </SettingsProvider>
     </LanguageProvider>
   );
 }

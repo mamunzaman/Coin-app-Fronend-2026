@@ -22,12 +22,15 @@ import { wpFetch } from "./wpClient";
 import { normalizeSearchResult, normalizeCoinCard, normalizeCoinDetail } from "./normalizers/normalizeCoin";
 import { normalizeCountryListItem, normalizeCountryDetail } from "./normalizers/normalizeCountry";
 import { normalizeSeriesListItem, normalizeSeriesDetail } from "./normalizers/normalizeSeries";
+import { normalizeHomepageSettings, normalizeSiteSettings } from "./normalizers/normalizeSettings";
 
 const STATS_PATH = "/wp-json/coinarchive/v1/stats";
 const SEARCH_PATH = "/wp-json/coinarchive/v1/search";
 const COINS_PATH = "/wp-json/coinarchive/v1/coins";
 const COUNTRIES_PATH = "/wp-json/coinarchive/v1/countries";
 const SERIES_PATH = "/wp-json/coinarchive/v1/series";
+const HOMEPAGE_PATH = "/wp-json/coinarchive/v1/homepage";
+const SITE_SETTINGS_PATH = "/wp-json/coinarchive/v1/site-settings";
 const FIRST_ISSUE_YEAR = 2004;
 
 export const MOCK_STATS = {
@@ -63,6 +66,24 @@ export async function getStats() {
     return normalizeStats(raw);
   } catch {
     return { ...MOCK_STATS };
+  }
+}
+
+export async function getHomepageSettings() {
+  try {
+    const raw = await wpFetch(HOMEPAGE_PATH);
+    return normalizeHomepageSettings(raw);
+  } catch {
+    return { source: "mock" };
+  }
+}
+
+export async function getSiteSettings() {
+  try {
+    const raw = await wpFetch(SITE_SETTINGS_PATH);
+    return normalizeSiteSettings(raw);
+  } catch {
+    return { source: "mock" };
   }
 }
 

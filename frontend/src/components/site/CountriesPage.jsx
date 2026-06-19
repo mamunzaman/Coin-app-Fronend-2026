@@ -7,6 +7,7 @@ import { COUNTRIES_PAGE } from "@/constants/testIds/home";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import SectionId from "./SectionId";
+import CountryFlag from "./CountryFlag";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import useDocumentTitle from "@/hooks/useDocumentTitle";
 import useArtificialLoad from "@/hooks/useArtificialLoad";
@@ -93,7 +94,7 @@ export const CountriesPage = () => {
                   </div>
                   <div className="ca-country-card__body" style={{ flexDirection: "column", alignItems: "flex-start", gap: 12 }}>
                     <div className="flex items-center gap-3 w-full">
-                      <span style={{ fontSize: 22 }}>{c.flag}</span>
+                      <CountryFlag country={c} size={22} />
                       <div className="flex-1">
                         <h3 className="ca-country-card__name">{c.name[lang]}</h3>
                         <div className="ca-country-card__meta">
