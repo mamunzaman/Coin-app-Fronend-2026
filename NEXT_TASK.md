@@ -1,10 +1,10 @@
 # Next Task
 
 ## Current Goal
-Manually verify `/coins` filters and pagination against live WP API.
+Manually verify polished `/learn` and `/mint-marks` pages.
 
 ## Verify Next
-- Search, country, year, series, mint filters reset page to 1
-- Previous / Next pagination and result count
-- API offline → mock fallback with client-side filter + paginate
-- No console errors on `/coins`
+- Hero, featured cards, editorial sections, CTA links on `/learn`
+- German mint grid, explanation, workflow, future note on `/mint-marks`
+- Mobile stacking, no horizontal overflow, nav links intact
+- `/learn/:slug` article routes still load

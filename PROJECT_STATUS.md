@@ -11,13 +11,14 @@
 - [x] Coin detail connected via `getCoinDetail()` with related coins + mock fallback
 - [x] Countries list + detail connected via `getCountriesList()` / `getCountryDetail()`
 - [x] Series list + detail connected via `getSeriesList()` / `getSeriesDetail()`
+- [x] `/learn` and `/mint-marks` polished — educational hub, mint guide, editorial sections, CTAs
 
 ## In Progress
-- [ ] Manual verification of coins filters + pagination on live WP
+- [ ] Manual verification of Learn and Mint Marks pages
 
 ## Pending Tasks
 - [ ] End-to-end verify all WP-connected pages
 - [ ] Remaining static homepage sections (if any)
 
 ## Last Update
-2026-06-19 — Coins listing filters + prev/next pagination via `getCoinsList()`
+2026-06-19 — Learn + Mint Marks pages polished for production-ready educational UX

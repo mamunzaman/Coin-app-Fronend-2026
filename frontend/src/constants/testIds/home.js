@@ -95,12 +95,18 @@ export const SERIES_DETAIL = {
 export const LEARN_PAGE = {
   page: "learn-page",
   card: (slug) => `learn-card-${slug}`,
+  guide: (id) => `learn-guide-${id}`,
+  ctaBrowse: "learn-cta-browse",
+  ctaMintMarks: "learn-cta-mint-marks",
 };
 
 export const MINT_MARKS_PAGE = {
   page: "mint-marks-page",
   mark: (l) => `mintmarks-${l}`,
   map: "mintmarks-map",
+  explanation: (i) => `mintmarks-explanation-${i}`,
+  workflow: "mintmarks-workflow",
+  futureNote: "mintmarks-future-note",
 };
 
 export const SEARCH = {

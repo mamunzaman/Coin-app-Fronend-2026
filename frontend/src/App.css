@@ -1177,6 +1177,67 @@ body {
   font-size: 14.5px; line-height: 1.65;
   color: var(--ca-text-soft);
 }
+.ca-learn-hub__heading {
+  font-family: var(--ca-font-display);
+  font-size: clamp(28px, 3.5vw, 40px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+.ca-learn-hub--editorial {
+  border-top: 1px solid var(--ca-border);
+  background: linear-gradient(180deg, rgba(17, 19, 24, 0.4) 0%, transparent 100%);
+}
+.ca-guide-stack { display: flex; flex-direction: column; gap: 32px; }
+.ca-guide-section {
+  padding: 36px 32px;
+  border: 1px solid var(--ca-border);
+  border-radius: 20px;
+  background: linear-gradient(180deg, #171A20 0%, #111318 100%);
+  scroll-margin-top: 96px;
+}
+.ca-guide-section--compact { padding: 28px 24px; height: 100%; }
+.ca-guide-section__label {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ca-gold-light);
+  margin-bottom: 12px;
+}
+.ca-guide-section__title {
+  font-family: var(--ca-font-display);
+  font-size: clamp(22px, 2.5vw, 30px);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin-bottom: 16px;
+}
+.ca-guide-section__body {
+  font-family: var(--ca-font-body);
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--ca-text-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.ca-guide-section__body--single { margin: 0; }
+.ca-guide-section__body p { margin: 0; }
+.ca-learn-cta {
+  position: relative;
+  background:
+    radial-gradient(700px 320px at 20% 0%, rgba(212, 175, 55, 0.1), transparent 60%),
+    var(--ca-surface);
+  border-top: 1px solid var(--ca-border);
+  overflow: hidden;
+}
+.ca-learn-cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.ca-learn-cta__actions .ca-btn { width: 100%; justify-content: center; }
+@media (min-width: 480px) {
+  .ca-learn-cta__actions .ca-btn { width: auto; }
+}
 
 /* ============================================================
    Mint marks page
@@ -1201,21 +1262,101 @@ body {
   border: 1px solid var(--ca-border);
   border-radius: 18px;
   background: linear-gradient(180deg, #171A20 0%, #111318 100%);
-  transition: border-color .3s ease, transform .3s ease;
+  transition: border-color .3s ease, transform .3s ease, box-shadow .3s ease;
 }
-.ca-mintmark-card:hover { border-color: rgba(212, 175, 55, 0.35); transform: translateX(4px); }
+.ca-mintmark-card--grid {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 28px 24px;
+  height: 100%;
+}
+.ca-mintmark-card:hover {
+  border-color: rgba(212, 175, 55, 0.35);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.35);
+}
+.ca-mintmark-card:not(.ca-mintmark-card--grid):hover { transform: translateX(4px); }
+.ca-mintmark-card__stamp { width: 88px; height: 88px; flex-shrink: 0; }
+.ca-mintmark-card__stamp .ca-mint__letter { font-size: 52px; }
 .ca-mintmark-card__city {
   font-family: var(--ca-font-display);
   font-size: 22px;
   color: var(--ca-text);
 }
+.ca-mintmark-card__institution {
+  font-family: var(--ca-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ca-gold-light);
+  margin-top: 6px;
+}
 .ca-mintmark-card__note {
   font-family: var(--ca-font-body);
-  font-size: 13px;
-  color: var(--ca-text-muted);
-  margin-top: 4px;
-  line-height: 1.4;
+  font-size: 14px;
+  color: var(--ca-text-soft);
+  margin-top: 10px;
+  line-height: 1.6;
 }
+.ca-workflow {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+@media (min-width: 640px) {
+  .ca-workflow { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1024px) {
+  .ca-workflow { grid-template-columns: repeat(5, 1fr); }
+}
+.ca-workflow__step {
+  padding: 24px 20px;
+  border: 1px solid var(--ca-border);
+  border-radius: 16px;
+  background: linear-gradient(180deg, #171A20 0%, #111318 100%);
+}
+.ca-workflow__num {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--ca-blue);
+  margin-bottom: 10px;
+}
+.ca-workflow__title {
+  font-family: var(--ca-font-display);
+  font-size: 18px;
+  line-height: 1.25;
+  margin-bottom: 8px;
+}
+.ca-workflow__body {
+  font-family: var(--ca-font-body);
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ca-text-soft);
+  margin: 0;
+}
+.ca-future-note {
+  border: 1px solid var(--ca-border);
+  border-radius: 18px;
+  padding: 28px 26px;
+  background:
+    radial-gradient(500px 200px at 0% 0%, rgba(79, 130, 255, 0.06), transparent 60%),
+    linear-gradient(180deg, #171A20 0%, #111318 100%);
+}
+.ca-future-note__label {
+  color: var(--ca-gold-light);
+  margin-bottom: 10px;
+}
+.ca-future-note__text {
+  font-size: 15px;
+  line-height: 1.7;
+  margin: 0;
+  max-width: 720px;
+}
+.ca-section--tight { padding-top: 0; }
 
 /* ============================================================
    Search overlay
