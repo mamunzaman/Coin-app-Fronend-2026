@@ -33,10 +33,11 @@ const Card = ({ c, lang, t, feature, idx }) => (
 export const Countries = () => {
   const { t, lang } = useLang();
   const [feature, ...rest] = COUNTRIES;
+  const metaLabel = `${COUNTRIES.length} of 20 states`;
   return (
     <section id="countries" data-testid={HOME.countriesSection} className="ca-section">
       <div className="ca-container">
-        <SectionId num="IV" label={t.countries.title} meta="6 of 20 states" />
+        <SectionId num="IV" label={t.countries.title} meta={metaLabel} />
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-end mb-12">
           <div className="md:col-span-7 ca-reveal">

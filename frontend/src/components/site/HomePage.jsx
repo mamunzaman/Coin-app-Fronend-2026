@@ -7,6 +7,7 @@ import Manifesto from "@/components/site/Manifesto";
 import ArchiveOverview from "@/components/site/ArchiveOverview";
 import FeaturedCoins from "@/components/site/FeaturedCoins";
 import FeaturedStory from "@/components/site/FeaturedStory";
+import Countries from "@/components/site/Countries";
 import CollectorLearning from "@/components/site/CollectorLearning";
 import SearchCta from "@/components/site/SearchCta";
 import TrustQuality from "@/components/site/TrustQuality";
@@ -28,6 +29,7 @@ export const HomePage = () => {
         <ArchiveOverview />
         <FeaturedCoins />
         <FeaturedStory />
+        <Countries />
         <CollectorLearning />
         <SearchCta />
         <TrustQuality />
