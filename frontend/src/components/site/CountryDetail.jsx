@@ -113,7 +113,7 @@ export const CountryDetail = () => {
           ) : coins.length === 0 ? (
             <p className="ca-muted">No coins yet in this country&apos;s archive.</p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7 ca-reveal ca-stagger">
               {coins.map((c) => <CoinCard key={c.slug} coin={c} />)}
             </div>
           )}

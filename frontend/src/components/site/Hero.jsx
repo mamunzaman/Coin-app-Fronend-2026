@@ -23,7 +23,7 @@ export const Hero = () => {
           {/* Coin */}
           <div className="order-1 lg:order-2 lg:col-span-6 ca-hero__coin-wrap relative">
             <div className="ca-hero__halo" aria-hidden="true" />
-            <div className="ca-hero__coin" data-testid={HOME.heroCoin}>
+            <div className="ca-hero__coin ca-float" data-testid={HOME.heroCoin}>
               <img src={HERO_COIN} alt="2 Euro commemorative coin — Germany 2019, 30 Years Fall of the Berlin Wall" />
             </div>
             <div className="ca-hero__caption">

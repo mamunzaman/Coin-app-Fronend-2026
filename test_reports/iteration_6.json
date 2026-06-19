@@ -1,0 +1,26 @@
+{
+  "summary": "Iteration 6 frontend-only polish-pass verification of CoinArchive. ALL 11 review items PASS. Verified: (1) all 15 routes load with 200 status and ZERO horizontal overflow on desktop 1440px, tablet 820px, and mobile 390px (incl. 404 catch-all renders correctly); (2) Coin Detail editorial layout on /coins/germany-2019-berlin-wall has every required element — breadcrumb, OBVERSE/REVERSE toggle, PLATE 002, eyebrow 'Germany · 2019 · European History', big serif title '30 Years — Fall of the Berlin Wall', italic lede, gold divider, all 6 fact cells (Face Value €2.00 / Release Date 2019 / Mintage 30,000,000 / Designer Bodo Broschat / Series European History / Country Germany), submit-improve button, i. HISTORICAL BACKGROUND, ii. GALLERY w/ 4 thumbs, iii. SPECIFICATIONS as data-list, iv. MORE FROM THIS COUNTRY w/ 4 related cards; (3) Interactivity: REVERSE toggle swaps to coin.reverseImage, gallery[1] sets reverse, gallery[0] sets obverse, 'European History' fact link navigates to /series/european-history, 'Germany' fact link navigates to /countries/de; (4) Skeleton loaders: 30+ premium .ca-skeleton shimmer elements visible at ~150ms on /coins, /countries, /series, /coins/:slug — all replaced by real content by ~1050ms with no layout shift; (5) Navbar typography computed: font-size 12px, letter-spacing 2.64px (=0.22em), font-weight 500, text-transform uppercase, font-family Inter — exact match to spec; (6) Mobile menu links computed: Playfair Display 24px serif; (7) Mobile 390: hamburger visible, nav height 65px (spec 64px, +1px), filter chips horizontally scrollable (scrollWidth 403 > clientWidth 354, overflow-x: auto); (8) Tablet 820: no overflow on listing or detail pages; (9) Section spacing reduced — .ca-section computed padding now 56px (was ~80px+), confirming ~30% tightening; (10) ca-stagger on grid containers and ca-float on home + coin-detail hero coin both wired; (11) sticky filter bar (position: sticky) — DE filter reduces 12→7 coins, clear filters works. All critical data-testids present: coin-detail-page, coin-detail-breadcrumb, coin-detail-back, coin-detail-title, coin-detail-obverse, coin-detail-reverse, coin-toggle-obverse, coin-toggle-reverse, coin-tab-story, coin-tab-specs, coin-tab-designer, coin-gallery-0..3, coin-related-* (4), coin-submit-improve, coins-grid, filter-country-DE, coins-clear-filters.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Mobile navbar height", "issues": ["Computed height is 65px vs 64px spec — 1px deviation, visually identical. Non-blocking."]}
+    ]
+  },
+  "test_report_links": ["/app/test_reports/iteration_6.json"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Console hydration warning '<span> cannot be a child of <option>' still appears on /coins and /submit pages — caused by Emergent visual-editor injecting <span data-ve-dynamic> wrappers inside <option> elements at runtime when arrays (MINTS, COUNTRIES) are mapped. NOT a source-code bug (CoinsListing.jsx:175 and SubmitPage.jsx:117 render plain expressions). This was already documented in iteration_5 and will NOT appear in production builds.",
+    "useScrollReveal correctly re-scans when the loading dependency flips (fix from iteration 5 holds). Verified hero content appears above-the-fold on desktop and mobile post-skeleton.",
+    "Skeleton dimensions closely match real content — no visible layout shift observed at the 500ms transition point."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (frontend-only)", "frontend": "100%"},
+  "test_credentials": "N/A — no auth in this static SPA.",
+  "seed_data_creation": "None — all data static from /app/frontend/src/data/coinData.js (24 coins, 6 countries, 5 series).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Polish pass iteration 6 fully verified. All review items PASS. Only optional nit: mobile navbar measures 65px (spec said 64px, 1px off due to border). No other deviations. Public preview URL: https://european-mint-museum.preview.emergentagent.com (from REACT_APP_BACKEND_URL). The dev-only <span>-in-<option> hydration warnings are visual-editor instrumentation and do not affect production. No regressions vs iteration 5.",
+  "rca of the issue": "No issues found requiring RCA."
+}

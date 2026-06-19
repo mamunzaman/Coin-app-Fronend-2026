@@ -50,7 +50,7 @@ export const CountriesPage = () => {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7 ca-reveal ca-stagger">
             {sorted.map((c, i) => {
               const actualCount = COINS.filter((x) => x.countryCode === c.code).length;
               return (

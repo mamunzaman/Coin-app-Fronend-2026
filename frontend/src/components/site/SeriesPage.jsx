@@ -43,7 +43,7 @@ export const SeriesPage = () => {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 ca-reveal ca-stagger">
             {SERIES_LIST.map((s, i) => {
               const coins = coinsBySeries(s.slug);
               return (

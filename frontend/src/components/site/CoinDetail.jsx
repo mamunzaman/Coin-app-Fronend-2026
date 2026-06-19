@@ -91,7 +91,7 @@ export const CoinDetail = () => {
               {/* ============ HERO (asymmetric: image left, info right) ============ */}
               <section className="ca-detail-hero">
                 <div className="ca-detail-hero__media ca-reveal">
-                  <div className="ca-detail-coin">
+                  <div className="ca-detail-coin ca-float">
                     <img
                       data-testid={side === "obverse" ? COIN_DETAIL.obverse : COIN_DETAIL.reverse}
                       src={side === "obverse" ? coin.obverseImage : coin.reverseImage}
