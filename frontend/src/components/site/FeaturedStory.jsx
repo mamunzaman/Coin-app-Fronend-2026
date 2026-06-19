@@ -11,7 +11,7 @@ export const FeaturedStory = () => {
   return (
     <section data-testid={HOME.featureSection} className="ca-section">
       <div className="ca-container">
-        <SectionId num="III" label={t.feature.eyebrow} meta="Exhibit 01" />
+        <SectionId num="IV" label={t.feature.eyebrow} meta="Exhibit 01" />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
           <div className="lg:col-span-6 ca-reveal">
