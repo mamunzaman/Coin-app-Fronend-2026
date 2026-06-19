@@ -11,11 +11,13 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 import useDocumentTitle from "@/hooks/useDocumentTitle";
 
 export const SeriesPage = () => {
-  useScrollReveal();
   const { t, lang } = useLang();
   useDocumentTitle(t.seriesPage.title);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [source, setSource] = useState("mock");
+
+  useScrollReveal([loading, items.length, source]);
 
   useEffect(() => {
     let cancelled = false;
@@ -23,7 +25,8 @@ export const SeriesPage = () => {
 
     getSeriesList().then((result) => {
       if (!cancelled) {
-        setItems(result.items);
+        setItems(result.items ?? []);
+        setSource(result.source ?? "mock");
         setLoading(false);
       }
     });
@@ -51,6 +54,10 @@ export const SeriesPage = () => {
         <div className="ca-container">
           {loading ? (
             <div className="ca-mono">{lang === "de" ? "Lädt…" : "Loading…"}</div>
+          ) : items.length === 0 ? (
+            <div className="ca-empty ca-reveal is-visible" data-testid={SERIES_PAGE.empty}>
+              <div className="ca-display" style={{ fontSize: 28, marginBottom: 12 }}>{t.seriesPage.empty}</div>
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {items.map((s, i) => (

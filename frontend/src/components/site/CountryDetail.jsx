@@ -18,11 +18,11 @@ export const CountryDetail = () => {
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useScrollReveal([loading, code]);
-
   const country = detail?.country ?? null;
   const coins = detail?.coins ?? [];
   const stats = detail?.stats ?? {};
+
+  useScrollReveal([loading, code, coins.length, country?.code]);
 
   useDocumentTitle(country ? country.name[lang] : loading ? t.nav.countries : "Country");
 

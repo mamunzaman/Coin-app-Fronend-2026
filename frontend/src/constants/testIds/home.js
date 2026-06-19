@@ -81,6 +81,7 @@ export const COIN_DETAIL = {
 export const COUNTRIES_PAGE = {
   page: "countries-page",
   card: (code) => `countries-card-${code}`,
+  empty: "countries-page-empty",
 };
 
 export const COUNTRY_DETAIL = {
@@ -95,6 +96,7 @@ export const COUNTRY_DETAIL = {
 export const SERIES_PAGE = {
   page: "series-page",
   card: (slug) => `series-card-${slug}`,
+  empty: "series-page-empty",
 };
 
 export const SERIES_DETAIL = {

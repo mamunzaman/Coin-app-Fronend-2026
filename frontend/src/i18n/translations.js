@@ -199,6 +199,7 @@ export const translations = {
       sub: "Every Eurozone country issues its own commemorative 2 Euro coins. Browse the archive nation by nation.",
       since: "Issuing since",
       coinsCount: "coins catalogued",
+      empty: "No countries in the archive yet.",
     },
     countryDetail: {
       eyebrow: "Country",
@@ -213,6 +214,7 @@ export const translations = {
       sub: "From the German federal states to joint Eurozone issues — every commemorative belongs to a series.",
       coinsCount: "coins",
       yearRange: "Year range",
+      empty: "No series in the archive yet.",
     },
     seriesDetail: {
       eyebrow: "Series",
@@ -548,6 +550,7 @@ export const translations = {
       sub: "Jedes Eurozonen-Land gibt eigene 2-Euro-Gedenkmünzen aus. Durchsuche das Archiv Land für Land.",
       since: "Gibt aus seit",
       coinsCount: "Münzen katalogisiert",
+      empty: "Noch keine Länder im Archiv.",
     },
     countryDetail: {
       eyebrow: "Land",
@@ -562,6 +565,7 @@ export const translations = {
       sub: "Von den deutschen Bundesländern bis zu gemeinschaftlichen Eurozonen-Ausgaben.",
       coinsCount: "Münzen",
       yearRange: "Zeitraum",
+      empty: "Noch keine Serien im Archiv.",
     },
     seriesDetail: {
       eyebrow: "Serie",

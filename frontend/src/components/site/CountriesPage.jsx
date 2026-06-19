@@ -11,11 +11,13 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 import useDocumentTitle from "@/hooks/useDocumentTitle";
 
 export const CountriesPage = () => {
-  useScrollReveal();
   const { t, lang } = useLang();
   useDocumentTitle(t.countriesPage.title);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [source, setSource] = useState("mock");
+
+  useScrollReveal([loading, items.length, source]);
 
   useEffect(() => {
     let cancelled = false;
@@ -23,7 +25,8 @@ export const CountriesPage = () => {
 
     getCountriesList().then((result) => {
       if (!cancelled) {
-        setItems(result.items);
+        setItems(result.items ?? []);
+        setSource(result.source ?? "mock");
         setLoading(false);
       }
     });
@@ -57,6 +60,10 @@ export const CountriesPage = () => {
         <div className="ca-container">
           {loading ? (
             <div className="ca-mono">{lang === "de" ? "Lädt…" : "Loading…"}</div>
+          ) : items.length === 0 ? (
+            <div className="ca-empty ca-reveal is-visible" data-testid={COUNTRIES_PAGE.empty}>
+              <div className="ca-display" style={{ fontSize: 28, marginBottom: 12 }}>{t.countriesPage.empty}</div>
+            </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
               {items.map((c, i) => (

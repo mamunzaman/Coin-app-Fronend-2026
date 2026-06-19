@@ -15,7 +15,6 @@ const PER_PAGE = 12;
 const SEARCH_DEBOUNCE_MS = 300;
 
 export const CoinsListing = () => {
-  useScrollReveal();
   const { t, lang } = useLang();
   useDocumentTitle(t.coins.title);
   const [params, setParams] = useSearchParams();
@@ -34,6 +33,8 @@ export const CoinsListing = () => {
   const [source, setSource] = useState("mock");
   const [loading, setLoading] = useState(true);
   const requestId = useRef(0);
+
+  useScrollReveal([loading, items.length, page, source]);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), SEARCH_DEBOUNCE_MS);

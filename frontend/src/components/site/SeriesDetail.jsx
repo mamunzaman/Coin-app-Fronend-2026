@@ -17,10 +17,10 @@ export const SeriesDetail = () => {
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useScrollReveal([loading, slug]);
-
   const series = detail?.series ?? null;
   const coins = detail?.coins ?? [];
+
+  useScrollReveal([loading, slug, coins.length, series?.slug]);
 
   useDocumentTitle(series ? series.name[lang] : loading ? t.nav.series : "Series");
 

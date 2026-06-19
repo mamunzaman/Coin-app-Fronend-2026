@@ -1,9 +1,10 @@
 # Next Task
 
 ## Current Goal
-Confirm coin detail page shows visible title, text, images, specs, related coins.
+Verify all public pages show content after async load.
 
 ## Verify Next
-- `/coins/deutschland-2026-2-euro-coin-150th-birthday-of-konrad-adenauer` — all sections visible immediately after load
-- No opacity:0 stuck content
-- Mock slug still works offline
+- /countries, /coins, /series — cards visible after loading
+- /countries/DE, /series/* — detail pages visible
+- /, /learn, /mint-marks — static pages still animate
+- Empty API lists show message, not blank page

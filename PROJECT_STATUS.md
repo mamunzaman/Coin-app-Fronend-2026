@@ -14,12 +14,10 @@
 - [x] `/learn` and `/mint-marks` polished — educational hub, mint guide, editorial sections, CTAs
 - [x] Homepage premium polish — hero stats, archive overview, featured coins, learning, search CTA, trust section
 - [x] Coin detail visible content fix — scroll-reveal re-scan + defensive render helpers
+- [x] Public listing visibility fix — async pages re-scan scroll reveal + empty states
 
 ## In Progress
-- [ ] Manual verification of coin detail visible content
-
-## Pending Tasks
-- [ ] End-to-end verify all WP-connected pages
+- [ ] Manual verification of all public listing pages
 
 ## Last Update
-2026-06-19 — Coin detail invisible content fixed (ca-reveal async timing)
+2026-06-19 — Fixed blank /countries and async listing pages (ca-reveal timing)
