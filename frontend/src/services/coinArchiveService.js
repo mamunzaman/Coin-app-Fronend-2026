@@ -17,9 +17,9 @@ export {
   searchCoins,
 } from "@/data/coinData";
 
-import { searchCoins, COINS, COUNTRIES, MINTS, SERIES_LIST, allYears } from "@/data/coinData";
+import { searchCoins, COINS, COUNTRIES, MINTS, SERIES_LIST, allYears, findCoinBySlug, relatedCoins as mockRelatedCoins } from "@/data/coinData";
 import { wpFetch } from "./wpClient";
-import { normalizeSearchResult, normalizeCoinCard } from "./normalizers/normalizeCoin";
+import { normalizeSearchResult, normalizeCoinCard, normalizeCoinDetail } from "./normalizers/normalizeCoin";
 
 const STATS_PATH = "/wp-json/coinarchive/v1/stats";
 const SEARCH_PATH = "/wp-json/coinarchive/v1/search";
@@ -220,5 +220,32 @@ export async function getCoinsList(params = {}) {
     };
   } catch {
     return getMockCoinsList(params);
+  }
+}
+
+function getMockCoinDetail(slug) {
+  const coin = findCoinBySlug(slug);
+  if (!coin) return { coin: null, relatedCoins: [], source: "mock" };
+  return {
+    coin,
+    relatedCoins: mockRelatedCoins(slug, 3),
+    source: "mock",
+  };
+}
+
+export async function getCoinDetail(slug) {
+  if (!slug) return getMockCoinDetail(slug);
+
+  try {
+    const raw = await wpFetch(`${COINS_PATH}/${encodeURIComponent(slug)}`);
+    if (!raw?.coin) throw new Error("Missing coin");
+
+    return {
+      coin: normalizeCoinDetail(raw.coin),
+      relatedCoins: Array.isArray(raw.relatedCoins) ? raw.relatedCoins.map(normalizeCoinCard) : [],
+      source: "wp",
+    };
+  } catch {
+    return getMockCoinDetail(slug);
   }
 }

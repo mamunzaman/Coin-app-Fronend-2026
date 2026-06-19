@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowUpRight, Pencil } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
-import { findCoinBySlug, findCountry, findSeries, relatedCoins, COINS } from "@/services/coinArchiveService";
+import { findCountry, findSeries, getCoinDetail, COINS } from "@/services/coinArchiveService";
 import { COIN_DETAIL } from "@/constants/testIds/home";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
@@ -17,11 +17,40 @@ export const CoinDetail = () => {
   const { slug } = useParams();
   const { t, lang } = useLang();
   const navigate = useNavigate();
-  const coin = findCoinBySlug(slug);
+  const [detail, setDetail] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [side, setSide] = useState("obverse");
-  useDocumentTitle(coin ? coin.title[lang] : t.detail.notFound);
 
-  useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); setSide("obverse"); }, [slug]);
+  const coin = detail?.coin ?? null;
+  const related = detail?.relatedCoins ?? [];
+
+  useDocumentTitle(coin ? coin.title[lang] : loading ? t.detail.breadcrumb : t.detail.notFound);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setSide("obverse");
+    window.scrollTo({ top: 0, behavior: "instant" });
+
+    getCoinDetail(slug).then((result) => {
+      if (!cancelled) {
+        setDetail(result);
+        setLoading(false);
+      }
+    });
+
+    return () => { cancelled = true; };
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div className="ca-page" data-testid={COIN_DETAIL.page}>
+        <Navbar />
+        <div className="ca-container ca-section" style={{ minHeight: 400 }} aria-busy="true" />
+        <Footer />
+      </div>
+    );
+  }
 
   if (!coin) {
     return (
@@ -40,8 +69,7 @@ export const CoinDetail = () => {
 
   const country = findCountry(coin.countryCode);
   const series = findSeries(coin.seriesSlug);
-  const related = relatedCoins(coin.slug, 3);
-  const plateIdx = COINS.findIndex((c) => c.slug === coin.slug) + 1;
+  const plateIdx = (coin.plateIndex ?? (COINS.findIndex((c) => c.slug === coin.slug) + 1)) || 1;
   const specs = coin.specifications;
 
   const releaseStr = coin.releaseDate
@@ -61,13 +89,12 @@ export const CoinDetail = () => {
             <span className="ca-breadcrumb__sep">/</span>
             <Link to="/coins" className="ca-breadcrumb__link">{t.detail.breadcrumb}</Link>
             <span className="ca-breadcrumb__sep">/</span>
-            <Link to={`/countries/${coin.countryCode.toLowerCase()}`} className="ca-breadcrumb__link">{country?.name[lang]}</Link>
+            <Link to={`/countries/${coin.countryCode.toLowerCase()}`} className="ca-breadcrumb__link">{country?.name[lang] || coin.country}</Link>
             <span className="ca-breadcrumb__sep">/</span>
             <span className="ca-breadcrumb__current">{coin.year}</span>
           </nav>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start mt-10">
-            {/* Coin */}
             <div className="lg:col-span-7 ca-reveal" style={{ position: "sticky", top: 100 }}>
               <div className="ca-detail-coin">
                 <img
@@ -93,7 +120,6 @@ export const CoinDetail = () => {
                 {coin.mint && (<><span className="sep" /><span>Mint {coin.mint}</span></>)}
               </div>
 
-              {/* Gallery */}
               {coin.gallery && coin.gallery.length > 0 && (
                 <div className="ca-gallery mt-10">
                   <div className="ca-mono mb-3">{t.detail.gallery}</div>
@@ -114,10 +140,9 @@ export const CoinDetail = () => {
               )}
             </div>
 
-            {/* Info */}
             <div className="lg:col-span-5 ca-reveal ca-reveal--delay-1">
               <div className="ca-mono mb-5" style={{ color: "var(--ca-gold-light)" }}>
-                {country?.name[lang]} · {coin.year} · {coin.series[lang]}
+                {country?.name[lang] || coin.country} · {coin.year} · {coin.series[lang]}
               </div>
               <h1 data-testid={COIN_DETAIL.title} className="ca-detail-title">{coin.title[lang]}</h1>
 
@@ -127,7 +152,6 @@ export const CoinDetail = () => {
                 </p>
               )}
 
-              {/* Historical */}
               <div data-testid={COIN_DETAIL.storyTab} className="mt-10">
                 <div className="ca-section-id" style={{ marginBottom: 20 }}>
                   <span className="ca-section-id__num">i.</span>
@@ -139,7 +163,6 @@ export const CoinDetail = () => {
                 ))}
               </div>
 
-              {/* Specifications */}
               <div data-testid={COIN_DETAIL.specsTab} className="mt-12">
                 <div className="ca-section-id" style={{ marginBottom: 20 }}>
                   <span className="ca-section-id__num">ii.</span>
@@ -175,7 +198,7 @@ export const CoinDetail = () => {
                   <dt>{t.detail.country}</dt>
                   <dd>
                     <Link to={`/countries/${coin.countryCode.toLowerCase()}`} className="ca-breadcrumb__link" style={{ color: "var(--ca-gold-light)" }}>
-                      {country?.name[lang]} <ArrowUpRight size={12} style={{ display: "inline", marginLeft: 2 }} />
+                      {country?.name[lang] || coin.country} <ArrowUpRight size={12} style={{ display: "inline", marginLeft: 2 }} />
                     </Link>
                   </dd>
                 </dl>
@@ -194,7 +217,7 @@ export const CoinDetail = () => {
                 <span className="ca-section-id__num">iii.</span>
                 <span className="ca-section-id__label">{t.detail.related}</span>
                 <span className="ca-section-id__rule" />
-                <span className="ca-section-id__meta">{country?.name[lang]}</span>
+                <span className="ca-section-id__meta">{country?.name[lang] || coin.country}</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7 mt-8">
                 {related.map((c) => (
