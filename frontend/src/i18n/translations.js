@@ -77,7 +77,9 @@ export const translations = {
     },
     manifesto: {
       small: "Manifesto",
-      text: "Every commemorative 2 Euro coin tells a story of the country that issued it — a moment cast in metal, a memory pressed into circulation.",
+      text: "Every commemorative 2 Euro coin tells a story of the country that issued it — a moment cast in metal,",
+      highlightText: "a memory pressed into circulation.",
+      attribution: "— Coin Archive · Curatorial Statement",
     },
     feature: {
       eyebrow: "Featured Story",
@@ -428,7 +430,9 @@ export const translations = {
     },
     manifesto: {
       small: "Manifest",
-      text: "Jede 2-Euro-Gedenkmünze erzählt eine Geschichte des Landes, das sie ausgegeben hat — ein Moment, in Metall gegossen, eine Erinnerung im Umlauf.",
+      text: "Jede 2-Euro-Gedenkmünze erzählt eine Geschichte des Landes, das sie ausgegeben hat — ein Moment, in Metall gegossen,",
+      highlightText: "eine Erinnerung im Umlauf.",
+      attribution: "— Coin Archive · Kuratorische Leitlinie",
     },
     feature: {
       eyebrow: "Geschichte des Monats",

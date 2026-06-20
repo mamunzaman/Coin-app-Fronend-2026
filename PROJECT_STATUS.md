@@ -10,13 +10,14 @@
 - [x] Navbar/Footer wired to site-settings header/footer
 - [x] Homepage sections wired to homepage endpoint
 - [x] Local SVG country flag fallback (`getCountryFlag`)
-- [x] Hero h1 always renders `renderHighlightedText()` with `<em>` highlight + preserved ACF line breaks
+- [x] Hero h1 via `renderHighlightedText()` with `<em>` highlight + ACF line breaks
+- [x] Manifesto quote uses explicit ACF fields (`text`, `highlight_text`, `attribution`) — no parsing
 
 ## In Progress
-- [ ] Manual DOM verification with live WP homepage API
+- [ ] Manual verification of manifesto quote fields from live API
 
 ## Pending Tasks
-- [ ] Expose `highlight_word` + multiline `title` in WP `/homepage` API when ACF fields are ready
+- [ ] Clear WP homepage settings transient after plugin quote payload update
 
 ## Last Update
-2026-06-19 — Hero highlight fix: always JSX render, highlight fallback, node array output
+2026-06-19 — Explicit ACF quote fields in API + Manifesto (no text splitting)

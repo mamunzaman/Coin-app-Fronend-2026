@@ -1,9 +1,9 @@
 # Next Task
 
 ## Current Goal
-Confirm hero `<h1>` shows `<em>Commemorative</em>` after reload with live API.
+Verify manifesto quote renders three ACF fields from `/homepage` API.
 
 ## Verify Next
-- DevTools console shows `Hero highlight debug` with title + highlight values
-- DOM contains `<em>Commemorative</em>` inside `.ca-hero-title`
-- Multiline ACF titles render `<br />` (when API sends `\n` or `<br>`)
+- API `quote.text`, `quote.highlight_text`, `quote.attribution` populate manifesto section
+- Gold italic highlight + attribution styling unchanged
+- Mock/i18n fallback still matches previous premium layout when API fields empty

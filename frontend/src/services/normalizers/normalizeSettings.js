@@ -189,8 +189,9 @@ export function normalizeHomepageSettings(raw) {
       eyebrow: pickText(heroRaw.eyebrow, heroRaw.label),
     },
     quote: {
-      text: quoteRaw.text ?? quoteRaw.quote ?? quoteRaw.body ?? "",
-      attribution: pickText(quoteRaw.attribution, quoteRaw.author, quoteRaw.source),
+      text: quoteRaw.text ?? quoteRaw.quote_text ?? "",
+      highlight_text: quoteRaw.highlight_text ?? quoteRaw.highlightText ?? quoteRaw.quote_highlight_text ?? "",
+      attribution: pickText(quoteRaw.attribution, quoteRaw.quote_attribution, quoteRaw.author, quoteRaw.source),
     },
     archiveOverview: {
       ...normalizeSectionMeta(archiveRaw),

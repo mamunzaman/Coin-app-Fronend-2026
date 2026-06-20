@@ -8,12 +8,12 @@ export const Manifesto = () => {
   const { t, lang } = useLang();
   const homepage = useHomepageSettings();
   const quoteText = pickSettingText(homepage?.quote?.text, lang, t.manifesto.text);
-  const attribution = homepage?.quote?.attribution || "— Coin Archive · Curatorial Statement";
-
-  const words = quoteText.split(" ");
-  const tailCount = Math.min(5, Math.max(3, Math.round(words.length * 0.18)));
-  const head = words.slice(0, words.length - tailCount).join(" ");
-  const tail = words.slice(words.length - tailCount).join(" ");
+  const quoteHighlight = pickSettingText(homepage?.quote?.highlight_text, lang, t.manifesto.highlightText);
+  const quoteAttribution = pickSettingText(
+    homepage?.quote?.attribution,
+    lang,
+    t.manifesto.attribution,
+  );
 
   return (
     <section data-testid={HOME.manifestoSection} className="ca-section">
@@ -21,9 +21,15 @@ export const Manifesto = () => {
         <div className="ca-manifesto ca-reveal" style={{ maxWidth: 980, margin: "0 auto" }}>
           <div className="ca-manifesto__mark" aria-hidden="true">&ldquo;</div>
           <p className="ca-manifesto-text">
-            {head} <em>{tail}</em>
+            {quoteText}
+            {quoteHighlight ? (
+              <>
+                {quoteText ? " " : null}
+                <em>{quoteHighlight}</em>
+              </>
+            ) : null}
           </p>
-          <div className="ca-manifesto__attr">{attribution}</div>
+          {quoteAttribution ? <div className="ca-manifesto__attr">{quoteAttribution}</div> : null}
         </div>
       </div>
     </section>
