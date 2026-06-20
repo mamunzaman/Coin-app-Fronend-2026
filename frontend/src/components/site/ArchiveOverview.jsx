@@ -8,24 +8,36 @@ import SectionId from "./SectionId";
 
 const ICONS = { coins: Coins, countries: Globe2, series: Layers, mintMarks: Stamp, mintmarks: Stamp, mint_marks: Stamp };
 
+function pickField(value, fallback = "") {
+  const trimmed = typeof value === "string" ? value.trim() : value;
+  if (trimmed == null || trimmed === "") return fallback;
+  return trimmed;
+}
+
 export const ArchiveOverview = () => {
   const { t, lang } = useLang();
   const homepage = useHomepageSettings();
   const section = homepage?.archiveOverview;
+  const fallbackCards = t.home.archive.cards;
 
   const cards = useMemo(() => {
-    if (section?.cards?.length) {
-      return section.cards.map((c) => ({
-        key: c.key,
-        to: c.to || c.url,
-        eyebrow: c.eyebrow,
-        title: pickSettingText(c.titleLocalized ?? c.title, lang, c.title),
-        desc: pickSettingText(c.descLocalized ?? c.desc, lang, c.desc),
-        cta: c.cta,
-      }));
-    }
-    return t.home.archive.cards;
-  }, [section?.cards, t.home.archive.cards, lang]);
+    const apiCards = section?.cards;
+    if (!apiCards?.length) return fallbackCards;
+
+    return apiCards.map((c, i) => {
+      const fallback = fallbackCards[i] || {};
+      const iconKey = pickField(c.icon, fallback.key || "coins");
+      return {
+        key: pickField(c.key, fallback.key || iconKey || `card-${i}`),
+        icon: iconKey,
+        to: pickField(c.button_url, fallback.to || "/"),
+        eyebrow: pickField(c.eyebrow, fallback.eyebrow || ""),
+        title: pickField(c.title, fallback.title || ""),
+        desc: pickField(c.text, fallback.desc || ""),
+        cta: pickField(c.button_text, fallback.cta || ""),
+      };
+    });
+  }, [section?.cards, fallbackCards]);
 
   const sectionNum = section?.sectionNumber || "II";
   const sectionLabel = section?.sectionLabel || t.home.archive.eyebrow;
@@ -47,7 +59,7 @@ export const ArchiveOverview = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
           {cards.map((card, i) => {
-            const Icon = ICONS[card.key] || Coins;
+            const Icon = ICONS[card.icon] || ICONS[card.key] || Coins;
             return (
               <SettingsLink
                 key={card.key}

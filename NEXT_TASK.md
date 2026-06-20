@@ -1,9 +1,9 @@
 # Next Task
 
 ## Current Goal
-Verify manifesto quote renders three ACF fields from `/homepage` API.
+Verify Archive Overview cards show ACF values (Catalogue1, Coins1, etc.) from API.
 
 ## Verify Next
-- API `quote.text`, `quote.highlight_text`, `quote.attribution` populate manifesto section
-- Gold italic highlight + attribution styling unchanged
-- Mock/i18n fallback still matches previous premium layout when API fields empty
+- First card: eyebrow `Catalogue1`, title `Coins1`, text + button from ACF
+- Second card: empty text/button fields fall back individually, not whole card
+- Section header still from API

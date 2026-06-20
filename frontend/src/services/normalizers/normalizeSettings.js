@@ -36,6 +36,31 @@ function normalizeLink(raw) {
   return { label, url };
 }
 
+function normalizeArchiveOverviewCard(raw, index = 0) {
+  if (!raw || typeof raw !== "object") return null;
+
+  const icon = pickText(raw.icon, raw.card_icon);
+  const eyebrow = pickText(raw.eyebrow, raw.card_eyebrow, raw.label, raw.subtitle);
+  const title = pickText(raw.title, raw.card_title, raw.name, raw.heading);
+  const text = pickText(raw.text, raw.card_text, raw.description, raw.desc, raw.excerpt, raw.body);
+  const buttonText = pickText(raw.button_text, raw.card_button_text, raw.cta, raw.buttonText, raw.link_text);
+  const buttonUrl = pickText(raw.button_url, raw.card_button_url, raw.url, raw.link, raw.href, raw.to);
+
+  if (!icon && !eyebrow && !title && !text && !buttonText && !buttonUrl) return null;
+
+  const key = pickText(raw.key, raw.slug, icon) || `archive-card-${index}`;
+
+  return {
+    key,
+    icon,
+    eyebrow,
+    title,
+    text,
+    button_text: buttonText,
+    button_url: buttonUrl,
+  };
+}
+
 function normalizeCard(raw, index = 0) {
   if (!raw || typeof raw !== "object") return null;
   const title = pickText(raw.title, raw.name, raw.heading);
@@ -141,7 +166,7 @@ export function normalizeHomepageSettings(raw) {
   const heroSecondary = normalizeButton(heroRaw.secondary_button ?? heroRaw.secondaryButton ?? heroRaw.secondary_cta);
 
   const archiveCards = (archiveRaw.cards || archiveRaw.items || [])
-    .map((c, i) => normalizeCard(c, i))
+    .map((c, i) => normalizeArchiveOverviewCard(c, i))
     .filter(Boolean);
 
   const learningCards = (learningRaw.cards || learningRaw.links || learningRaw.items || [])
