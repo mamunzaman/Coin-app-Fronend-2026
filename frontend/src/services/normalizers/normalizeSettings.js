@@ -136,7 +136,7 @@ export function normalizeHomepageSettings(raw) {
   const timelineRaw = raw.timeline || {};
   const contributeRaw = raw.contribute || {};
 
-  const heroImage = normalizeMedia(heroRaw.image ?? heroRaw.hero_image ?? heroRaw.coin_image);
+  const heroImageUrl = normalizeMedia(heroRaw.image ?? heroRaw.hero_image ?? heroRaw.coin_image);
   const heroPrimary = normalizeButton(heroRaw.primary_button ?? heroRaw.primaryButton ?? heroRaw.primary_cta);
   const heroSecondary = normalizeButton(heroRaw.secondary_button ?? heroRaw.secondaryButton ?? heroRaw.secondary_cta);
 
@@ -163,11 +163,29 @@ export function normalizeHomepageSettings(raw) {
     source: "api",
     hero: {
       title: heroRaw.title ?? heroRaw.heading ?? "",
+      highlight_word: heroRaw.highlight_word ?? heroRaw.highlightWord ?? "",
       description: pickText(heroRaw.description, heroRaw.desc, heroRaw.subtitle),
-      descriptionLocalized: typeof heroRaw.description === "object" ? heroRaw.description : null,
-      image: heroImage,
-      primaryButton: heroPrimary,
-      secondaryButton: heroSecondary,
+      image: heroImageUrl ? { url: heroImageUrl } : null,
+      primary_button_text: pickText(
+        heroRaw.primary_button_text,
+        heroRaw.primaryButton?.text,
+        heroPrimary?.text,
+      ),
+      primary_button_url: pickText(
+        heroRaw.primary_button_url,
+        heroRaw.primaryButton?.url,
+        heroPrimary?.url,
+      ),
+      secondary_button_text: pickText(
+        heroRaw.secondary_button_text,
+        heroRaw.secondaryButton?.text,
+        heroSecondary?.text,
+      ),
+      secondary_button_url: pickText(
+        heroRaw.secondary_button_url,
+        heroRaw.secondaryButton?.url,
+        heroSecondary?.url,
+      ),
       eyebrow: pickText(heroRaw.eyebrow, heroRaw.label),
     },
     quote: {

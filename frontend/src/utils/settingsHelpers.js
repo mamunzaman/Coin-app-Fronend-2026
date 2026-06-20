@@ -1,3 +1,4 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import { pickLocalized } from "@/services/normalizers/normalizeSettings";
 
@@ -6,12 +7,54 @@ export function pickSettingText(value, lang, fallback = "") {
   return picked || fallback;
 }
 
-export function parseHeroTitleLines(title, lang) {
-  const raw = pickLocalized(title, lang);
-  if (!raw) return null;
-  const lines = raw.split(/\n+/).map((s) => s.trim()).filter(Boolean);
-  if (!lines.length) return null;
-  return { line1: lines[0], line2: lines[1] || "", line3: lines[2] || "" };
+export function normalizeLineBreaks(text) {
+  return String(text ?? "")
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n")
+    .replace(/<br\s*\/?>/gi, "\n");
+}
+
+export function pickSettingMultilineText(value, lang, fallback = "") {
+  const picked = pickSettingText(value, lang, fallback);
+  return normalizeLineBreaks(picked);
+}
+
+export function renderHighlightedText(text, highlight) {
+  const raw = normalizeLineBreaks(text);
+  if (!raw) return [];
+
+  const word = normalizeLineBreaks(highlight).split("\n")[0].trim();
+  const lines = raw.split("\n");
+  const nodes = [];
+
+  const pushHighlightedLine = (line, lineKey) => {
+    if (!word || !line.includes(word)) {
+      if (line) nodes.push(line);
+      return;
+    }
+
+    let rest = line;
+    let matchIndex = 0;
+
+    while (rest.length > 0) {
+      const idx = rest.indexOf(word);
+      if (idx === -1) {
+        if (rest) nodes.push(rest);
+        break;
+      }
+      if (idx > 0) nodes.push(rest.slice(0, idx));
+      nodes.push(<em key={`${lineKey}-em-${matchIndex}`}>{word}</em>);
+      rest = rest.slice(idx + word.length);
+      matchIndex += 1;
+    }
+  };
+
+  lines.forEach((line, i) => {
+    if (i > 0) nodes.push(<br key={`br-${i}`} />);
+    pushHighlightedLine(line, i);
+  });
+
+  return nodes;
 }
 
 export function isInternalUrl(url = "") {

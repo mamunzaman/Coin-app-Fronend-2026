@@ -8,14 +8,15 @@
 - [x] Homepage + site settings API consumption (`/homepage`, `/site-settings`)
 - [x] SettingsProvider with safe fallback to static i18n/mock content
 - [x] Navbar/Footer wired to site-settings header/footer
-- [x] Homepage sections wired to homepage endpoint (hero, quote, archive, learning, search CTA, trust, timeline, contribute)
+- [x] Homepage sections wired to homepage endpoint
 - [x] Local SVG country flag fallback (`getCountryFlag`)
+- [x] Hero h1 always renders `renderHighlightedText()` with `<em>` highlight + preserved ACF line breaks
 
 ## In Progress
-- [ ] Manual verification with live WP settings endpoints
+- [ ] Manual DOM verification with live WP homepage API
 
 ## Pending Tasks
-- [ ] Confirm homepage/site-settings API response when WP 500 is resolved
+- [ ] Expose `highlight_word` + multiline `title` in WP `/homepage` API when ACF fields are ready
 
 ## Last Update
-2026-06-19 — Connected frontend to homepage + site-settings APIs with full fallback
+2026-06-19 — Hero highlight fix: always JSX render, highlight fallback, node array output

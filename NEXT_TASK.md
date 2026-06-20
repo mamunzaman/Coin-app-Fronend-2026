@@ -1,11 +1,9 @@
 # Next Task
 
 ## Current Goal
-Verify homepage + site-settings API consumption against live WordPress.
+Confirm hero `<h1>` shows `<em>Commemorative</em>` after reload with live API.
 
 ## Verify Next
-- `/` — hero/quote/archive/timeline/contribute use API when available; static fallback when not
-- Navbar — API nav/logo/CTA or default roman-numeral nav
-- Footer — API columns/copy or default footer
-- `/countries` — local SVG flags on cards (DE, FR, IT, etc.)
-- Search (Cmd+K), mobile menu, no console errors
+- DevTools console shows `Hero highlight debug` with title + highlight values
+- DOM contains `<em>Commemorative</em>` inside `.ca-hero-title`
+- Multiline ACF titles render `<br />` (when API sends `\n` or `<br>`)
