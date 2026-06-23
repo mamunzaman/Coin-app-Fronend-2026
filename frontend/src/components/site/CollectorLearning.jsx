@@ -3,34 +3,40 @@ import { ArrowUpRight, BookOpen, Layers, Stamp } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
 import { useHomepageSettings } from "@/context/SettingsContext";
-import { pickSettingText, SettingsLink } from "@/utils/settingsHelpers";
+import { pickField, pickSettingText, SettingsLink } from "@/utils/settingsHelpers";
 import SectionId from "./SectionId";
 
-const ICONS = { learn: BookOpen, mintMarks: Stamp, mintmarks: Stamp, mint_marks: Stamp, series: Layers };
+const ICONS = { learn: BookOpen, mintMarks: Stamp, mintmarks: Stamp, mint_marks: Stamp, series: Layers, book: BookOpen };
 
 export const CollectorLearning = () => {
   const { t, lang } = useLang();
   const homepage = useHomepageSettings();
   const section = homepage?.collectorEducation;
+  const fallbackLinks = t.home.learning.links;
 
   const links = useMemo(() => {
-    if (section?.cards?.length) {
-      return section.cards.map((c) => ({
-        key: c.key,
-        to: c.to || c.url,
-        eyebrow: c.eyebrow,
-        title: pickSettingText(c.titleLocalized ?? c.title, lang, c.title),
-        desc: pickSettingText(c.descLocalized ?? c.desc, lang, c.desc),
-        cta: c.cta,
-      }));
-    }
-    return t.home.learning.links;
-  }, [section?.cards, t.home.learning.links, lang]);
+    const apiCards = section?.cards;
+    if (!apiCards?.length) return fallbackLinks;
 
-  const sectionNum = section?.sectionNumber || "V";
-  const sectionLabel = section?.sectionLabel || t.home.learning.eyebrow;
-  const meta = section?.countLabel || t.home.learning.meta;
-  const title = section?.title || t.home.learning.title;
+    return apiCards.map((c, i) => {
+      const fallback = fallbackLinks[i] || {};
+      const iconKey = pickField(c.icon, fallback.key || "learn");
+      return {
+        key: pickField(c.key, fallback.key || iconKey || `learning-${i}`),
+        icon: iconKey,
+        to: pickField(c.button_url, fallback.to || "/"),
+        eyebrow: pickField(c.eyebrow, fallback.eyebrow || ""),
+        title: pickField(c.title, fallback.title || ""),
+        desc: pickField(c.text, fallback.desc || ""),
+        cta: pickField(c.button_text, fallback.cta || ""),
+      };
+    });
+  }, [section?.cards, fallbackLinks]);
+
+  const sectionNum = pickField(section?.sectionNumber, "V");
+  const sectionLabel = pickField(section?.sectionLabel, t.home.learning.eyebrow);
+  const meta = pickField(section?.countLabel, t.home.learning.meta);
+  const title = pickField(section?.title, t.home.learning.title);
   const sub = pickSettingText(section?.descriptionLocalized ?? section?.description, lang, t.home.learning.sub);
 
   return (
@@ -47,7 +53,7 @@ export const CollectorLearning = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {links.map((item, i) => {
-            const Icon = ICONS[item.key] || BookOpen;
+            const Icon = ICONS[item.icon] || ICONS[item.key] || BookOpen;
             return (
               <SettingsLink
                 key={item.key}

@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
 import { useSiteSettings } from "@/context/SettingsContext";
-import { resolveNavUrl, SettingsLink } from "@/utils/settingsHelpers";
+import { pickField, resolveNavUrl, SettingsLink } from "@/utils/settingsHelpers";
 
 const DEFAULT_COLS = (t) => [
   { title: t.footer.explore, links: [
@@ -35,15 +35,15 @@ export const Footer = () => {
     return DEFAULT_COLS(t);
   }, [footer?.linkColumns, t]);
 
-  const logoText = footer?.logoText || "CoinArchive";
+  const logoText = pickField(footer?.logoText, "CoinArchive");
   const logoMain = logoText.includes("Archive") ? logoText.replace("Archive", "") : "Coin";
   const logoAccent = logoText.includes("Archive") ? "Archive" : logoText.replace(/^Coin/, "");
-  const tagline = footer?.description || t.footer.tagline;
-  const newsletterLabel = footer?.newsletterLabel || (lang === "de" ? "Münze der Woche — Newsletter" : "Coin of the Week — Newsletter");
-  const newsletterPlaceholder = footer?.newsletterPlaceholder || (lang === "de" ? "E-Mail-Adresse" : "Your email");
-  const newsletterBottom = footer?.newsletterBottomText || (lang === "de" ? "Eine Münze · Eine Geschichte · Jeden Sonntag" : "One coin · One story · Every Sunday");
-  const copyright = footer?.copyrightText || t.footer.copyright;
-  const bottomRight = footer?.bottomRightText || (lang === "de" ? "Kuratiert in Berlin · Made in Europe" : "Curated in Berlin · Made in Europe");
+  const tagline = pickField(footer?.description, t.footer.tagline);
+  const newsletterLabel = pickField(footer?.newsletterLabel, lang === "de" ? "Münze der Woche — Newsletter" : "Coin of the Week — Newsletter");
+  const newsletterPlaceholder = pickField(footer?.newsletterPlaceholder, lang === "de" ? "E-Mail-Adresse" : "Your email");
+  const newsletterBottom = pickField(footer?.newsletterBottomText, lang === "de" ? "Eine Münze · Eine Geschichte · Jeden Sonntag" : "One coin · One story · Every Sunday");
+  const copyright = pickField(footer?.copyrightText, t.footer.copyright);
+  const bottomRight = pickField(footer?.bottomRightText, lang === "de" ? "Kuratiert in Berlin · Made in Europe" : "Curated in Berlin · Made in Europe");
 
   return (
     <footer data-testid={HOME.footer} className="ca-footer">

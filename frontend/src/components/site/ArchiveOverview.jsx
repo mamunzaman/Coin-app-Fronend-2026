@@ -3,16 +3,10 @@ import { ArrowUpRight, Coins, Globe2, Layers, Stamp } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
 import { useHomepageSettings } from "@/context/SettingsContext";
-import { pickSettingText, SettingsLink } from "@/utils/settingsHelpers";
+import { pickField, pickSettingText, SettingsLink } from "@/utils/settingsHelpers";
 import SectionId from "./SectionId";
 
 const ICONS = { coins: Coins, countries: Globe2, series: Layers, mintMarks: Stamp, mintmarks: Stamp, mint_marks: Stamp };
-
-function pickField(value, fallback = "") {
-  const trimmed = typeof value === "string" ? value.trim() : value;
-  if (trimmed == null || trimmed === "") return fallback;
-  return trimmed;
-}
 
 export const ArchiveOverview = () => {
   const { t, lang } = useLang();
@@ -39,10 +33,10 @@ export const ArchiveOverview = () => {
     });
   }, [section?.cards, fallbackCards]);
 
-  const sectionNum = section?.sectionNumber || "II";
-  const sectionLabel = section?.sectionLabel || t.home.archive.eyebrow;
-  const meta = section?.countLabel || t.home.archive.meta;
-  const title = section?.title || t.home.archive.title;
+  const sectionNum = pickField(section?.sectionNumber, "II");
+  const sectionLabel = pickField(section?.sectionLabel, t.home.archive.eyebrow);
+  const meta = pickField(section?.countLabel, t.home.archive.meta);
+  const title = pickField(section?.title, t.home.archive.title);
   const sub = pickSettingText(section?.descriptionLocalized ?? section?.description, lang, t.home.archive.sub);
 
   return (

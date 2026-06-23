@@ -2,29 +2,33 @@ import React, { useMemo } from "react";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
 import { useHomepageSettings } from "@/context/SettingsContext";
-import { pickSettingText } from "@/utils/settingsHelpers";
+import { pickField, pickSettingText } from "@/utils/settingsHelpers";
 import SectionId from "./SectionId";
 
 export const TrustQuality = () => {
   const { t, lang } = useLang();
   const homepage = useHomepageSettings();
   const section = homepage?.archiveQuality;
+  const fallbackPillars = t.home.trust.pillars;
 
   const pillars = useMemo(() => {
-    if (section?.cards?.length) {
-      return section.cards.map((p) => ({
-        num: p.num,
-        title: pickSettingText(p.titleLocalized ?? p.title, lang, p.title),
-        body: pickSettingText(p.bodyLocalized ?? p.body, lang, p.body),
-      }));
-    }
-    return t.home.trust.pillars;
-  }, [section?.cards, t.home.trust.pillars, lang]);
+    const apiCards = section?.cards;
+    if (!apiCards?.length) return fallbackPillars;
 
-  const sectionNum = section?.sectionNumber || "VI";
-  const sectionLabel = section?.sectionLabel || t.home.trust.eyebrow;
-  const meta = section?.countLabel || t.home.trust.meta;
-  const title = section?.title || t.home.trust.title;
+    return apiCards.map((p, i) => {
+      const fallback = fallbackPillars[i] || {};
+      return {
+        num: pickField(p.num, fallback.num || String(i + 1).padStart(2, "0")),
+        title: pickField(p.title, fallback.title || ""),
+        body: pickField(p.body, fallback.body || ""),
+      };
+    });
+  }, [section?.cards, fallbackPillars]);
+
+  const sectionNum = pickField(section?.sectionNumber, "VI");
+  const sectionLabel = pickField(section?.sectionLabel, t.home.trust.eyebrow);
+  const meta = pickField(section?.countLabel, t.home.trust.meta);
+  const title = pickField(section?.title, t.home.trust.title);
   const sub = pickSettingText(section?.descriptionLocalized ?? section?.description, lang, t.home.trust.sub);
 
   return (

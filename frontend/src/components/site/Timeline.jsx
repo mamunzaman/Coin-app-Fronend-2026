@@ -4,7 +4,7 @@ import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
 import { TIMELINE } from "@/services/coinArchiveService";
 import { useHomepageSettings } from "@/context/SettingsContext";
-import { pickSettingText, SettingsLink } from "@/utils/settingsHelpers";
+import { pickField, pickSettingText, SettingsLink } from "@/utils/settingsHelpers";
 import SectionId from "./SectionId";
 
 export const Timeline = () => {
@@ -13,8 +13,22 @@ export const Timeline = () => {
   const section = homepage?.timeline;
 
   const items = useMemo(() => {
-    if (section?.milestones?.length) return section.milestones;
-    return TIMELINE;
+    const apiMilestones = section?.milestones;
+    if (!apiMilestones?.length) return TIMELINE;
+
+    return apiMilestones.map((m, i) => {
+      const fallback = TIMELINE[i] || TIMELINE[TIMELINE.length - 1] || {};
+      return {
+        year: m.year || fallback.year,
+        country: pickField(m.country, fallback.country || "Europe"),
+        title: m.title || fallback.title,
+        label: m.label || fallback.label,
+        img: pickField(m.img, fallback.img || ""),
+        extraDescription: pickField(m.extraDescription, fallback.extraDescription || ""),
+        buttonText: pickField(m.buttonText, fallback.buttonText || `Browse ${m.year || fallback.year}`),
+        buttonUrl: pickField(m.buttonUrl, fallback.buttonUrl || `/coins?year=${m.year || fallback.year}`),
+      };
+    });
   }, [section?.milestones]);
 
   const [activeIdx, setActiveIdx] = useState(Math.max(0, items.length - 1));
@@ -22,18 +36,20 @@ export const Timeline = () => {
   const active = items[safeIdx] || items[0];
   const progress = `${((safeIdx + 0.5) / items.length) * 100}%`;
 
-  const sectionNum = section?.sectionNumber || "V";
-  const sectionLabel = section?.sectionLabel || t.timeline.title;
-  const meta = section?.rightLabel || section?.countLabel || "2004 — Present";
-  const title = section?.title || t.timeline.title;
+  const sectionNum = pickField(section?.sectionNumber, "V");
+  const sectionLabel = pickField(section?.sectionLabel, t.timeline.title);
+  const meta = pickField(section?.rightLabel, pickField(section?.countLabel, "2004 — Present"));
+  const title = pickField(section?.title, t.timeline.title);
   const sub = pickSettingText(section?.descriptionLocalized ?? section?.description, lang, t.timeline.sub);
 
   const activeTitle = pickSettingText(active?.title, lang, active?.title?.[lang] || "");
   const activeLabel = pickSettingText(active?.label, lang, active?.label?.[lang] || "");
-  const activeDesc = active?.extraDescription
-    || `${activeLabel} — one of ${Math.floor(8 + safeIdx * 4)} coins issued in ${active?.year}, now catalogued in the CoinArchive.`;
-  const btnText = active?.buttonText || `Browse ${active?.year}`;
-  const btnUrl = active?.buttonUrl || `/coins?year=${active?.year}`;
+  const activeDesc = pickField(
+    active?.extraDescription,
+    `${activeLabel} — one of ${Math.floor(8 + safeIdx * 4)} coins issued in ${active?.year}, now catalogued in the CoinArchive.`,
+  );
+  const btnText = pickField(active?.buttonText, `Browse ${active?.year}`);
+  const btnUrl = pickField(active?.buttonUrl, `/coins?year=${active?.year}`);
 
   return (
     <section data-testid={HOME.timelineSection} className="ca-section">

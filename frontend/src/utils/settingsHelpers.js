@@ -2,6 +2,12 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { pickLocalized } from "@/services/normalizers/normalizeSettings";
 
+export function pickField(value, fallback = "") {
+  const trimmed = typeof value === "string" ? value.trim() : value;
+  if (trimmed == null || trimmed === "") return fallback;
+  return trimmed;
+}
+
 export function pickSettingText(value, lang, fallback = "") {
   const picked = pickLocalized(value, lang);
   return picked || fallback;

@@ -3,7 +3,7 @@ import { ArrowRight, Search } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
 import { useHomepageSettings } from "@/context/SettingsContext";
-import { pickSettingText, SettingsLink } from "@/utils/settingsHelpers";
+import { pickField, pickSettingText, SettingsLink } from "@/utils/settingsHelpers";
 
 const openSearch = () => {
   window.dispatchEvent(new CustomEvent("ca-open-search"));
@@ -14,13 +14,13 @@ export const SearchCta = () => {
   const homepage = useHomepageSettings();
   const section = homepage?.searchCta;
 
-  const eyebrow = section?.eyebrow || t.home.searchCta.eyebrow;
-  const title = section?.title || t.home.searchCta.title;
+  const eyebrow = pickField(section?.eyebrow, t.home.searchCta.eyebrow);
+  const title = pickField(section?.title, t.home.searchCta.title);
   const sub = pickSettingText(section?.description, lang, t.home.searchCta.sub);
-  const primaryText = section?.primaryButton?.text || t.home.searchCta.button;
-  const secondaryText = section?.secondaryButton?.text || t.home.searchCta.fallback;
-  const secondaryUrl = section?.secondaryButton?.url || "/coins";
-  const hint = section?.tip || t.home.searchCta.hint;
+  const primaryText = pickField(section?.primaryButton?.text, t.home.searchCta.button);
+  const secondaryText = pickField(section?.secondaryButton?.text, t.home.searchCta.fallback);
+  const secondaryUrl = pickField(section?.secondaryButton?.url, "/coins");
+  const hint = pickField(section?.tip, t.home.searchCta.hint);
 
   return (
     <section data-testid={HOME.searchCtaSection} className="ca-section ca-search-cta" aria-labelledby="search-cta-heading">

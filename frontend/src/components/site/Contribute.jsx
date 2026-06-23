@@ -3,19 +3,25 @@ import { ArrowRight } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
 import { useHomepageSettings } from "@/context/SettingsContext";
-import { pickSettingText, SettingsLink } from "@/utils/settingsHelpers";
+import { pickField, pickSettingText, SettingsLink } from "@/utils/settingsHelpers";
 
 export const Contribute = () => {
   const { t, lang } = useLang();
   const homepage = useHomepageSettings();
   const section = homepage?.contribute;
 
-  const sectionNum = section?.sectionNumber || "IX";
-  const eyebrow = section?.sectionLabel || t.contribute.eyebrow;
-  const title = section?.title || t.contribute.title;
+  const sectionNum = pickField(section?.sectionNumber, "IX");
+  const eyebrow = pickField(section?.sectionLabel, t.contribute.eyebrow);
+  const title = pickField(section?.title, t.contribute.title);
   const sub = pickSettingText(section?.descriptionLocalized ?? section?.description, lang, t.contribute.sub);
-  const primaryBtn = section?.primaryButton || { text: t.contribute.cta, url: "/submit" };
-  const secondaryBtn = section?.secondaryButton || { text: "View contributors", url: "/about" };
+  const primaryBtn = {
+    text: pickField(section?.primaryButton?.text, t.contribute.cta),
+    url: pickField(section?.primaryButton?.url, "/submit"),
+  };
+  const secondaryBtn = {
+    text: pickField(section?.secondaryButton?.text, "View contributors"),
+    url: pickField(section?.secondaryButton?.url, "/about"),
+  };
   const stats = section?.stats;
 
   return (
