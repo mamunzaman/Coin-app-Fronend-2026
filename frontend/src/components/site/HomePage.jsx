@@ -10,6 +10,7 @@ import FeaturedCoins from "@/components/site/FeaturedCoins";
 import FeaturedStory from "@/components/site/FeaturedStory";
 import Countries from "@/components/site/Countries";
 import CollectorLearning from "@/components/site/CollectorLearning";
+import MintMarksSection from "@/components/site/MintMarksSection";
 import SearchCta from "@/components/site/SearchCta";
 import TrustQuality from "@/components/site/TrustQuality";
 import Timeline from "@/components/site/Timeline";
@@ -33,6 +34,7 @@ export const HomePage = () => {
         <FeaturedStory />
         <Countries />
         <CollectorLearning />
+        <MintMarksSection />
         <SearchCta />
         <TrustQuality />
         <Timeline />

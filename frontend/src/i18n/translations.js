@@ -103,8 +103,9 @@ export const translations = {
     },
     mints: {
       eyebrow: "Mint Marks",
-      title: "The Marks of the Maker",
-      sub: "German 2 Euro coins carry a single letter identifying the mint of origin. A quiet signature, struck into history.",
+      title: "Mint Marks",
+      sub: "Explore the German mint marks behind every coin.",
+      meta: "Federal Republic of Germany",
     },
     stats: {
       eyebrow: "Archive in Numbers",
@@ -456,8 +457,9 @@ export const translations = {
     },
     mints: {
       eyebrow: "Prägezeichen",
-      title: "Das Zeichen der Münzstätte",
-      sub: "Deutsche 2-Euro-Münzen tragen einen einzelnen Buchstaben, der die Prägestätte ausweist. Eine leise Signatur, in die Geschichte geprägt.",
+      title: "Prägezeichen",
+      sub: "Entdecke die deutschen Prägezeichen hinter jeder Münze.",
+      meta: "Bundesrepublik Deutschland",
     },
     stats: {
       eyebrow: "Archiv in Zahlen",

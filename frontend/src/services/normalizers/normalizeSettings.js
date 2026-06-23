@@ -30,8 +30,8 @@ function normalizeLink(raw) {
     const url = raw.trim();
     return url ? { label: url, url } : null;
   }
-  const label = pickText(raw.label, raw.text, raw.title, raw.name);
-  const url = pickText(raw.url, raw.link, raw.href);
+  const label = pickText(raw.label, raw.text, raw.title, raw.name, raw.menu_label);
+  const url = pickText(raw.url, raw.link, raw.href, raw.menu_url);
   if (!label || !url) return null;
   return { label, url };
 }
@@ -58,6 +58,47 @@ function normalizeArchiveOverviewCard(raw, index = 0) {
     text,
     button_text: buttonText,
     button_url: buttonUrl,
+  };
+}
+
+function normalizeCollectorEducationCard(raw, index = 0) {
+  if (!raw || typeof raw !== "object") return null;
+
+  const icon = pickText(raw.icon, raw.card_icon);
+  const eyebrow = pickText(raw.eyebrow, raw.card_label, raw.card_eyebrow, raw.label, raw.subtitle);
+  const title = pickText(raw.title, raw.card_title, raw.name, raw.heading);
+  const text = pickText(raw.text, raw.card_description, raw.description, raw.desc, raw.excerpt, raw.body);
+  const buttonText = pickText(raw.button_text, raw.card_button_text, raw.cta, raw.buttonText, raw.link_text);
+  const buttonUrl = pickText(raw.button_url, raw.card_button_url, raw.url, raw.link, raw.href, raw.to);
+
+  if (!icon && !eyebrow && !title && !text && !buttonText && !buttonUrl) return null;
+
+  const key = pickText(raw.key, raw.slug, icon) || `learning-card-${index}`;
+
+  return {
+    key,
+    icon,
+    eyebrow,
+    title,
+    text,
+    button_text: buttonText,
+    button_url: buttonUrl,
+  };
+}
+
+function normalizeArchiveQualityCard(raw, index = 0) {
+  if (!raw || typeof raw !== "object") return null;
+
+  const num = pickText(raw.num, raw.number, raw.card_number, raw.section_number);
+  const title = pickText(raw.title, raw.card_title, raw.name, raw.heading);
+  const body = pickText(raw.body, raw.card_description, raw.description, raw.desc, raw.text);
+
+  if (!num && !title && !body) return null;
+
+  return {
+    num: num || String(index + 1).padStart(2, "0"),
+    title,
+    body,
   };
 }
 
@@ -132,14 +173,32 @@ function normalizeMilestone(raw, index = 0) {
   };
 }
 
+function normalizeMintMarkCard(raw, index = 0) {
+  if (!raw || typeof raw !== "object") return null;
+
+  const letter = pickText(raw.letter, raw.mark, raw.mint_mark, raw.card_letter);
+  const city = pickText(raw.city, raw.card_city, raw.name, raw.title);
+  const note = pickText(raw.note, raw.label, raw.card_label, raw.institution);
+
+  if (!letter && !city) return null;
+
+  const fallback = letter || `mint-${index}`;
+
+  return {
+    letter: letter.toUpperCase(),
+    city,
+    note: note || "",
+  };
+}
+
 function normalizeSectionMeta(raw = {}) {
   return {
     sectionNumber: pickText(raw.section_number, raw.sectionNumber, raw.num),
     sectionLabel: pickText(raw.section_label, raw.sectionLabel, raw.label, raw.eyebrow),
     countLabel: pickText(raw.count_label, raw.countLabel, raw.meta, raw.count),
-    title: pickText(raw.title, raw.heading),
-    description: pickText(raw.description, raw.desc, raw.sub, raw.body),
-    rightLabel: pickText(raw.right_label, raw.rightLabel, raw.meta_right),
+    title: pickText(raw.title, raw.section_title, raw.heading),
+    description: pickText(raw.description, raw.section_description, raw.desc, raw.sub, raw.body),
+    rightLabel: pickText(raw.right_label, raw.section_right_label, raw.rightLabel, raw.meta_right),
     titleLocalized: typeof raw.title === "object" ? raw.title : null,
     descriptionLocalized: typeof (raw.description ?? raw.desc) === "object"
       ? (raw.description ?? raw.desc)
@@ -160,6 +219,7 @@ export function normalizeHomepageSettings(raw) {
   const qualityRaw = raw.archive_quality || raw.archiveQuality || raw.trust || {};
   const timelineRaw = raw.timeline || {};
   const contributeRaw = raw.contribute || {};
+  const mintMarksRaw = raw.mint_marks || raw.mintMarks || {};
 
   const heroImageUrl = normalizeMedia(heroRaw.image ?? heroRaw.hero_image ?? heroRaw.coin_image);
   const heroPrimary = normalizeButton(heroRaw.primary_button ?? heroRaw.primaryButton ?? heroRaw.primary_cta);
@@ -170,19 +230,29 @@ export function normalizeHomepageSettings(raw) {
     .filter(Boolean);
 
   const learningCards = (learningRaw.cards || learningRaw.links || learningRaw.items || [])
-    .map((c, i) => normalizeCard(c, i))
+    .map((c, i) => normalizeCollectorEducationCard(c, i))
     .filter(Boolean);
 
   const qualityCards = (qualityRaw.cards || qualityRaw.pillars || qualityRaw.items || [])
-    .map((p, i) => normalizePillar(p, i))
+    .map((p, i) => normalizeArchiveQualityCard(p, i))
     .filter(Boolean);
 
   const milestones = (timelineRaw.milestones || timelineRaw.items || [])
     .map((m, i) => normalizeMilestone(m, i))
     .filter(Boolean);
 
-  const contributePrimary = normalizeButton(contributeRaw.primary_button ?? contributeRaw.primaryButton ?? contributeRaw.primary_cta);
-  const contributeSecondary = normalizeButton(contributeRaw.secondary_button ?? contributeRaw.secondaryButton ?? contributeRaw.secondary_cta);
+  const contributePrimary = normalizeButton({
+    text: contributeRaw.primary_button_text,
+    url: contributeRaw.primary_button_url,
+  }) ?? normalizeButton(contributeRaw.primary_button ?? contributeRaw.primaryButton ?? contributeRaw.primary_cta);
+  const contributeSecondary = normalizeButton({
+    text: contributeRaw.secondary_button_text,
+    url: contributeRaw.secondary_button_url,
+  }) ?? normalizeButton(contributeRaw.secondary_button ?? contributeRaw.secondaryButton ?? contributeRaw.secondary_cta);
+
+  const mintMarkCards = (mintMarksRaw.cards || mintMarksRaw.marks || mintMarksRaw.items || [])
+    .map((m, i) => normalizeMintMarkCard(m, i))
+    .filter(Boolean);
 
   return {
     source: "api",
@@ -230,9 +300,15 @@ export function normalizeHomepageSettings(raw) {
       eyebrow: pickText(searchRaw.eyebrow, searchRaw.section_label, searchRaw.label),
       title: pickText(searchRaw.title, searchRaw.heading),
       description: pickText(searchRaw.description, searchRaw.desc, searchRaw.sub),
-      primaryButton: normalizeButton(searchRaw.primary_button ?? searchRaw.button ?? { text: searchRaw.button_text, url: searchRaw.button_url }),
-      secondaryButton: normalizeButton(searchRaw.secondary_button ?? searchRaw.fallback_button ?? { text: searchRaw.fallback_text, url: searchRaw.fallback_url }),
-      tip: pickText(searchRaw.tip, searchRaw.hint, searchRaw.note),
+      primaryButton: normalizeButton({
+        text: searchRaw.primary_button_text,
+        url: searchRaw.primary_button_url,
+      }) ?? normalizeButton(searchRaw.primary_button ?? searchRaw.button ?? { text: searchRaw.button_text, url: searchRaw.button_url }),
+      secondaryButton: normalizeButton({
+        text: searchRaw.secondary_button_text,
+        url: searchRaw.secondary_button_url,
+      }) ?? normalizeButton(searchRaw.secondary_button ?? searchRaw.fallback_button ?? { text: searchRaw.fallback_text, url: searchRaw.fallback_url }),
+      tip: pickText(searchRaw.tip_text, searchRaw.tip, searchRaw.hint, searchRaw.note),
     },
     archiveQuality: {
       ...normalizeSectionMeta(qualityRaw),
@@ -248,6 +324,10 @@ export function normalizeHomepageSettings(raw) {
       secondaryButton: contributeSecondary,
       stats: contributeRaw.stats || null,
     },
+    mintMarks: {
+      ...normalizeSectionMeta(mintMarksRaw),
+      cards: mintMarkCards,
+    },
   };
 }
 
@@ -258,6 +338,7 @@ export function normalizeSiteSettings(raw) {
 
   const headerRaw = raw.header || {};
   const footerRaw = raw.footer || {};
+  const newsletterRaw = footerRaw.newsletter || {};
 
   const logoUrl = normalizeMedia(headerRaw.logo ?? headerRaw.logo_image);
   const logoText = pickText(headerRaw.logo_text, headerRaw.logoText, headerRaw.site_name);
@@ -271,15 +352,24 @@ export function normalizeSiteSettings(raw) {
   const languages = (headerRaw.languages || [])
     .map((l) => {
       if (typeof l === "string") return l.toLowerCase();
-      return pickText(l.code, l.lang, l.locale)?.toLowerCase();
+      return pickText(l.code, l.lang, l.locale, l.language_code)?.toLowerCase();
     })
     .filter(Boolean);
 
   const linkColumns = (footerRaw.link_columns || footerRaw.linkColumns || footerRaw.columns || [])
     .map((col) => {
       if (!col || typeof col !== "object") return null;
-      const title = pickText(col.title, col.label, col.heading);
-      const links = (col.links || col.items || []).map(normalizeLink).filter(Boolean);
+      const title = pickText(col.title, col.column_title, col.label, col.heading);
+      const linkRows = col.links || col.column_links || col.items || [];
+      const links = linkRows
+        .map((link) => {
+          if (!link || typeof link !== "object") return null;
+          const label = pickText(link.label, link.link_text, link.text, link.title);
+          const url = pickText(link.url, link.link_url, link.link, link.href);
+          if (!label || !url) return null;
+          return { label, url };
+        })
+        .filter(Boolean);
       if (!title && !links.length) return null;
       return { title: title || "Links", links };
     })
@@ -299,9 +389,9 @@ export function normalizeSiteSettings(raw) {
     footer: {
       logoText: pickText(footerRaw.footer_logo_text, footerRaw.logo_text, footerRaw.logoText),
       description: pickText(footerRaw.footer_description, footerRaw.description, footerRaw.tagline),
-      newsletterLabel: pickText(footerRaw.newsletter_label, footerRaw.newsletterLabel, footerRaw.newsletter_title),
-      newsletterPlaceholder: pickText(footerRaw.newsletter_placeholder, footerRaw.newsletterPlaceholder),
-      newsletterBottomText: pickText(footerRaw.newsletter_bottom_text, footerRaw.newsletterBottomText, footerRaw.newsletter_note),
+      newsletterLabel: pickText(newsletterRaw.label, footerRaw.newsletter_label, footerRaw.newsletterLabel, footerRaw.newsletter_title),
+      newsletterPlaceholder: pickText(newsletterRaw.placeholder, footerRaw.newsletter_placeholder, footerRaw.newsletterPlaceholder),
+      newsletterBottomText: pickText(newsletterRaw.bottom_text, footerRaw.newsletter_bottom_text, footerRaw.newsletterBottomText, footerRaw.newsletter_note),
       largeBackgroundText: pickText(footerRaw.footer_large_background_text, footerRaw.largeBackgroundText),
       copyrightText: pickText(footerRaw.copyright_text, footerRaw.copyright, footerRaw.copyrightText),
       bottomRightText: pickText(footerRaw.footer_bottom_right_text, footerRaw.bottomRightText),
