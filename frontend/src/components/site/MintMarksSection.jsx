@@ -18,15 +18,16 @@ export const MintMarksSection = () => {
 
     return apiMarks.map((m, i) => {
       const fallback = fallbackMints[i] || fallbackMints.find((x) => x.letter === m.letter) || {};
+      const noteFallback = fallback.note?.[lang] || fallback.note?.en || "";
       return {
         letter: pickField(m.letter, fallback.letter || ""),
         city: pickField(m.city, fallback.city || ""),
         note: typeof m.note === "object"
           ? m.note
-          : { en: pickField(m.note, fallback.note?.en || ""), de: pickField(m.note, fallback.note?.de || m.note || "") },
+          : { en: pickField(m.note, fallback.note?.en || ""), de: pickField(m.note, fallback.note?.de || m.note || noteFallback) },
       };
-    }).filter((m) => m.letter && m.city);
-  }, [section?.cards, fallbackMints]);
+    }).filter((m) => m.letter);
+  }, [section?.cards, fallbackMints, lang]);
 
   const sectionNum = pickField(section?.sectionNumber, "VI");
   const sectionLabel = pickField(section?.sectionLabel, t.mints.eyebrow);

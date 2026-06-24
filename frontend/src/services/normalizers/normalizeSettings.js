@@ -176,18 +176,18 @@ function normalizeMilestone(raw, index = 0) {
 function normalizeMintMarkCard(raw, index = 0) {
   if (!raw || typeof raw !== "object") return null;
 
-  const letter = pickText(raw.letter, raw.mark, raw.mint_mark, raw.card_letter);
-  const city = pickText(raw.city, raw.card_city, raw.name, raw.title);
-  const note = pickText(raw.note, raw.label, raw.card_label, raw.institution);
+  const letter = pickText(raw.code, raw.letter, raw.mark, raw.mint_mark, raw.card_letter);
+  const city = pickText(raw.mint_city, raw.city, raw.card_city, raw.name, raw.title);
+  const note = pickText(raw.mint_name, raw.note, raw.label, raw.card_label, raw.institution);
+  const description = pickText(raw.mint_description, raw.description, raw.desc);
 
-  if (!letter && !city) return null;
-
-  const fallback = letter || `mint-${index}`;
+  if (!letter && !city && !note && !description) return null;
 
   return {
-    letter: letter.toUpperCase(),
+    letter: letter ? letter.toUpperCase() : "",
     city,
     note: note || "",
+    description: description || "",
   };
 }
 
@@ -255,7 +255,7 @@ function normalizeSectionMeta(raw = {}) {
     is_visible: raw.is_visible !== false && raw.isVisible !== false,
     sectionNumber: pickText(raw.section_number, raw.sectionNumber, raw.num),
     sectionLabel: pickText(raw.section_label, raw.sectionLabel, raw.label, raw.eyebrow),
-    countLabel: pickText(raw.count_label, raw.countLabel, raw.meta, raw.count),
+    countLabel: pickText(raw.count_label, raw.countLabel, raw.right_label, raw.meta, raw.count),
     title: pickText(raw.title, raw.section_title, raw.heading),
     description: pickText(raw.description, raw.section_description, raw.desc, raw.sub, raw.body),
     rightLabel: pickText(raw.right_label, raw.section_right_label, raw.rightLabel, raw.meta_right),
