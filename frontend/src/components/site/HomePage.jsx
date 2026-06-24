@@ -2,7 +2,7 @@ import React from "react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import useDocumentTitle from "@/hooks/useDocumentTitle";
 import { useHomepageSettings, useSettingsLoading } from "@/context/SettingsContext";
-import { isSectionVisible } from "@/utils/settingsHelpers";
+import { isFeaturedCatalogueVisible, isSectionVisible } from "@/utils/settingsHelpers";
 import Navbar from "@/components/site/Navbar";
 import Hero from "@/components/site/Hero";
 import Stats from "@/components/site/Stats";
@@ -34,7 +34,7 @@ export const HomePage = () => {
         <Stats />
         {isSectionVisible(homepage?.quote) && <Manifesto />}
         {isSectionVisible(homepage?.archiveOverview) && <ArchiveOverview />}
-        <FeaturedCoins />
+        {isFeaturedCatalogueVisible(homepage) && <FeaturedCoins />}
         {isSectionVisible(homepage?.featuredStory) && <FeaturedStory />}
         <Countries />
         {isSectionVisible(homepage?.collectorEducation) && <CollectorLearning />}

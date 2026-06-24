@@ -14,6 +14,13 @@ export function isSectionVisible(section) {
   return true;
 }
 
+export function isFeaturedCatalogueVisible(homepage) {
+  const section = homepage?.featuredCatalogue;
+  if (section == null) return true;
+  if (!isSectionVisible(section)) return false;
+  return Boolean(section.coins?.length);
+}
+
 export function pickSettingText(value, lang, fallback = "") {
   const picked = pickLocalized(value, lang);
   return picked || fallback;

@@ -306,6 +306,55 @@ function normalizeFeaturedStory(raw = {}) {
   };
 }
 
+function normalizeFeaturedCatalogueCoin(raw) {
+  if (!raw || typeof raw !== "object") return null;
+
+  const slug = pickText(raw.slug, raw.coin_slug);
+  const titleRaw = raw.title ?? raw.coin_title ?? "";
+  const imageUrl = normalizeMedia(raw.image ?? raw.coin_image)
+    || normalizeMedia(raw.obverseImage ?? raw.obverse_image)
+    || normalizeMedia(raw.reverseImage ?? raw.reverse_image);
+
+  if (!slug && !imageUrl && !titleRaw) return null;
+
+  const title = typeof titleRaw === "object"
+    ? titleRaw
+    : { en: pickText(titleRaw), de: pickText(titleRaw) };
+
+  const yearNum = Number(raw.year ?? raw.coin_year);
+
+  return {
+    id: raw.id,
+    slug,
+    title,
+    country: pickText(raw.country, raw.country_name),
+    countryCode: pickText(raw.countryCode, raw.country_code)?.toUpperCase(),
+    year: Number.isFinite(yearNum) ? yearNum : pickText(raw.year, raw.coin_year),
+    mint: pickText(raw.mint, raw.mint_mark) || null,
+    mintMarks: Array.isArray(raw.mintMarks)
+      ? raw.mintMarks
+      : (Array.isArray(raw.mint_marks) ? raw.mint_marks : []),
+    isNew: raw.isNew === true || raw.is_new === true,
+    isRare: raw.isRare === true || raw.is_rare === true,
+    obverseImage: imageUrl,
+    designer: pickText(raw.designer, raw.coin_designer),
+    url: pickText(raw.url, raw.link, raw.coin_url),
+  };
+}
+
+function normalizeFeaturedCatalogue(raw = {}) {
+  const coins = (raw.coins || raw.items || [])
+    .map(normalizeFeaturedCatalogueCoin)
+    .filter(Boolean);
+
+  return {
+    ...normalizeSectionMeta(raw),
+    button_text: pickText(raw.button_text, raw.buttonText, raw.cta_text),
+    button_url: pickText(raw.button_url, raw.buttonUrl, raw.cta_url, raw.url),
+    coins,
+  };
+}
+
 export function normalizeHomepageSettings(raw) {
   if (!raw || typeof raw !== "object") {
     return { source: "mock" };
@@ -321,6 +370,8 @@ export function normalizeHomepageSettings(raw) {
   const contributeRaw = raw.contribute || {};
   const mintMarksRaw = raw.mint_marks || raw.mintMarks || {};
   const featuredStoryRaw = raw.featured_story || raw.featuredStory || {};
+  const hasFeaturedCatalogue = raw.featured_catalogue !== undefined || raw.featuredCatalogue !== undefined;
+  const featuredCatalogueRaw = raw.featured_catalogue ?? raw.featuredCatalogue ?? {};
 
   const heroImageUrl = normalizeMedia(heroRaw.image ?? heroRaw.hero_image ?? heroRaw.coin_image);
   const heroPrimary = normalizeButton(heroRaw.primary_button ?? heroRaw.primaryButton ?? heroRaw.primary_cta);
@@ -487,6 +538,7 @@ export function normalizeHomepageSettings(raw) {
       cards: mintMarkCards,
     },
     featuredStory: normalizeFeaturedStory(featuredStoryRaw),
+    featuredCatalogue: hasFeaturedCatalogue ? normalizeFeaturedCatalogue(featuredCatalogueRaw) : null,
   };
 }
 
