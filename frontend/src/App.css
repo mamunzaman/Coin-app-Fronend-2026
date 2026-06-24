@@ -443,34 +443,6 @@ body {
 @media (min-width: 480px) {
   .ca-hero__actions .ca-btn { width: auto; }
 }
-.ca-hero__stats {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 16px 20px;
-  padding: 18px 20px;
-  border: 1px solid var(--ca-border);
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(23, 26, 32, 0.85), rgba(15, 17, 21, 0.85));
-  max-width: 520px;
-}
-.ca-hero__stat { display: flex; flex-direction: column; gap: 4px; min-width: 88px; }
-.ca-hero__stat-num {
-  font-family: var(--ca-font-display);
-  font-size: clamp(24px, 3vw, 32px);
-  line-height: 1;
-  color: var(--ca-gold-light);
-}
-.ca-hero__stat-label {
-  font-family: var(--ca-font-mono);
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--ca-text-muted);
-}
-.ca-hero__stat-divider { width: 1px; height: 36px; background: var(--ca-border); flex-shrink: 0; }
-@media (max-width: 480px) {
-  .ca-hero__stat-divider { display: none; }
-  .ca-hero__stats { gap: 12px; }
-  .ca-hero__stat { min-width: calc(33% - 12px); }
-}
 
 .ca-hero__visual { position: relative; min-height: 420px; display: flex; align-items: center; justify-content: center; }
 .ca-hero__panel {

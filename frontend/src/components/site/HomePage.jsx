@@ -4,6 +4,7 @@ import useDocumentTitle from "@/hooks/useDocumentTitle";
 import { useSettingsLoading } from "@/context/SettingsContext";
 import Navbar from "@/components/site/Navbar";
 import Hero from "@/components/site/Hero";
+import Stats from "@/components/site/Stats";
 import Manifesto from "@/components/site/Manifesto";
 import ArchiveOverview from "@/components/site/ArchiveOverview";
 import FeaturedCoins from "@/components/site/FeaturedCoins";
@@ -28,6 +29,7 @@ export const HomePage = () => {
       <Navbar />
       <main id="main">
         <Hero />
+        <Stats />
         <Manifesto />
         <ArchiveOverview />
         <FeaturedCoins />

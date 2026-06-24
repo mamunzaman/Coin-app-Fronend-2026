@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { ArrowRight, MapPin } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
-import { HERO_COIN, getStats, MOCK_STATS } from "@/services/coinArchiveService";
+import { HERO_COIN } from "@/services/coinArchiveService";
 import { useHomepageSettings } from "@/context/SettingsContext";
 import { pickSettingMultilineText, pickSettingText, renderHighlightedText, SettingsLink } from "@/utils/settingsHelpers";
 
@@ -10,15 +10,6 @@ export const Hero = () => {
   const { t, lang } = useLang();
   const homepage = useHomepageSettings();
   const hero = homepage?.hero;
-  const [stats, setStats] = useState(MOCK_STATS);
-
-  useEffect(() => {
-    let cancelled = false;
-    getStats().then((data) => {
-      if (!cancelled) setStats(data);
-    });
-    return () => { cancelled = true; };
-  }, []);
 
   const defaultTitle = `${t.hero.title1}\n${t.hero.title2}\n${t.hero.title3}`;
   const heroTitle = pickSettingMultilineText(hero?.title, lang, defaultTitle);
@@ -55,7 +46,7 @@ export const Hero = () => {
         <span className="rule" />
         <span>Est. 2024</span>
         <span className="rule" />
-        <span className="inline-flex items-center gap-2"><span className="dot" /> {stats.coins}+ Live</span>
+        <span className="inline-flex items-center gap-2"><span className="dot" /> Live</span>
       </div>
 
       <div className="ca-container w-full" style={{ position: "relative", zIndex: 2 }}>
@@ -125,23 +116,6 @@ export const Hero = () => {
                 <MapPin size={14} aria-hidden="true" />
                 {secondaryBtn.text}
               </SettingsLink>
-            </div>
-
-            <div className="ca-hero__stats ca-reveal ca-reveal--delay-4 mt-12" data-testid={HOME.heroStats} aria-label={t.hero.statsLabel}>
-              <div className="ca-hero__stat">
-                <span className="ca-hero__stat-num">{stats.coins}+</span>
-                <span className="ca-hero__stat-label">{t.stats.coins}</span>
-              </div>
-              <span className="ca-hero__stat-divider" aria-hidden="true" />
-              <div className="ca-hero__stat">
-                <span className="ca-hero__stat-num">{stats.countries}+</span>
-                <span className="ca-hero__stat-label">{t.stats.countries}</span>
-              </div>
-              <span className="ca-hero__stat-divider" aria-hidden="true" />
-              <div className="ca-hero__stat">
-                <span className="ca-hero__stat-num">{stats.years}+</span>
-                <span className="ca-hero__stat-label">{t.stats.years}</span>
-              </div>
             </div>
           </div>
         </div>
