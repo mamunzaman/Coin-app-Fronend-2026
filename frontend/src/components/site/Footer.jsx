@@ -25,30 +25,64 @@ const DEFAULT_COLS = (t) => [
   ] },
 ];
 
+function mergeFooterColumns(apiCols, fallbackCols) {
+  const count = Math.max(fallbackCols.length, apiCols?.length || 0);
+  if (!count) return fallbackCols;
+
+  return Array.from({ length: count }, (_, i) => {
+    const apiCol = apiCols?.[i];
+    const fbCol = fallbackCols[i];
+    if (!apiCol) return fbCol;
+    if (!fbCol) return apiCol;
+
+    return {
+      title: pickField(apiCol.title, fbCol.title),
+      links: apiCol.links?.length ? apiCol.links : fbCol.links,
+    };
+  }).filter(Boolean);
+}
+
+const NEWSLETTER_FALLBACK = (lang) => ({
+  label: lang === "de" ? "Münze der Woche — Newsletter" : "Coin of the Week — Newsletter",
+  placeholder: lang === "de" ? "E-Mail-Adresse" : "Your email",
+  button: lang === "de" ? "Abonnieren" : "Subscribe",
+  bottom: lang === "de" ? "Eine Münze · Eine Geschichte · Jeden Sonntag" : "One coin · One story · Every Sunday",
+});
+
+const FOOTER_TEXT_FALLBACK = (lang, t) => ({
+  bottomRight: lang === "de" ? "Kuratiert in Berlin · Made in Europe" : "Curated in Berlin · Made in Europe",
+  copyright: t.footer.copyright,
+});
+
 export const Footer = () => {
   const { t, lang, toggle } = useLang();
   const site = useSiteSettings();
   const footer = site?.footer;
 
   const cols = useMemo(() => {
-    if (footer?.linkColumns?.length) return footer.linkColumns;
-    return DEFAULT_COLS(t);
+    const fallback = DEFAULT_COLS(t);
+    return mergeFooterColumns(footer?.linkColumns, fallback);
   }, [footer?.linkColumns, t]);
+
+  const newsletterFb = NEWSLETTER_FALLBACK(lang);
+  const textFb = FOOTER_TEXT_FALLBACK(lang, t);
 
   const logoText = pickField(footer?.logoText, "CoinArchive");
   const logoMain = logoText.includes("Archive") ? logoText.replace("Archive", "") : "Coin";
   const logoAccent = logoText.includes("Archive") ? "Archive" : logoText.replace(/^Coin/, "");
   const tagline = pickField(footer?.description, t.footer.tagline);
-  const newsletterLabel = pickField(footer?.newsletterLabel, lang === "de" ? "Münze der Woche — Newsletter" : "Coin of the Week — Newsletter");
-  const newsletterPlaceholder = pickField(footer?.newsletterPlaceholder, lang === "de" ? "E-Mail-Adresse" : "Your email");
-  const newsletterBottom = pickField(footer?.newsletterBottomText, lang === "de" ? "Eine Münze · Eine Geschichte · Jeden Sonntag" : "One coin · One story · Every Sunday");
-  const copyright = pickField(footer?.copyrightText, t.footer.copyright);
-  const bottomRight = pickField(footer?.bottomRightText, lang === "de" ? "Kuratiert in Berlin · Made in Europe" : "Curated in Berlin · Made in Europe");
+  const newsletterLabel = pickField(footer?.newsletterLabel, newsletterFb.label);
+  const newsletterPlaceholder = pickField(footer?.newsletterPlaceholder, newsletterFb.placeholder);
+  const newsletterButtonLabel = pickField(footer?.newsletterButtonText, newsletterFb.button);
+  const newsletterBottom = pickField(footer?.newsletterBottomText, newsletterFb.bottom);
+  const bgText = pickField(footer?.largeBackgroundText, "");
+  const copyright = pickField(footer?.copyrightText, textFb.copyright);
+  const bottomRight = pickField(footer?.bottomRightText, textFb.bottomRight);
 
   return (
     <footer data-testid={HOME.footer} className="ca-footer">
-      {footer?.largeBackgroundText && (
-        <div className="ca-footer__bg-text" aria-hidden="true">{footer.largeBackgroundText}</div>
+      {bgText && (
+        <div className="ca-footer__bg-text" aria-hidden="true">{bgText}</div>
       )}
       <div className="ca-container">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
@@ -74,7 +108,7 @@ export const Footer = () => {
                 className="ca-newsletter-input"
                 aria-label="Email"
               />
-              <button type="submit" className="ca-btn ca-btn--primary ca-btn--sm" aria-label="Subscribe">
+              <button type="submit" className="ca-btn ca-btn--primary ca-btn--sm" aria-label={newsletterButtonLabel}>
                 <ArrowRight size={14} />
               </button>
             </form>

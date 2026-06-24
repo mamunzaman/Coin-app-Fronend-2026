@@ -447,7 +447,7 @@ export function normalizeSiteSettings(raw) {
         })
         .filter(Boolean);
       if (!title && !links.length) return null;
-      return { title: title || "Links", links };
+      return { title, links };
     })
     .filter(Boolean);
 
@@ -466,9 +466,38 @@ export function normalizeSiteSettings(raw) {
     footer: {
       logoText: pickText(footerRaw.footer_logo_text, footerRaw.logo_text, footerRaw.logoText),
       description: pickText(footerRaw.footer_description, footerRaw.description, footerRaw.tagline),
-      newsletterLabel: pickText(newsletterRaw.label, footerRaw.newsletter_label, footerRaw.newsletterLabel, footerRaw.newsletter_title),
-      newsletterPlaceholder: pickText(newsletterRaw.placeholder, footerRaw.newsletter_placeholder, footerRaw.newsletterPlaceholder),
-      newsletterBottomText: pickText(newsletterRaw.bottom_text, footerRaw.newsletter_bottom_text, footerRaw.newsletterBottomText, footerRaw.newsletter_note),
+      newsletterLabel: pickText(
+        newsletterRaw.headline,
+        newsletterRaw.headline_text,
+        newsletterRaw.label,
+        footerRaw.newsletter_label,
+        footerRaw.newsletterLabel,
+        footerRaw.newsletter_title,
+      ),
+      newsletterDescription: pickText(
+        newsletterRaw.description,
+        newsletterRaw.desc,
+        footerRaw.newsletter_description,
+        footerRaw.newsletterDescription,
+      ),
+      newsletterPlaceholder: pickText(
+        newsletterRaw.placeholder,
+        footerRaw.newsletter_placeholder,
+        footerRaw.newsletterPlaceholder,
+      ),
+      newsletterButtonText: pickText(
+        newsletterRaw.button_text,
+        newsletterRaw.buttonText,
+        footerRaw.newsletter_button_text,
+        footerRaw.newsletterButtonText,
+      ),
+      newsletterBottomText: pickText(
+        newsletterRaw.bottom_text,
+        newsletterRaw.bottomText,
+        footerRaw.newsletter_bottom_text,
+        footerRaw.newsletterBottomText,
+        footerRaw.newsletter_note,
+      ),
       largeBackgroundText: pickText(footerRaw.footer_large_background_text, footerRaw.largeBackgroundText),
       copyrightText: pickText(footerRaw.copyright_text, footerRaw.copyright, footerRaw.copyrightText),
       bottomRightText: pickText(footerRaw.footer_bottom_right_text, footerRaw.bottomRightText),
