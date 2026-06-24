@@ -17,10 +17,10 @@ export const SearchCta = () => {
   const eyebrow = pickField(section?.eyebrow, t.home.searchCta.eyebrow);
   const title = pickField(section?.title, t.home.searchCta.title);
   const sub = pickSettingText(section?.description, lang, t.home.searchCta.sub);
-  const primaryText = pickField(section?.primaryButton?.text, t.home.searchCta.button);
-  const secondaryText = pickField(section?.secondaryButton?.text, t.home.searchCta.fallback);
-  const secondaryUrl = pickField(section?.secondaryButton?.url, "/coins");
-  const hint = pickField(section?.tip, t.home.searchCta.hint);
+  const primaryText = pickField(section?.primary_button_text ?? section?.primaryButton?.text, t.home.searchCta.button);
+  const secondaryText = pickField(section?.secondary_button_text ?? section?.secondaryButton?.text, t.home.searchCta.fallback);
+  const secondaryUrl = pickField(section?.secondary_button_url ?? section?.secondaryButton?.url, "/coins");
+  const hint = pickField(section?.tip_text ?? section?.tip, t.home.searchCta.hint);
 
   return (
     <section data-testid={HOME.searchCtaSection} className="ca-section ca-search-cta" aria-labelledby="search-cta-heading">
