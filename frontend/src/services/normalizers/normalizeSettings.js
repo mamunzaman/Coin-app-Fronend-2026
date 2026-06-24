@@ -193,6 +193,7 @@ function normalizeMintMarkCard(raw, index = 0) {
 
 function normalizeSectionMeta(raw = {}) {
   return {
+    is_visible: raw.is_visible !== false && raw.isVisible !== false,
     sectionNumber: pickText(raw.section_number, raw.sectionNumber, raw.num),
     sectionLabel: pickText(raw.section_label, raw.sectionLabel, raw.label, raw.eyebrow),
     countLabel: pickText(raw.count_label, raw.countLabel, raw.meta, raw.count),
@@ -257,6 +258,7 @@ export function normalizeHomepageSettings(raw) {
   return {
     source: "api",
     hero: {
+      is_visible: heroRaw.is_visible !== false && heroRaw.isVisible !== false,
       title: heroRaw.title ?? heroRaw.heading ?? "",
       highlight_word: heroRaw.highlight_word ?? heroRaw.highlightWord ?? "",
       description: pickText(heroRaw.description, heroRaw.desc, heroRaw.subtitle),
@@ -284,6 +286,7 @@ export function normalizeHomepageSettings(raw) {
       eyebrow: pickText(heroRaw.eyebrow, heroRaw.label),
     },
     quote: {
+      is_visible: quoteRaw.is_visible !== false && quoteRaw.isVisible !== false,
       text: quoteRaw.text ?? quoteRaw.quote_text ?? "",
       highlight_text: quoteRaw.highlight_text ?? quoteRaw.highlightText ?? quoteRaw.quote_highlight_text ?? "",
       attribution: pickText(quoteRaw.attribution, quoteRaw.quote_attribution, quoteRaw.author, quoteRaw.source),
@@ -297,6 +300,7 @@ export function normalizeHomepageSettings(raw) {
       cards: learningCards,
     },
     searchCta: {
+      is_visible: searchRaw.is_visible !== false && searchRaw.isVisible !== false,
       eyebrow: pickText(searchRaw.eyebrow, searchRaw.section_label, searchRaw.label),
       title: pickText(searchRaw.title, searchRaw.heading),
       description: pickText(searchRaw.description, searchRaw.desc, searchRaw.sub),

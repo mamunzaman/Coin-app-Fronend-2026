@@ -1,7 +1,8 @@
 import React from "react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import useDocumentTitle from "@/hooks/useDocumentTitle";
-import { useSettingsLoading } from "@/context/SettingsContext";
+import { useHomepageSettings, useSettingsLoading } from "@/context/SettingsContext";
+import { isSectionVisible } from "@/utils/settingsHelpers";
 import Navbar from "@/components/site/Navbar";
 import Hero from "@/components/site/Hero";
 import Stats from "@/components/site/Stats";
@@ -20,6 +21,7 @@ import Footer from "@/components/site/Footer";
 
 export const HomePage = () => {
   const settingsLoading = useSettingsLoading();
+  const homepage = useHomepageSettings();
   useScrollReveal([settingsLoading]);
   useDocumentTitle("");
 
@@ -28,19 +30,19 @@ export const HomePage = () => {
       <a href="#main" className="ca-skip-link">Skip to content</a>
       <Navbar />
       <main id="main">
-        <Hero />
+        {isSectionVisible(homepage?.hero) && <Hero />}
         <Stats />
-        <Manifesto />
-        <ArchiveOverview />
+        {isSectionVisible(homepage?.quote) && <Manifesto />}
+        {isSectionVisible(homepage?.archiveOverview) && <ArchiveOverview />}
         <FeaturedCoins />
         <FeaturedStory />
         <Countries />
-        <CollectorLearning />
-        <MintMarksSection />
-        <SearchCta />
-        <TrustQuality />
-        <Timeline />
-        <Contribute />
+        {isSectionVisible(homepage?.collectorEducation) && <CollectorLearning />}
+        {isSectionVisible(homepage?.mintMarks) && <MintMarksSection />}
+        {isSectionVisible(homepage?.searchCta) && <SearchCta />}
+        {isSectionVisible(homepage?.archiveQuality) && <TrustQuality />}
+        {isSectionVisible(homepage?.timeline) && <Timeline />}
+        {isSectionVisible(homepage?.contribute) && <Contribute />}
       </main>
       <Footer />
     </div>

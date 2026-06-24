@@ -8,6 +8,12 @@ export function pickField(value, fallback = "") {
   return trimmed;
 }
 
+export function isSectionVisible(section) {
+  if (section == null) return true;
+  if (section.is_visible === false || section.isVisible === false) return false;
+  return true;
+}
+
 export function pickSettingText(value, lang, fallback = "") {
   const picked = pickLocalized(value, lang);
   return picked || fallback;
