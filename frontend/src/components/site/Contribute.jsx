@@ -32,6 +32,9 @@ export const Contribute = () => {
   const weeklyActivityLabel = pickField(statsCard.weeklyActivityLabel, "this week");
   const contributorsLabel = pickField(statsCard.contributorsLabel, "contributors");
   const coinsCataloguedLabel = pickField(statsCard.coinsCataloguedLabel, "coins catalogued");
+  const contributorsCount = stats?.contributors ?? 247;
+  const weeklyActivity = stats?.weeklyActivity ?? 12;
+  const coinsCatalogued = stats?.coinsCatalogued ?? 651;
 
   return (
     <section id="learn" data-testid={HOME.contributeSection} className="ca-contribute ca-section">
@@ -68,7 +71,7 @@ export const Contribute = () => {
                   ))}
                 </div>
                 <div>
-                  <div className="ca-display" style={{ fontSize: 32, lineHeight: 1 }}>{stats?.contributors ?? 247}</div>
+                  <div className="ca-display" style={{ fontSize: 32, lineHeight: 1 }}>{contributorsCount}</div>
                   <div className="ca-mono" style={{ fontSize: 10 }}>{contributorsLabel}</div>
                 </div>
               </div>
@@ -77,11 +80,11 @@ export const Contribute = () => {
 
               <div className="grid grid-cols-2 gap-6 mt-6">
                 <div>
-                  <div className="ca-display" style={{ fontSize: 26 }}>{stats?.this_week ?? "+12"}</div>
+                  <div className="ca-display" style={{ fontSize: 26 }}>+{weeklyActivity}</div>
                   <div className="ca-mono" style={{ fontSize: 10 }}>{weeklyActivityLabel}</div>
                 </div>
                 <div>
-                  <div className="ca-display" style={{ fontSize: 26, color: "var(--ca-gold-light)" }}>{stats?.coins_catalogued ?? 651}</div>
+                  <div className="ca-display" style={{ fontSize: 26, color: "var(--ca-gold-light)" }}>{coinsCatalogued}</div>
                   <div className="ca-mono" style={{ fontSize: 10 }}>{coinsCataloguedLabel}</div>
                 </div>
               </div>

@@ -202,6 +202,19 @@ function normalizeContributorInitials(raw) {
     .filter(Boolean);
 }
 
+function normalizeContributeStats(raw = {}) {
+  const statsRaw = raw.stats ?? {};
+  const contributors = Number(statsRaw.contributors);
+  const weeklyActivity = Number(statsRaw.weeklyActivity ?? statsRaw.weekly_activity ?? statsRaw.this_week);
+  const coinsCatalogued = Number(statsRaw.coinsCatalogued ?? statsRaw.coins_catalogued);
+
+  return {
+    contributors: Number.isFinite(contributors) ? contributors : null,
+    weeklyActivity: Number.isFinite(weeklyActivity) ? weeklyActivity : null,
+    coinsCatalogued: Number.isFinite(coinsCatalogued) ? coinsCatalogued : null,
+  };
+}
+
 function normalizeContributeStatsCard(raw = {}) {
   const statsRaw = raw.stats_card ?? raw.statsCard ?? {};
 
@@ -373,7 +386,7 @@ export function normalizeHomepageSettings(raw) {
       primaryButton: contributePrimary,
       secondaryButton: contributeSecondary,
       statsCard: normalizeContributeStatsCard(contributeRaw),
-      stats: contributeRaw.stats || null,
+      stats: normalizeContributeStats(contributeRaw),
     },
     mintMarks: {
       ...normalizeSectionMeta(mintMarksRaw),
