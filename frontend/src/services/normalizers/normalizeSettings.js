@@ -355,6 +355,60 @@ function normalizeFeaturedCatalogue(raw = {}) {
   };
 }
 
+function asCountryName(name) {
+  if (!name) return { en: "", de: "" };
+  if (typeof name === "object") {
+    return { en: name.en || name.de || "", de: name.de || name.en || "" };
+  }
+  return { en: String(name), de: String(name) };
+}
+
+function normalizeCountriesShowcaseCountry(raw) {
+  if (!raw || typeof raw !== "object") return null;
+
+  const code = pickText(raw.countryCode, raw.country_code, raw.code)?.toUpperCase();
+  const name = asCountryName(raw.name ?? raw.country_name);
+  const slug = pickText(raw.slug);
+  const featuredUrl = normalizeMedia(raw.featuredCoinImage ?? raw.featured_coin_image ?? raw.featured);
+  const flagUrl = normalizeMedia(raw.flag ?? raw.country_flag ?? raw.flag_image);
+
+  if (!code && !slug && !name.en) return null;
+
+  const coinCount = Number(raw.coinCount ?? raw.coin_count ?? raw.coins);
+  const yearStart = raw.yearStart ?? raw.year_start ?? null;
+  const yearEnd = raw.yearEnd ?? raw.year_end ?? null;
+
+  return {
+    id: raw.id,
+    slug,
+    code: code || "",
+    name,
+    coins: Number.isFinite(coinCount) ? coinCount : 0,
+    coinCount: Number.isFinite(coinCount) ? coinCount : 0,
+    yearStart,
+    yearEnd,
+    since: yearStart ?? 2002,
+    featured: featuredUrl,
+    flag: flagUrl || raw.flag || "",
+    country_flag: flagUrl || null,
+    countryFlagUrl: flagUrl,
+    url: pickText(raw.url, raw.link),
+  };
+}
+
+function normalizeCountriesShowcase(raw = {}) {
+  const primaryCountry = normalizeCountriesShowcaseCountry(raw.primary_country ?? raw.primaryCountry);
+  const secondaryCountries = (raw.secondary_countries ?? raw.secondaryCountries ?? [])
+    .map(normalizeCountriesShowcaseCountry)
+    .filter(Boolean);
+
+  return {
+    ...normalizeSectionMeta(raw),
+    primaryCountry,
+    secondaryCountries,
+  };
+}
+
 export function normalizeHomepageSettings(raw) {
   if (!raw || typeof raw !== "object") {
     return { source: "mock" };
@@ -372,6 +426,8 @@ export function normalizeHomepageSettings(raw) {
   const featuredStoryRaw = raw.featured_story || raw.featuredStory || {};
   const hasFeaturedCatalogue = raw.featured_catalogue !== undefined || raw.featuredCatalogue !== undefined;
   const featuredCatalogueRaw = raw.featured_catalogue ?? raw.featuredCatalogue ?? {};
+  const hasCountriesShowcase = raw.countries_showcase !== undefined || raw.countriesShowcase !== undefined;
+  const countriesShowcaseRaw = raw.countries_showcase ?? raw.countriesShowcase ?? {};
 
   const heroImageUrl = normalizeMedia(heroRaw.image ?? heroRaw.hero_image ?? heroRaw.coin_image);
   const heroPrimary = normalizeButton(heroRaw.primary_button ?? heroRaw.primaryButton ?? heroRaw.primary_cta);
@@ -539,6 +595,7 @@ export function normalizeHomepageSettings(raw) {
     },
     featuredStory: normalizeFeaturedStory(featuredStoryRaw),
     featuredCatalogue: hasFeaturedCatalogue ? normalizeFeaturedCatalogue(featuredCatalogueRaw) : null,
+    countriesShowcase: hasCountriesShowcase ? normalizeCountriesShowcase(countriesShowcaseRaw) : null,
   };
 }
 

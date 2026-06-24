@@ -21,6 +21,13 @@ export function isFeaturedCatalogueVisible(homepage) {
   return Boolean(section.coins?.length);
 }
 
+export function isCountriesShowcaseVisible(homepage) {
+  const section = homepage?.countriesShowcase;
+  if (section == null) return true;
+  if (!isSectionVisible(section)) return false;
+  return Boolean(section.primaryCountry || section.secondaryCountries?.length);
+}
+
 export function pickSettingText(value, lang, fallback = "") {
   const picked = pickLocalized(value, lang);
   return picked || fallback;
