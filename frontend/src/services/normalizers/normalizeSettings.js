@@ -271,6 +271,41 @@ function normalizeSectionMeta(raw = {}) {
   };
 }
 
+function normalizeFeaturedStoryCoin(raw) {
+  if (!raw || typeof raw !== "object") return null;
+
+  const title = pickText(raw.title, raw.coin_title, raw.name);
+  const obverseUrl = normalizeMedia(raw.obverseImage ?? raw.obverse_image);
+  const reverseUrl = normalizeMedia(raw.reverseImage ?? raw.reverse_image);
+  const url = pickText(raw.url, raw.link, raw.coin_url);
+
+  if (!title && !obverseUrl && !reverseUrl) return null;
+
+  const mintage = raw.mintage;
+  return {
+    title,
+    country: pickText(raw.country, raw.country_name, raw.countryName),
+    year: pickText(raw.year, raw.coin_year),
+    designer: pickText(raw.designer, raw.coin_designer),
+    mintage: mintage != null && mintage !== "" ? String(mintage) : "",
+    diameter: pickText(raw.diameter, raw.coin_diameter),
+    weight: pickText(raw.weight, raw.coin_weight),
+    material: pickText(raw.material, raw.composition, raw.coin_material),
+    shortDescription: pickText(raw.shortDescription, raw.short_description, raw.desc),
+    historicalBackground: pickText(raw.historicalBackground, raw.historical_background),
+    obverseImageUrl: obverseUrl,
+    reverseImageUrl: reverseUrl,
+    url,
+  };
+}
+
+function normalizeFeaturedStory(raw = {}) {
+  return {
+    ...normalizeSectionMeta(raw),
+    coin: normalizeFeaturedStoryCoin(raw.coin ?? raw.featured_coin),
+  };
+}
+
 export function normalizeHomepageSettings(raw) {
   if (!raw || typeof raw !== "object") {
     return { source: "mock" };
@@ -285,6 +320,7 @@ export function normalizeHomepageSettings(raw) {
   const timelineRaw = raw.timeline || {};
   const contributeRaw = raw.contribute || {};
   const mintMarksRaw = raw.mint_marks || raw.mintMarks || {};
+  const featuredStoryRaw = raw.featured_story || raw.featuredStory || {};
 
   const heroImageUrl = normalizeMedia(heroRaw.image ?? heroRaw.hero_image ?? heroRaw.coin_image);
   const heroPrimary = normalizeButton(heroRaw.primary_button ?? heroRaw.primaryButton ?? heroRaw.primary_cta);
@@ -397,6 +433,7 @@ export function normalizeHomepageSettings(raw) {
       ...normalizeSectionMeta(mintMarksRaw),
       cards: mintMarkCards,
     },
+    featuredStory: normalizeFeaturedStory(featuredStoryRaw),
   };
 }
 

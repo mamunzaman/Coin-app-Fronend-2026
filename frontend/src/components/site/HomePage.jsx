@@ -35,7 +35,7 @@ export const HomePage = () => {
         {isSectionVisible(homepage?.quote) && <Manifesto />}
         {isSectionVisible(homepage?.archiveOverview) && <ArchiveOverview />}
         <FeaturedCoins />
-        <FeaturedStory />
+        {isSectionVisible(homepage?.featuredStory) && <FeaturedStory />}
         <Countries />
         {isSectionVisible(homepage?.collectorEducation) && <CollectorLearning />}
         {isSectionVisible(homepage?.mintMarks) && <MintMarksSection />}
