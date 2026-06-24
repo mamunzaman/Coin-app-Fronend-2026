@@ -4,7 +4,7 @@ import { Menu, Search, User, X } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
 import { useSiteSettings } from "@/context/SettingsContext";
-import { navRomanNumeral, resolveNavUrl } from "@/utils/settingsHelpers";
+import { navRomanNumeral, pickField, resolveNavUrl } from "@/utils/settingsHelpers";
 import SearchOverlay from "./SearchOverlay";
 
 const DEFAULT_LINKS = (t) => [
@@ -57,17 +57,20 @@ export const Navbar = () => {
         id: `nav-api-${i}`,
         label: item.label,
         to: resolveNavUrl(item.url),
-        num: navRomanNumeral(i),
+        num: pickField(item.menuNumber, navRomanNumeral(i)),
+        openInNewTab: item.openInNewTab === true,
       }))
       : null;
 
-    const fallback = DEFAULT_LINKS(t).map((l, i) => ({ ...l, num: navRomanNumeral(i) }));
+    const fallback = DEFAULT_LINKS(t).map((l, i) => ({ ...l, num: navRomanNumeral(i), openInNewTab: false }));
     return apiNav || fallback;
   }, [header?.navigation, t]);
 
   const logoText = header?.logoText || "";
-  const ctaText = header?.primaryCta?.text || t.nav.cta;
-  const ctaUrl = header?.primaryCta?.url || "/submit";
+  const logoLink = resolveNavUrl(pickField(header?.logoLinkUrl, "/"));
+  const logoLinkExternal = logoLink.startsWith("http");
+  const ctaText = pickField(header?.primaryCta?.text, t.nav.cta);
+  const ctaUrl = pickField(header?.primaryCta?.url, "/submit");
   const showSearch = header?.searchEnabled !== false;
   const showAccount = header?.accountEnabled !== false;
   const showLangToggle = !header?.languages?.length || header.languages.length > 1;
@@ -76,6 +79,7 @@ export const Navbar = () => {
     const cls = isMobile ? "ca-mobile-menu__link" : "ca-nav__link";
     const testId = isMobile ? `${l.id}-mobile` : l.id;
     const isExternal = l.to.startsWith("http");
+    const newTabProps = l.openInNewTab ? { target: "_blank", rel: "noopener noreferrer" } : {};
 
     const inner = (
       <>
@@ -84,7 +88,7 @@ export const Navbar = () => {
       </>
     );
 
-    if (isExternal) {
+    if (isExternal || l.openInNewTab) {
       return (
         <a
           key={l.key}
@@ -92,6 +96,7 @@ export const Navbar = () => {
           data-testid={testId}
           className={cls}
           onClick={() => isMobile && setMenuOpen(false)}
+          {...newTabProps}
         >
           {inner}
         </a>
@@ -118,24 +123,36 @@ export const Navbar = () => {
     else navigate(url);
   };
 
+  const logoInner = (
+    <>
+      {header?.logoUrl ? (
+        <img src={header.logoUrl} alt={logoText} className="ca-nav__logo-img" style={{ height: 32, width: "auto" }} />
+      ) : (
+        <span className="ca-nav__logo-badge">
+          <span className="ca-display italic">€</span>
+        </span>
+      )}
+      <span className="ca-nav__logo-text ca-display">
+        {logoText && logoText !== "CoinArchive" ? logoText : (
+          <>Coin<span className="ca-nav__logo-text--accent">Archive</span></>
+        )}
+      </span>
+    </>
+  );
+
   return (
     <>
       <header className={`ca-nav ${scrolled ? "ca-nav--scrolled" : ""}`}>
         <div className="ca-container flex items-center justify-between h-[72px]">
-          <Link to="/" data-testid={HOME.navLogo} className="ca-nav__logo flex items-center gap-2.5 group">
-            {header?.logoUrl ? (
-              <img src={header.logoUrl} alt={logoText} className="ca-nav__logo-img" style={{ height: 32, width: "auto" }} />
-            ) : (
-              <span className="ca-nav__logo-badge">
-                <span className="ca-display italic">€</span>
-              </span>
-            )}
-            <span className="ca-nav__logo-text ca-display">
-              {logoText && logoText !== "CoinArchive" ? logoText : (
-                <>Coin<span className="ca-nav__logo-text--accent">Archive</span></>
-              )}
-            </span>
-          </Link>
+          {logoLinkExternal ? (
+            <a href={logoLink} data-testid={HOME.navLogo} className="ca-nav__logo flex items-center gap-2.5 group">
+              {logoInner}
+            </a>
+          ) : (
+            <Link to={logoLink} data-testid={HOME.navLogo} className="ca-nav__logo flex items-center gap-2.5 group">
+              {logoInner}
+            </Link>
+          )}
 
           <nav className="hidden lg:flex items-center gap-9">
             {links.map((l) => renderLink(l))}

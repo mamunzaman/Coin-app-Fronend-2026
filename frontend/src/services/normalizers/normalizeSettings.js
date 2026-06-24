@@ -28,12 +28,17 @@ function normalizeLink(raw) {
   if (!raw) return null;
   if (typeof raw === "string") {
     const url = raw.trim();
-    return url ? { label: url, url } : null;
+    return url ? { label: url, url, menuNumber: "", openInNewTab: false } : null;
   }
   const label = pickText(raw.label, raw.text, raw.title, raw.name, raw.menu_label);
   const url = pickText(raw.url, raw.link, raw.href, raw.menu_url);
   if (!label || !url) return null;
-  return { label, url };
+  return {
+    label,
+    url,
+    menuNumber: pickText(raw.menu_number, raw.menuNumber, raw.num),
+    openInNewTab: raw.open_in_new_tab === true || raw.openInNewTab === true,
+  };
 }
 
 function normalizeArchiveOverviewCard(raw, index = 0) {
@@ -405,13 +410,20 @@ export function normalizeSiteSettings(raw) {
   const newsletterRaw = footerRaw.newsletter || {};
 
   const logoUrl = normalizeMedia(headerRaw.logo ?? headerRaw.logo_image);
+  const logoLinkUrl = pickText(headerRaw.logo_url, headerRaw.logoUrl, headerRaw.logo_link, headerRaw.logoLink);
   const logoText = pickText(headerRaw.logo_text, headerRaw.logoText, headerRaw.site_name);
 
   const navigation = (headerRaw.navigation || headerRaw.nav || headerRaw.links || [])
     .map(normalizeLink)
     .filter(Boolean);
 
-  const primaryCta = normalizeButton(headerRaw.primary_cta ?? headerRaw.primaryCta ?? headerRaw.cta);
+  const primaryCtaRaw = headerRaw.primary_cta ?? headerRaw.primaryCta ?? headerRaw.cta;
+  const primaryCta = primaryCtaRaw && typeof primaryCtaRaw === "object"
+    ? {
+      text: pickText(primaryCtaRaw.text, primaryCtaRaw.label, primaryCtaRaw.title),
+      url: pickText(primaryCtaRaw.url, primaryCtaRaw.link, primaryCtaRaw.href),
+    }
+    : { text: "", url: "" };
 
   const languages = (headerRaw.languages || [])
     .map((l) => {
@@ -443,6 +455,7 @@ export function normalizeSiteSettings(raw) {
     source: "api",
     header: {
       logoUrl,
+      logoLinkUrl,
       logoText,
       navigation,
       primaryCta,
