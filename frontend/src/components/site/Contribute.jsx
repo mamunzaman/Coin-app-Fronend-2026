@@ -22,7 +22,16 @@ export const Contribute = () => {
     text: pickField(section?.secondaryButton?.text, "View contributors"),
     url: pickField(section?.secondaryButton?.url, "/about"),
   };
+  const statsCard = section?.statsCard ?? {};
   const stats = section?.stats;
+  const fallbackInitials = ["AB", "MR", "JK", "ED", "+"];
+  const contributorInitials = statsCard.contributorInitials?.length
+    ? statsCard.contributorInitials
+    : fallbackInitials;
+  const statsCardLabel = pickField(statsCard.statsCardLabel, "Contributor activity");
+  const weeklyActivityLabel = pickField(statsCard.weeklyActivityLabel, "this week");
+  const contributorsLabel = pickField(statsCard.contributorsLabel, "contributors");
+  const coinsCataloguedLabel = pickField(statsCard.coinsCataloguedLabel, "coins catalogued");
 
   return (
     <section id="learn" data-testid={HOME.contributeSection} className="ca-contribute ca-section">
@@ -51,16 +60,16 @@ export const Contribute = () => {
                 borderRadius: 22, padding: 32,
               }}
             >
-              <div className="ca-mono mb-5">Contributor activity</div>
+              <div className="ca-mono mb-5">{statsCardLabel}</div>
               <div className="flex items-center gap-5 mb-7">
                 <div className="ca-avatar-stack">
-                  {["AB", "MR", "JK", "ED", "+"].map((s, i) => (
-                    <span key={i}>{s}</span>
+                  {contributorInitials.map((initial, i) => (
+                    <span key={`${initial}-${i}`}>{initial}</span>
                   ))}
                 </div>
                 <div>
                   <div className="ca-display" style={{ fontSize: 32, lineHeight: 1 }}>{stats?.contributors ?? 247}</div>
-                  <div className="ca-mono" style={{ fontSize: 10 }}>contributors</div>
+                  <div className="ca-mono" style={{ fontSize: 10 }}>{contributorsLabel}</div>
                 </div>
               </div>
 
@@ -69,11 +78,11 @@ export const Contribute = () => {
               <div className="grid grid-cols-2 gap-6 mt-6">
                 <div>
                   <div className="ca-display" style={{ fontSize: 26 }}>{stats?.this_week ?? "+12"}</div>
-                  <div className="ca-mono" style={{ fontSize: 10 }}>this week</div>
+                  <div className="ca-mono" style={{ fontSize: 10 }}>{weeklyActivityLabel}</div>
                 </div>
                 <div>
                   <div className="ca-display" style={{ fontSize: 26, color: "var(--ca-gold-light)" }}>{stats?.coins_catalogued ?? 651}</div>
-                  <div className="ca-mono" style={{ fontSize: 10 }}>coins catalogued</div>
+                  <div className="ca-mono" style={{ fontSize: 10 }}>{coinsCataloguedLabel}</div>
                 </div>
               </div>
             </div>

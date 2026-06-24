@@ -191,6 +191,52 @@ function normalizeMintMarkCard(raw, index = 0) {
   };
 }
 
+function normalizeContributorInitials(raw) {
+  const rows = Array.isArray(raw) ? raw : [];
+  return rows
+    .map((row) => {
+      if (typeof row === "string") return row.trim();
+      if (!row || typeof row !== "object") return "";
+      return pickText(row.initials, row.initial, row.label, row.text);
+    })
+    .filter(Boolean);
+}
+
+function normalizeContributeStatsCard(raw = {}) {
+  const statsRaw = raw.stats_card ?? raw.statsCard ?? {};
+
+  return {
+    statsCardLabel: pickText(
+      raw.stats_card_label,
+      raw.statsCardLabel,
+      statsRaw.stats_card_label,
+      statsRaw.statsCardLabel,
+      statsRaw.label,
+    ),
+    contributorInitials: normalizeContributorInitials(
+      raw.contributor_initials ?? raw.contributorInitials ?? statsRaw.contributor_initials ?? statsRaw.contributorInitials,
+    ),
+    weeklyActivityLabel: pickText(
+      raw.weekly_activity_label,
+      raw.weeklyActivityLabel,
+      statsRaw.weekly_activity_label,
+      statsRaw.weeklyActivityLabel,
+    ),
+    contributorsLabel: pickText(
+      raw.contributors_label,
+      raw.contributorsLabel,
+      statsRaw.contributors_label,
+      statsRaw.contributorsLabel,
+    ),
+    coinsCataloguedLabel: pickText(
+      raw.coins_catalogued_label,
+      raw.coinsCataloguedLabel,
+      statsRaw.coins_catalogued_label,
+      statsRaw.coinsCataloguedLabel,
+    ),
+  };
+}
+
 function normalizeSectionMeta(raw = {}) {
   return {
     is_visible: raw.is_visible !== false && raw.isVisible !== false,
@@ -326,6 +372,7 @@ export function normalizeHomepageSettings(raw) {
       ...normalizeSectionMeta(contributeRaw),
       primaryButton: contributePrimary,
       secondaryButton: contributeSecondary,
+      statsCard: normalizeContributeStatsCard(contributeRaw),
       stats: contributeRaw.stats || null,
     },
     mintMarks: {
