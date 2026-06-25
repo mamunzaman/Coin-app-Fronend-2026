@@ -23,6 +23,10 @@ export async function wpFetch(path, options = {}) {
     ? path
     : `${base}${path.startsWith("/") ? path : `/${path}`}`;
 
+  if (process.env.NODE_ENV === "development") {
+    console.log("[wpFetch:start]", { url, method: fetchOptions.method || "GET" });
+  }
+
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeout);
 
@@ -36,19 +40,40 @@ export async function wpFetch(path, options = {}) {
       },
     });
 
+    const contentType = res.headers.get("content-type") || "";
+
     if (!res.ok) {
+      let bodyPreview = "";
+      try {
+        bodyPreview = (await res.clone().text()).slice(0, 400);
+      } catch {
+        bodyPreview = "";
+      }
+      if (process.env.NODE_ENV === "development") {
+        console.warn("[wpFetch:non-ok]", { url, status: res.status, contentType, bodyPreview });
+      }
       throw new WpClientError(`HTTP ${res.status} ${res.statusText}`.trim(), {
         status: res.status,
         url,
       });
     }
 
-    const contentType = res.headers.get("content-type") || "";
-    if (!contentType.includes("application/json")) {
-      throw new WpClientError("Expected JSON response", { status: res.status, url });
+    let json;
+    try {
+      json = await res.json();
+    } catch (parseErr) {
+      if (process.env.NODE_ENV === "development") {
+        console.warn("[wpFetch:json-parse-fail]", { url, contentType, error: parseErr?.message || parseErr });
+      }
+      throw new WpClientError("Invalid JSON response", { status: res.status, url, cause: parseErr });
     }
 
-    const json = await res.json();
+    if (process.env.NODE_ENV === "development") {
+      console.log("[wpFetch:ok]", { url, status: res.status, contentType, jsonParse: "ok" });
+      if (contentType && !contentType.includes("json")) {
+        console.warn("[wpFetch:content-type]", { url, contentType, note: "JSON parsed despite non-json content-type" });
+      }
+    }
 
     if (options.includeHeaders) {
       return {
@@ -62,6 +87,9 @@ export async function wpFetch(path, options = {}) {
 
     return json;
   } catch (err) {
+    if (process.env.NODE_ENV === "development" && !(err instanceof WpClientError)) {
+      console.warn("[wpFetch:error]", { url, error: err?.message || err });
+    }
     if (err instanceof WpClientError) throw err;
     if (err?.name === "AbortError") {
       throw new WpClientError(`Request timed out after ${timeout}ms`, { url, cause: err });

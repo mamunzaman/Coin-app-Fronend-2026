@@ -42,20 +42,20 @@ const useCountUp = (end, suffix = "+", duration = 1800) => {
 };
 
 export const Stats = () => {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [stats, setStats] = useState(MOCK_STATS);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
-    getStats().then((data) => {
+    getStats(lang).then((data) => {
       if (!cancelled) {
         setStats(data);
         setLoading(false);
       }
     });
     return () => { cancelled = true; };
-  }, []);
+  }, [lang]);
 
   const [r1, v1] = useCountUp(stats.coins);
   const [r2, v2] = useCountUp(stats.countries);

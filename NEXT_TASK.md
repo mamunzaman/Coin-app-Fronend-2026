@@ -1,9 +1,9 @@
 # Next Task
 
 ## Current Goal
-Verify Archive Overview cards show ACF values (Catalogue1, Coins1, etc.) from API.
+Confirm `/en/countries/de` console shows `source: "wp"` and English API content.
 
 ## Verify Next
-- First card: eyebrow `Catalogue1`, title `Coins1`, text + button from ACF
-- Second card: empty text/button fields fall back individually, not whole card
-- Section header still from API
+- Console: `[getCountryDetail:normalized]` source wp, coinsLength matches API
+- No `[getCountryDetail:fallback]` unless API offline
+- UI shows API country name, not static mock blurb/stats

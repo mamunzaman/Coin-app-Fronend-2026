@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, Search, User, X } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
 import { useSiteSettings } from "@/context/SettingsContext";
 import { navRomanNumeral, pickField, resolveNavUrl } from "@/utils/settingsHelpers";
+import { getLocalizedPath } from "@/utils/language";
 import SearchOverlay from "./SearchOverlay";
 
 const DEFAULT_LINKS = (t) => [
@@ -15,10 +16,11 @@ const DEFAULT_LINKS = (t) => [
 ];
 
 export const Navbar = () => {
-  const { t, lang, toggle } = useLang();
+  const { t, lang, localPath } = useLang();
   const site = useSiteSettings();
   const header = site?.header;
   const navigate = useNavigate();
+  const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -50,24 +52,41 @@ export const Navbar = () => {
     };
   }, []);
 
+  const switchLanguage = (targetLang) => {
+    if (targetLang === lang) return;
+    setMenuOpen(false);
+    navigate(getLocalizedPath(location.pathname, targetLang));
+  };
+
   const links = useMemo(() => {
+    const localizeInternal = (url) => {
+      const resolved = resolveNavUrl(url);
+      if (resolved.startsWith("http")) return resolved;
+      return localPath(resolved);
+    };
+
     const apiNav = header?.navigation?.length
       ? header.navigation.map((item, i) => ({
         key: `nav-${i}`,
         id: `nav-api-${i}`,
         label: item.label,
-        to: resolveNavUrl(item.url),
+        to: localizeInternal(item.url),
         num: pickField(item.menuNumber, navRomanNumeral(i)),
         openInNewTab: item.openInNewTab === true,
       }))
       : null;
 
-    const fallback = DEFAULT_LINKS(t).map((l, i) => ({ ...l, num: navRomanNumeral(i), openInNewTab: false }));
+    const fallback = DEFAULT_LINKS(t).map((l, i) => ({
+      ...l,
+      to: localPath(l.to),
+      num: navRomanNumeral(i),
+      openInNewTab: false,
+    }));
     return apiNav || fallback;
-  }, [header?.navigation, t]);
+  }, [header?.navigation, t, localPath]);
 
   const logoText = header?.logoText || "";
-  const logoLink = resolveNavUrl(pickField(header?.logoLinkUrl, "/"));
+  const logoLink = localPath(resolveNavUrl(pickField(header?.logoLinkUrl, "/")));
   const logoLinkExternal = logoLink.startsWith("http");
   const ctaText = pickField(header?.primaryCta?.text, t.nav.cta);
   const ctaUrl = pickField(header?.primaryCta?.url, "/submit");
@@ -120,7 +139,7 @@ export const Navbar = () => {
     setMenuOpen(false);
     const url = resolveNavUrl(ctaUrl);
     if (url.startsWith("http")) window.location.href = url;
-    else navigate(url);
+    else navigate(localPath(url));
   };
 
   const logoInner = (
@@ -160,17 +179,45 @@ export const Navbar = () => {
 
           <div className="hidden lg:flex items-center gap-3">
             {showLangToggle && (
-              <button
-                data-testid={HOME.navLangToggle}
-                onClick={toggle}
+              <div
                 className="ca-btn ca-btn--ghost ca-btn--sm"
-                aria-label="Toggle language"
-                style={{ padding: "8px 12px" }}
+                role="group"
+                aria-label="Language"
+                style={{ padding: "8px 12px", display: "inline-flex", gap: 0 }}
               >
-                <span style={{ color: lang === "en" ? "var(--ca-gold-light)" : "var(--ca-text-muted)" }}>EN</span>
-                <span style={{ color: "var(--ca-border)" }}>/</span>
-                <span style={{ color: lang === "de" ? "var(--ca-gold-light)" : "var(--ca-text-muted)" }}>DE</span>
-              </button>
+                <button
+                  type="button"
+                  data-testid={HOME.navLangToggle}
+                  onClick={() => switchLanguage("de")}
+                  aria-label="Deutsch"
+                  aria-current={lang === "de" ? "true" : undefined}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    padding: 0,
+                    cursor: "pointer",
+                    color: lang === "de" ? "var(--ca-gold-light)" : "var(--ca-text-muted)",
+                  }}
+                >
+                  DE
+                </button>
+                <span style={{ color: "var(--ca-border)", margin: "0 4px" }}>/</span>
+                <button
+                  type="button"
+                  onClick={() => switchLanguage("en")}
+                  aria-label="English"
+                  aria-current={lang === "en" ? "true" : undefined}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    padding: 0,
+                    cursor: "pointer",
+                    color: lang === "en" ? "var(--ca-gold-light)" : "var(--ca-text-muted)",
+                  }}
+                >
+                  EN
+                </button>
+              </div>
             )}
             {showSearch && (
               <button data-testid={HOME.navSearch} onClick={() => setSearchOpen(true)} className="ca-btn ca-btn--ghost ca-btn--sm" aria-label={t.nav.search}>
@@ -217,9 +264,14 @@ export const Navbar = () => {
         )}
         <div className="flex gap-3 mt-8">
           {showLangToggle && (
-            <button className="ca-btn ca-btn--ghost ca-btn--sm" onClick={toggle}>
-              {lang === "en" ? "Deutsch" : "English"}
-            </button>
+            <div className="flex gap-2">
+              <button type="button" className="ca-btn ca-btn--ghost ca-btn--sm" onClick={() => switchLanguage("de")} aria-label="Deutsch">
+                Deutsch
+              </button>
+              <button type="button" className="ca-btn ca-btn--ghost ca-btn--sm" onClick={() => switchLanguage("en")} aria-label="English">
+                English
+              </button>
+            </div>
           )}
           <button data-testid="nav-mobile-cta-submit" className="ca-btn ca-btn--primary ca-btn--sm flex-1" onClick={handleCta}>
             {ctaText}

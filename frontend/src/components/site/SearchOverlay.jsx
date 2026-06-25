@@ -8,7 +8,7 @@ import { SEARCH } from "@/constants/testIds/home";
 const DEBOUNCE_MS = 300;
 
 export const SearchOverlay = ({ open, onClose }) => {
-  const { t, lang } = useLang();
+  const { t, lang, localPath } = useLang();
   const [q, setQ] = useState("");
   const [debouncedQ, setDebouncedQ] = useState("");
   const [results, setResults] = useState([]);
@@ -52,7 +52,7 @@ export const SearchOverlay = ({ open, onClose }) => {
     let cancelled = false;
     setLoading(true);
 
-    searchArchive(trimmed).then((data) => {
+    searchArchive(trimmed, { lang }).then((data) => {
       if (!cancelled) {
         setResults(data);
         setLoading(false);
@@ -60,7 +60,7 @@ export const SearchOverlay = ({ open, onClose }) => {
     });
 
     return () => { cancelled = true; };
-  }, [debouncedQ]);
+  }, [debouncedQ, lang]);
 
   if (!open) return null;
 
@@ -114,7 +114,7 @@ export const SearchOverlay = ({ open, onClose }) => {
           {results.map((c) => (
             <Link
               key={c.slug}
-              to={`/coins/${c.slug}`}
+              to={localPath(`/coins/${c.slug}`)}
               data-testid={SEARCH.result(c.slug)}
               onClick={onClose}
               className="ca-search-overlay__result"

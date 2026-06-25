@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
@@ -13,30 +13,32 @@ import useArtificialLoad from "@/hooks/useArtificialLoad";
 import { SkeletonSeriesCard } from "./Skeleton";
 
 export const SeriesPage = () => {
-  const { t, lang } = useLang();
+  const { t, lang, localPath } = useLang();
   useDocumentTitle(t.seriesPage.title);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [source, setSource] = useState("mock");
-  const delayLoading = useArtificialLoad(420);
+  const requestId = useRef(0);
+  const delayLoading = useArtificialLoad(420, lang);
   const showSkeleton = loading || delayLoading;
 
-  useScrollReveal([showSkeleton, items.length, source]);
+  useScrollReveal([showSkeleton, lang, items.length, source]);
 
   useEffect(() => {
-    let cancelled = false;
+    const id = ++requestId.current;
     setLoading(true);
+    setItems([]);
+    setSource("mock");
 
-    getSeriesList().then((result) => {
-      if (!cancelled) {
-        setItems(result.items ?? []);
-        setSource(result.source ?? "mock");
-        setLoading(false);
-      }
+    getSeriesList(lang).then((result) => {
+      if (id !== requestId.current) return;
+      setItems(result.items ?? []);
+      setSource(result.source ?? "mock");
+      setLoading(false);
     });
 
-    return () => { cancelled = true; };
-  }, []);
+    return () => { requestId.current += 1; };
+  }, [lang]);
 
   return (
     <div className="ca-page" data-testid={SERIES_PAGE.page}>
@@ -67,11 +69,11 @@ export const SeriesPage = () => {
               <div className="ca-display" style={{ fontSize: 28, marginBottom: 12 }}>{t.seriesPage.empty}</div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div key={lang} className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {items.map((s, i) => (
                 <Link
-                  key={s.slug}
-                  to={`/series/${s.slug}`}
+                  key={`${lang}-${s.slug}`}
+                  to={localPath(`/series/${s.slug}`)}
                   data-testid={SERIES_PAGE.card(s.slug)}
                   className={`ca-series-card ca-reveal ca-reveal--delay-${Math.min(i, 5)}`}
                   style={{ ["--series-accent"]: s.accent }}

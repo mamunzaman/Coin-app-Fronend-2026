@@ -1,10 +1,11 @@
 import React, { useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 import { HOME } from "@/constants/testIds/home";
 import { useSiteSettings } from "@/context/SettingsContext";
 import { pickField, resolveNavUrl, SettingsLink } from "@/utils/settingsHelpers";
+import { getLocalizedPath } from "@/utils/language";
 
 const DEFAULT_COLS = (t) => [
   { title: t.footer.explore, links: [
@@ -55,7 +56,9 @@ const FOOTER_TEXT_FALLBACK = (lang, t) => ({
 });
 
 export const Footer = () => {
-  const { t, lang, toggle } = useLang();
+  const { t, lang, localPath } = useLang();
+  const navigate = useNavigate();
+  const location = useLocation();
   const site = useSiteSettings();
   const footer = site?.footer;
 
@@ -87,7 +90,7 @@ export const Footer = () => {
       <div className="ca-container">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
           <div className="md:col-span-5">
-            <Link to="/" className="flex items-center gap-2 mb-6">
+            <Link to={localPath("/")} className="flex items-center gap-2 mb-6">
               <span className="relative inline-flex h-8 w-8 items-center justify-center rounded-full"
                     style={{ background: "linear-gradient(180deg, #F2D16B 0%, #A97E12 100%)" }}>
                 <span className="ca-display italic" style={{ color: "#0F1115", fontSize: 16, fontWeight: 700 }}>€</span>
@@ -136,11 +139,27 @@ export const Footer = () => {
 
           <div className="md:col-span-1">
             <div className="ca-mono mb-5">Lang</div>
-            <button onClick={toggle} className="ca-footer__link" style={{ padding: 0 }}>
-              <span style={{ color: lang === "en" ? "var(--ca-gold-light)" : "var(--ca-text-muted)" }}>EN</span>
+            <div role="group" aria-label="Language" className="ca-footer__link" style={{ padding: 0 }}>
+              <button
+                type="button"
+                onClick={() => navigate(getLocalizedPath(location.pathname, "de"))}
+                aria-label="Deutsch"
+                aria-current={lang === "de" ? "true" : undefined}
+                style={{ background: "none", border: "none", padding: 0, cursor: "pointer", color: lang === "de" ? "var(--ca-gold-light)" : "var(--ca-text-muted)" }}
+              >
+                DE
+              </button>
               <span> / </span>
-              <span style={{ color: lang === "de" ? "var(--ca-gold-light)" : "var(--ca-text-muted)" }}>DE</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => navigate(getLocalizedPath(location.pathname, "en"))}
+                aria-label="English"
+                aria-current={lang === "en" ? "true" : undefined}
+                style={{ background: "none", border: "none", padding: 0, cursor: "pointer", color: lang === "en" ? "var(--ca-gold-light)" : "var(--ca-text-muted)" }}
+              >
+                EN
+              </button>
+            </div>
           </div>
         </div>
 

@@ -18,9 +18,10 @@ export {
 } from "@/data/coinData";
 
 import { searchCoins, COINS, COUNTRIES, MINTS, SERIES_LIST, allYears, findCoinBySlug, findCountry, findSeries, coinsByCountry, coinsBySeries, relatedCoins as mockRelatedCoins } from "@/data/coinData";
-import { wpFetch } from "./wpClient";
+import { wpFetch, getWpBaseUrl } from "./wpClient";
+import { getCurrentLanguage, logApiLanguageDebug, withLanguageParam } from "@/utils/language";
 import { normalizeSearchResult, normalizeCoinCard, normalizeCoinDetail } from "./normalizers/normalizeCoin";
-import { normalizeCountryListItem, normalizeCountryDetail } from "./normalizers/normalizeCountry";
+import { normalizeCountryListItem, normalizeCountryDetail, extractCountryRaw, extractCountryCoins } from "./normalizers/normalizeCountry";
 import { normalizeSeriesListItem, normalizeSeriesDetail } from "./normalizers/normalizeSeries";
 import { normalizeHomepageSettings, normalizeSiteSettings } from "./normalizers/normalizeSettings";
 
@@ -32,6 +33,39 @@ const SERIES_PATH = "/wp-json/coinarchive/v1/series";
 const HOMEPAGE_PATH = "/wp-json/coinarchive/v1/homepage";
 const SITE_SETTINGS_PATH = "/wp-json/coinarchive/v1/site-settings";
 const FIRST_ISSUE_YEAR = 2004;
+
+function resolveLang(lang) {
+  return lang || getCurrentLanguage();
+}
+
+const publicApiInflight = new Map();
+
+function publicApiCacheKey(path, lang) {
+  return withLanguageParam(path, lang);
+}
+
+async function fetchPublicApi(path, options = {}) {
+  const lang = resolveLang(options.lang);
+  const { lang: _omit, ...fetchOptions } = options;
+  const urlPath = publicApiCacheKey(path, lang);
+  const cacheKey = urlPath;
+
+  const devNoCache =
+    process.env.NODE_ENV === "development"
+      ? { cache: "no-store" }
+      : {};
+
+  if (publicApiInflight.has(cacheKey)) {
+    return publicApiInflight.get(cacheKey);
+  }
+
+  const promise = wpFetch(urlPath, { ...fetchOptions, ...devNoCache }).finally(() => {
+    publicApiInflight.delete(cacheKey);
+  });
+
+  publicApiInflight.set(cacheKey, promise);
+  return promise;
+}
 
 export const MOCK_STATS = {
   coins: 650,
@@ -60,27 +94,33 @@ function normalizeStats(raw) {
   };
 }
 
-export async function getStats() {
+export async function getStats(lang) {
   try {
-    const raw = await wpFetch(STATS_PATH);
+    const resolved = resolveLang(lang);
+    const raw = await fetchPublicApi(STATS_PATH, { lang: resolved });
+    logApiLanguageDebug("stats", resolved, raw);
     return normalizeStats(raw);
   } catch {
     return { ...MOCK_STATS };
   }
 }
 
-export async function getHomepageSettings() {
+export async function getHomepageSettings(lang) {
   try {
-    const raw = await wpFetch(HOMEPAGE_PATH);
+    const resolved = resolveLang(lang);
+    const raw = await fetchPublicApi(HOMEPAGE_PATH, { lang: resolved });
+    logApiLanguageDebug("homepage", resolved, raw);
     return normalizeHomepageSettings(raw);
   } catch {
     return { source: "mock" };
   }
 }
 
-export async function getSiteSettings() {
+export async function getSiteSettings(lang) {
   try {
-    const raw = await wpFetch(SITE_SETTINGS_PATH);
+    const resolved = resolveLang(lang);
+    const raw = await fetchPublicApi(SITE_SETTINGS_PATH, { lang: resolved });
+    logApiLanguageDebug("site-settings", resolved, raw);
     return normalizeSiteSettings(raw);
   } catch {
     return { source: "mock" };
@@ -100,7 +140,9 @@ export async function searchArchive(query, options = {}) {
     if (options.series) params.set("series", options.series);
     if (options.page) params.set("page", String(options.page));
 
-    const raw = await wpFetch(`${SEARCH_PATH}?${params}`);
+    const resolved = resolveLang(options.lang);
+    const raw = await fetchPublicApi(`${SEARCH_PATH}?${params}`, { lang: resolved });
+    logApiLanguageDebug("search", resolved, raw);
     const items = Array.isArray(raw?.results) ? raw.results : [];
     return items.map(normalizeSearchResult);
   } catch {
@@ -249,7 +291,9 @@ export async function getCoinsList(params = {}) {
     urlParams.set("page", String(page));
     urlParams.set("per_page", String(per_page));
 
-    const result = await wpFetch(`${COINS_PATH}?${urlParams}`, { includeHeaders: true });
+    const resolved = resolveLang(params.lang);
+    const result = await fetchPublicApi(`${COINS_PATH}?${urlParams}`, { lang: resolved, includeHeaders: true });
+    logApiLanguageDebug("coins", resolved, result?.data ?? result);
     const raw = result?.data ?? result;
     const items = Array.isArray(raw?.items) ? raw.items.map(normalizeCoinCard) : [];
     const headerTotal = Number(result?.headers?.total);
@@ -283,11 +327,13 @@ function getMockCoinDetail(slug) {
   };
 }
 
-export async function getCoinDetail(slug) {
+export async function getCoinDetail(slug, lang) {
   if (!slug) return getMockCoinDetail(slug);
 
   try {
-    const raw = await wpFetch(`${COINS_PATH}/${encodeURIComponent(slug)}`);
+    const resolved = resolveLang(lang);
+    const raw = await fetchPublicApi(`${COINS_PATH}/${encodeURIComponent(slug)}`, { lang: resolved });
+    logApiLanguageDebug("coin-detail", resolved, raw);
     const coinRaw = raw?.coin ?? raw?.data?.coin ?? null;
     if (!coinRaw) throw new Error("Missing coin");
 
@@ -320,9 +366,11 @@ function getMockCountriesList() {
   return { items, source: "mock" };
 }
 
-export async function getCountriesList() {
+export async function getCountriesList(lang) {
   try {
-    const raw = await wpFetch(COUNTRIES_PATH);
+    const resolved = resolveLang(lang);
+    const raw = await fetchPublicApi(COUNTRIES_PATH, { lang: resolved });
+    logApiLanguageDebug("countries", resolved, raw);
     const items = Array.isArray(raw?.items)
       ? raw.items.map(normalizeCountryListItem).sort((a, b) => b.coins - a.coins)
       : [];
@@ -375,32 +423,110 @@ function getMockCountryDetail(code) {
   };
 }
 
-export async function getCountryDetail(code) {
-  const upperCode = (code || "").toUpperCase();
+function resolveCountryApiId(code) {
+  return String(code || "").trim().toLowerCase();
+}
 
-  if (!upperCode) {
+function resolveCountryLookupCode(code) {
+  const trimmed = String(code || "").trim();
+  if (!trimmed) return "";
+  if (trimmed.length <= 3) return trimmed.toUpperCase();
+  const mock = COUNTRIES.find((c) => c.code.toLowerCase() === trimmed.toLowerCase());
+  return mock?.code || trimmed.toUpperCase();
+}
+
+function normalizeCountryCoins(rawCoins) {
+  const list = Array.isArray(rawCoins) ? rawCoins : [];
+  return list.map((coin, index) => {
+    try {
+      return normalizeCoinCard(coin);
+    } catch (error) {
+      if (process.env.NODE_ENV === "development") {
+        console.warn("[getCountryDetail:coin-normalize-fail]", { index, error: error?.message || error, coin });
+      }
+      return null;
+    }
+  }).filter(Boolean);
+}
+
+export async function getCountryDetail(code, lang) {
+  const apiId = resolveCountryApiId(code);
+  const lookupCode = resolveCountryLookupCode(code);
+  const resolved = resolveLang(lang);
+  const endpoint = `${COUNTRIES_PATH}/${encodeURIComponent(apiId)}?per_page=50`;
+
+  if (process.env.NODE_ENV === "development") {
+    console.log("[getCountryDetail:start]", {
+      identifier: code,
+      apiId,
+      lookupCode,
+      lang: resolved,
+      endpoint: `${getWpBaseUrl()}${withLanguageParam(endpoint, resolved)}`,
+    });
+  }
+
+  if (!apiId) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[getCountryDetail:fallback]", { reason: "empty-api-id", identifier: code });
+    }
     return getMockCountryDetail(code);
   }
 
   try {
-    const raw = await wpFetch(`${COUNTRIES_PATH}/${encodeURIComponent(upperCode)}?per_page=50`);
-    if (!raw?.country) throw new Error("Missing country");
+    const raw = await fetchPublicApi(endpoint, { lang: resolved });
+    logApiLanguageDebug("country-detail", resolved, raw);
 
-    const normalized = normalizeCountryDetail(raw);
-    const coins = Array.isArray(raw.coins) ? raw.coins.map(normalizeCoinCard) : [];
+    if (process.env.NODE_ENV === "development") {
+      console.log("[getCountryDetail:raw]", raw);
+    }
 
-    return {
+    const wpCountry = extractCountryRaw(raw);
+    if (!wpCountry) {
+      throw Object.assign(new Error("Missing country"), { code: "MISSING_COUNTRY", raw });
+    }
+
+    const normalized = normalizeCountryDetail({ ...raw, country: wpCountry });
+    const coins = normalizeCountryCoins(extractCountryCoins(raw));
+
+    const result = {
       ...normalized,
       country: {
         ...normalized.country,
-        yearStart: raw.country.yearStart ?? normalized.country.yearStart,
-        yearEnd: raw.country.yearEnd ?? normalized.country.yearEnd,
+        yearStart: wpCountry.yearStart ?? wpCountry.year_start ?? normalized.country.yearStart,
+        yearEnd: wpCountry.yearEnd ?? wpCountry.year_end ?? normalized.country.yearEnd,
       },
       coins,
+      stats: normalized.stats ?? raw.stats ?? {},
+      timeline: normalized.timeline ?? (Array.isArray(raw.timeline) ? raw.timeline : []),
+      language: raw.language ?? null,
       source: "wp",
     };
-  } catch {
-    return getMockCountryDetail(upperCode);
+
+    if (process.env.NODE_ENV === "development") {
+      console.log("[getCountryDetail:normalized]", {
+        source: result.source,
+        language: result.language,
+        country: result.country,
+        coinsLength: result.coins.length,
+      });
+    }
+
+    return result;
+  } catch (error) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[getCountryDetail:fallback]", {
+        reason: error?.message || String(error),
+        code: error?.code,
+        status: error?.status,
+        url: error?.url,
+        identifier: code,
+        apiId,
+        lang: resolved,
+        raw: error?.raw,
+        error,
+      });
+    }
+    return getMockCountryDetail(lookupCode);
   }
 }
 
@@ -450,9 +576,11 @@ function getMockSeriesDetail(slug) {
   };
 }
 
-export async function getSeriesList() {
+export async function getSeriesList(lang) {
   try {
-    const raw = await wpFetch(SERIES_PATH);
+    const resolved = resolveLang(lang);
+    const raw = await fetchPublicApi(SERIES_PATH, { lang: resolved });
+    logApiLanguageDebug("series", resolved, raw);
     const items = Array.isArray(raw?.items)
       ? raw.items.map((item, index) => normalizeSeriesListItem(item, index))
       : [];
@@ -463,7 +591,7 @@ export async function getSeriesList() {
   }
 }
 
-export async function getSeriesDetail(slug) {
+export async function getSeriesDetail(slug, lang) {
   const cleanSlug = (slug || "").trim();
 
   if (!cleanSlug) {
@@ -471,10 +599,12 @@ export async function getSeriesDetail(slug) {
   }
 
   try {
-    const result = await wpFetch(
+    const resolved = resolveLang(lang);
+    const result = await fetchPublicApi(
       `${SERIES_PATH}/${encodeURIComponent(cleanSlug)}?per_page=50`,
-      { includeHeaders: true },
+      { lang: resolved, includeHeaders: true },
     );
+    logApiLanguageDebug("series-detail", resolved, result?.data ?? result);
     const raw = result?.data ?? result;
 
     if (!raw?.series) throw new Error("Missing series");

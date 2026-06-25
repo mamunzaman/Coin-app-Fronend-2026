@@ -55,7 +55,7 @@ const ProseSection = ({ num, label, testId, paragraphs, emptyText }) => (
 
 export const CoinDetail = () => {
   const { slug } = useParams();
-  const { t, lang } = useLang();
+  const { t, lang, localPath } = useLang();
   const navigate = useNavigate();
   const [detail, setDetail] = useState(null);
   const [apiLoading, setApiLoading] = useState(true);
@@ -76,7 +76,7 @@ export const CoinDetail = () => {
     setSide("obverse");
     window.scrollTo({ top: 0, behavior: "instant" });
 
-    getCoinDetail(slug).then((result) => {
+    getCoinDetail(slug, lang).then((result) => {
       if (!cancelled) {
         setDetail(result);
         setApiLoading(false);
@@ -84,7 +84,7 @@ export const CoinDetail = () => {
     });
 
     return () => { cancelled = true; };
-  }, [slug]);
+  }, [slug, lang]);
 
   if (showSkeleton) {
     return (
@@ -106,7 +106,7 @@ export const CoinDetail = () => {
         <Navbar />
         <div className="ca-container ca-section text-center" data-testid={COIN_DETAIL.page}>
           <h1 className="ca-section-title mb-6">{t.detail.notFound}</h1>
-          <Link to="/coins" className="ca-btn ca-btn--secondary">
+          <Link to={localPath("/coins")} className="ca-btn ca-btn--secondary">
             <ArrowLeft size={14} /> {t.detail.back}
           </Link>
         </div>
@@ -173,11 +173,11 @@ export const CoinDetail = () => {
               <ArrowLeft size={14} /> {t.detail.back}
             </button>
             <span className="ca-breadcrumb__sep">/</span>
-            <Link to="/coins" className="ca-breadcrumb__link">{t.detail.breadcrumb}</Link>
+            <Link to={localPath("/coins")} className="ca-breadcrumb__link">{t.detail.breadcrumb}</Link>
             {countryCode && (
               <>
                 <span className="ca-breadcrumb__sep">/</span>
-                <Link to={`/countries/${countryCode}`} className="ca-breadcrumb__link">
+                <Link to={localPath(`/countries/${countryCode}`)} className="ca-breadcrumb__link">
                   {country?.name[lang] || coin.country}
                 </Link>
               </>
@@ -252,14 +252,14 @@ export const CoinDetail = () => {
                 <Fact label={t.detail.designer} testId={COIN_DETAIL.designerTab}>{fmt(coin.designer, notRecorded)}</Fact>
                 <Fact label={t.detail.series}>
                   {series ? (
-                    <Link to={`/series/${series.slug}`} className="ca-detail-facts__value--link">
+                    <Link to={localPath(`/series/${series.slug}`)} className="ca-detail-facts__value--link">
                       {seriesLabel} <ArrowUpRight size={14} style={{ display: "inline", marginLeft: 2 }} />
                     </Link>
                   ) : seriesLabel}
                 </Fact>
                 <Fact label={t.detail.country}>
                   {countryCode ? (
-                    <Link to={`/countries/${countryCode}`} className="ca-detail-facts__value--link">
+                    <Link to={localPath(`/countries/${countryCode}`)} className="ca-detail-facts__value--link">
                       {country?.name[lang] || coin.country || notRecorded} <ArrowUpRight size={14} style={{ display: "inline", marginLeft: 2 }} />
                     </Link>
                   ) : (country?.name[lang] || coin.country || notRecorded)}
@@ -364,14 +364,14 @@ export const CoinDetail = () => {
               <Spec label={`${t.detail.mint} marks`}>{coin.mintMarks?.length ? coin.mintMarks.join(" · ") : notRecorded}</Spec>
               <Spec label={t.detail.series}>
                 {series ? (
-                  <Link to={`/series/${series.slug}`} className="ca-detail-facts__value--link">
+                  <Link to={localPath(`/series/${series.slug}`)} className="ca-detail-facts__value--link">
                     {seriesLabel} <ArrowUpRight size={12} style={{ display: "inline", marginLeft: 2 }} />
                   </Link>
                 ) : seriesLabel}
               </Spec>
               <Spec label={t.detail.country}>
                 {countryCode ? (
-                  <Link to={`/countries/${countryCode}`} className="ca-detail-facts__value--link">
+                  <Link to={localPath(`/countries/${countryCode}`)} className="ca-detail-facts__value--link">
                     {country?.name[lang] || coin.country || notRecorded} <ArrowUpRight size={12} style={{ display: "inline", marginLeft: 2 }} />
                   </Link>
                 ) : (country?.name[lang] || coin.country || notRecorded)}

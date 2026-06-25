@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
@@ -15,33 +15,34 @@ import { Skeleton, SkeletonCoinCard } from "./Skeleton";
 
 export const SeriesDetail = () => {
   const { slug } = useParams();
-  const { t, lang } = useLang();
+  const { t, lang, localPath } = useLang();
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
-  const delayLoading = useArtificialLoad(420, slug);
+  const requestId = useRef(0);
+  const delayLoading = useArtificialLoad(420, `${slug}:${lang}`);
   const showSkeleton = loading || delayLoading;
 
   const series = detail?.series ?? null;
   const coins = detail?.coins ?? [];
 
-  useScrollReveal([showSkeleton, slug, coins.length, series?.slug]);
+  useScrollReveal([showSkeleton, lang, slug, coins.length, series?.slug]);
 
   useDocumentTitle(series ? series.name[lang] : showSkeleton ? t.nav.series : "Series");
 
   useEffect(() => {
-    let cancelled = false;
+    const id = ++requestId.current;
     setLoading(true);
+    setDetail(null);
     window.scrollTo({ top: 0, behavior: "instant" });
 
-    getSeriesDetail(slug).then((result) => {
-      if (!cancelled) {
-        setDetail(result);
-        setLoading(false);
-      }
+    getSeriesDetail(slug, lang).then((result) => {
+      if (id !== requestId.current) return;
+      setDetail(result);
+      setLoading(false);
     });
 
-    return () => { cancelled = true; };
-  }, [slug]);
+    return () => { requestId.current += 1; };
+  }, [slug, lang]);
 
   if (showSkeleton) {
     return (
@@ -75,7 +76,7 @@ export const SeriesDetail = () => {
         <Navbar />
         <div className="ca-container ca-section text-center">
           <h1 className="ca-section-title mb-6">Series not found</h1>
-          <Link to="/series" className="ca-btn ca-btn--secondary">
+          <Link to={localPath("/series")} className="ca-btn ca-btn--secondary">
             <ArrowLeft size={14} /> Back
           </Link>
         </div>
@@ -93,11 +94,11 @@ export const SeriesDetail = () => {
       <header data-testid={SERIES_DETAIL.hero} className="ca-coins-header">
         <div className="ca-container">
           <div className="ca-breadcrumb ca-reveal mb-8">
-            <Link to="/series" className="ca-breadcrumb__back">
+            <Link to={localPath("/series")} className="ca-breadcrumb__back">
               <ArrowLeft size={14} /> {t.detail.back}
             </Link>
             <span className="ca-breadcrumb__sep">/</span>
-            <Link to="/series" className="ca-breadcrumb__link">{t.nav.series}</Link>
+            <Link to={localPath("/series")} className="ca-breadcrumb__link">{t.nav.series}</Link>
             <span className="ca-breadcrumb__sep">/</span>
             <span className="ca-breadcrumb__current">{series.name[lang]}</span>
           </div>

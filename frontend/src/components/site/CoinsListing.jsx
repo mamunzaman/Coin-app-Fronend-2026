@@ -35,8 +35,8 @@ export const CoinsListing = () => {
   const [source, setSource] = useState("mock");
   const [loading, setLoading] = useState(true);
   const requestId = useRef(0);
-  const delayLoading = useArtificialLoad(420);
-  const showGridSkeleton = (loading || delayLoading) && items.length === 0;
+  const delayLoading = useArtificialLoad(420, lang);
+  const showGridSkeleton = loading || delayLoading;
 
   useScrollReveal([loading, delayLoading, items.length, page, source]);
 
@@ -66,6 +66,10 @@ export const CoinsListing = () => {
   useEffect(() => {
     const id = ++requestId.current;
     setLoading(true);
+    setItems([]);
+    setFacets(null);
+    setPagination(null);
+    setSource("mock");
 
     getCoinsList({
       search: debouncedSearch,
@@ -76,6 +80,7 @@ export const CoinsListing = () => {
       sort,
       page,
       perPage: PER_PAGE,
+      lang,
     }).then((result) => {
       if (id !== requestId.current) return;
       setItems(result.items);
@@ -86,7 +91,7 @@ export const CoinsListing = () => {
     });
 
     return () => { requestId.current += 1; };
-  }, [debouncedSearch, country, year, mint, seriesFilter, sort, page]);
+  }, [debouncedSearch, country, year, mint, seriesFilter, sort, page, lang]);
 
   const clearAll = () => {
     setSearch("");
@@ -298,9 +303,9 @@ export const CoinsListing = () => {
             </div>
           ) : (
             <>
-              <div data-testid={COINS_PAGE.grid} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
+              <div key={lang} data-testid={COINS_PAGE.grid} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
                 {items.map((c) => (
-                  <CoinCard key={c.slug} coin={c} />
+                  <CoinCard key={`${lang}-${c.slug}`} coin={c} />
                 ))}
               </div>
               {totalPages > 1 && (

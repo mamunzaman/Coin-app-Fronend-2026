@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { pickLocalized } from "@/services/normalizers/normalizeSettings";
+import { useLang } from "@/i18n/LanguageContext";
 
 export function pickField(value, fallback = "") {
   const trimmed = typeof value === "string" ? value.trim() : value;
@@ -96,6 +97,7 @@ export function resolveNavUrl(url = "/") {
 }
 
 export function SettingsLink({ url, className, children, onClick, ...rest }) {
+  const { localPath } = useLang();
   const href = resolveNavUrl(url);
   if (href.startsWith("#") || href.startsWith("http")) {
     return (
@@ -105,7 +107,7 @@ export function SettingsLink({ url, className, children, onClick, ...rest }) {
     );
   }
   return (
-    <Link to={href} className={className} onClick={onClick} {...rest}>
+    <Link to={localPath(href)} className={className} onClick={onClick} {...rest}>
       {children}
     </Link>
   );

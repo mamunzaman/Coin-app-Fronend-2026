@@ -10,24 +10,26 @@ import { COINS_PAGE } from "@/constants/testIds/home";
  * (obverseImage, countryCode, mint, year, isNew, isRare, title{en,de}, designer, slug)
  */
 export const CoinCard = ({ coin, compact = false, testId }) => {
-  const { lang, t } = useLang();
+  const { lang, t, localPath } = useLang();
   const country = findCountry(coin.countryCode);
+  const title = coin.title?.[lang] || coin.title?.en || coin.title?.de || "";
+  const image = coin.obverseImage || coin.image || "";
   return (
     <Link
-      to={`/coins/${coin.slug}`}
+      to={localPath(`/coins/${coin.slug}`)}
       data-testid={testId || COINS_PAGE.card(coin.slug)}
       className="ca-coin-card-lg"
     >
       <div className="ca-coin-card-lg__img">
         {coin.isNew && <span className="ca-badge ca-badge--new">New</span>}
         {coin.isRare && <span className="ca-badge ca-badge--rare">Rare</span>}
-        <img src={coin.obverseImage} alt={coin.title[lang]} loading="lazy" />
+        <img src={image} alt={title} loading="lazy" />
       </div>
       <div className="ca-coin-card-lg__body">
         <div className="ca-mono" style={{ fontSize: 10 }}>
           {coin.countryCode} · {coin.year}{coin.mint ? ` · Mint ${coin.mint}` : ""}
         </div>
-        <h4 className="ca-coin-card-lg__title">{coin.title[lang]}</h4>
+        <h4 className="ca-coin-card-lg__title">{title}</h4>
         {!compact && (
           <p className="ca-coin-card-lg__meta">
             {coin.designer} · {country?.name[lang]}

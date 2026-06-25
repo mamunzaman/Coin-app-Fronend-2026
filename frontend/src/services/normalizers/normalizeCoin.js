@@ -165,7 +165,7 @@ function normalizeMintMarks(raw) {
 
 function buildCoinBase(raw, { useSpecDefaults = true } = {}) {
   const obverseImage = normalizeMedia(
-    pickRaw(raw, ["obverseImage", "obverse_image", "obverse", "featuredImage", "featured_image"])
+    pickRaw(raw, ["obverseImage", "obverse_image", "obverse", "featuredImage", "featured_image", "image"])
       ?? raw?.images?.obverse
   );
   const reverseImage = normalizeMedia(

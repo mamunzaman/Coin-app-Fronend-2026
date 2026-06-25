@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
@@ -14,30 +14,32 @@ import useArtificialLoad from "@/hooks/useArtificialLoad";
 import { SkeletonCountryCard } from "./Skeleton";
 
 export const CountriesPage = () => {
-  const { t, lang } = useLang();
+  const { t, lang, localPath } = useLang();
   useDocumentTitle(t.countriesPage.title);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [source, setSource] = useState("mock");
-  const delayLoading = useArtificialLoad(420);
+  const requestId = useRef(0);
+  const delayLoading = useArtificialLoad(420, lang);
   const showSkeleton = loading || delayLoading;
 
-  useScrollReveal([showSkeleton, items.length, source]);
+  useScrollReveal([showSkeleton, lang, items.length, source]);
 
   useEffect(() => {
-    let cancelled = false;
+    const id = ++requestId.current;
     setLoading(true);
+    setItems([]);
+    setSource("mock");
 
-    getCountriesList().then((result) => {
-      if (!cancelled) {
-        setItems(result.items ?? []);
-        setSource(result.source ?? "mock");
-        setLoading(false);
-      }
+    getCountriesList(lang).then((result) => {
+      if (id !== requestId.current) return;
+      setItems(result.items ?? []);
+      setSource(result.source ?? "mock");
+      setLoading(false);
     });
 
-    return () => { cancelled = true; };
-  }, []);
+    return () => { requestId.current += 1; };
+  }, [lang]);
 
   const latestYearLabel = new Date().getFullYear();
 
@@ -74,11 +76,11 @@ export const CountriesPage = () => {
               <div className="ca-display" style={{ fontSize: 28, marginBottom: 12 }}>{t.countriesPage.empty}</div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
+            <div key={lang} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
               {items.map((c, i) => (
                 <Link
-                  key={c.code}
-                  to={`/countries/${c.code.toLowerCase()}`}
+                  key={`${lang}-${c.code}`}
+                  to={localPath(`/countries/${(c.code || c.slug || "").toLowerCase()}`)}
                   data-testid={COUNTRIES_PAGE.card(c.code)}
                   className={`ca-country-card ca-reveal ca-reveal--delay-${Math.min(i, 5)}`}
                 >

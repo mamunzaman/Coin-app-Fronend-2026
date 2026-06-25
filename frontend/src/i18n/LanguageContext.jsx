@@ -1,30 +1,36 @@
 import React, { createContext, useContext, useState, useCallback, useMemo } from "react";
 import { translations } from "./translations";
+import { DEFAULT_LANGUAGE, getCurrentLanguage, getLocalizedPath, isSupportedLanguage } from "@/utils/language";
 
 const LanguageContext = createContext(null);
 
 export const LanguageProvider = ({ children }) => {
-  const [lang, setLang] = useState(() => {
-    if (typeof window === "undefined") return "en";
-    return window.localStorage.getItem("ca_lang") || "en";
+  const [lang, setLangState] = useState(() => {
+    if (typeof window === "undefined") return DEFAULT_LANGUAGE;
+    return getCurrentLanguage(window.location.pathname);
   });
 
-  const toggle = useCallback(() => {
-    setLang((prev) => {
-      const next = prev === "en" ? "de" : "en";
-      window.localStorage.setItem("ca_lang", next);
-      return next;
-    });
-  }, []);
-
   const setLanguage = useCallback((next) => {
-    setLang(next);
-    window.localStorage.setItem("ca_lang", next);
+    const safe = isSupportedLanguage(next) ? next : DEFAULT_LANGUAGE;
+    setLangState(safe);
   }, []);
 
-  const t = useMemo(() => translations[lang], [lang]);
+  const toggle = useCallback(() => {
+    setLangState((prev) => (prev === "en" ? DEFAULT_LANGUAGE : "en"));
+  }, []);
 
-  const value = useMemo(() => ({ lang, t, toggle, setLanguage }), [lang, t, toggle, setLanguage]);
+  const localPath = useCallback((path) => {
+    if (!path) return path;
+    if (/^https?:\/\//i.test(path)) return path;
+    return getLocalizedPath(path, lang);
+  }, [lang]);
+
+  const t = useMemo(() => translations[lang] || translations[DEFAULT_LANGUAGE], [lang]);
+
+  const value = useMemo(
+    () => ({ lang, t, toggle, setLanguage, localPath }),
+    [lang, t, toggle, setLanguage, localPath],
+  );
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
 };
